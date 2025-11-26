@@ -219,5 +219,4 @@ __marimo__/
 package-lock.json
 node_modules/
 
-fastapi/__pycache__/
 *.pyc

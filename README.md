@@ -9,5 +9,5 @@ Using python version 3.11.13 (!!!Important. Please use the same version to avoid
 - `python -m venv .venv`
 - `source .venv/bin/activate`
 - `pip install -r requirements.txt`
-- `fastapi dev service.py`
+- `fastapi dev main.py`
 - fastAPI is now running at http://localhost:8000/ 
