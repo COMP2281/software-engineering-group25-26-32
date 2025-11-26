@@ -18,7 +18,7 @@ app.add_middleware(
 )
 
 
-
+#endpoints
 @app.get("/")
 async def main():
     return {"message": "This is a message from FastAPI"}
