@@ -32,6 +32,7 @@ def get_data(mystr):
             keywordsEndIdx = table.find("</td>", keywordsIdx)
             keywords = table[keywordsIdx:keywordsEndIdx]
             keywords = keywords[keywords.find('<td valign="top" class="ep_row">')+len('<td valign="top" class="ep_row">'):]
+            keywords = keywords.replace(";", ",")
         else:
             keywords = None
         deptInx = table.find('<th valign="top" class="ep_row">Faculty and Department:</th>')
@@ -41,20 +42,23 @@ def get_data(mystr):
         dept = dept[dept.find('">')+2:]
         dept = dept[:dept.find("</a>")]
         dept = dept.replace("&gt;", ";")
+        faculty, dept = dept.split(";")
+        faculty = faculty.split(" ", maxsplit=2)[-1]
+        dept = ",".join(dept.split(",")[:-1]).lstrip()
         dateIdx = table.find('<th valign="top" class="ep_row">Thesis Date:</th>')
         dateEndIdx = table.find("</td>", dateIdx)
         date = table[dateIdx:dateEndIdx]
         date = date[date.find('<td valign="top" class="ep_row">')+len('<td valign="top" class="ep_row">'):]
-        return award, keywords, date, dept
+        return award, keywords, date, faculty, dept
     else:
-        return None, None, None, None
+        return None, None, None, None, None
 
-def write_to_db(abstract, award, keywords, date, dept, url):
+def write_to_db(abstract, award, keywords, date, faculty, dept, url):
     DB_PATH = "./python/db/db.db"
     conn = sqlite3.connect(DB_PATH)
     cur = conn.cursor()
-    data = (abstract, award, keywords, date, dept, url)
-    cur.execute("INSERT INTO Thesis (abstract, award, keywords, date, department, url) VALUES (?, ?, ?, ?, ?, ?)", data)
+    data = (abstract, award, keywords, date, faculty, dept, url)
+    cur.execute("INSERT INTO Thesis (abstract, award, keywords, date, faculty, department, url) VALUES (?, ?, ?, ?, ?, ?, ?)", data)
     conn.commit()
     conn.close()
     return
@@ -68,8 +72,8 @@ def scrape(i):
         fp.close()
         abstract = get_abstract(mystr)
         print("")
-        award, keywords, date, dept = get_data(mystr)
-        write_to_db(abstract, award, keywords, date, dept, url)
+        award, keywords, date, faculty, dept = get_data(mystr)
+        write_to_db(abstract, award, keywords, date, faculty, dept, url)
     except:
         print("doesnt exist")
 
@@ -77,5 +81,5 @@ def scrape(i):
 
 #url format: "https://etheses.dur.ac.uk/NUMBER/"
 #check all NUMBERs in the for loop
-for j in range(100,200):
+for j in range(2,100):
     scrape(j)
