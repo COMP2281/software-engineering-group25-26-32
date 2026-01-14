@@ -7,8 +7,9 @@ def get_title(mystr):
         idx = mystr.find(">", idx)
         idx2 = mystr.find("</h1>", idx)
         title = mystr[idx+1:idx2].lstrip().rstrip()
-        title.replace("<br />", " ")
-        title.replace("&amp;", "&")
+        print(title)
+        title = title.replace("<br />", " ")
+        title = title.replace("&amp;", "&")
     else:
         title = None
     return title
@@ -112,7 +113,7 @@ def scrape(i):
         print("")
         award, keywords, date, faculty, dept = get_data(mystr)
         pdf_url = get_pdf_url(mystr)
-        write_to_db(title,abstract, award, keywords, date, faculty, dept, url, pdf_url)
+        #write_to_db(title,abstract, award, keywords, date, faculty, dept, url, pdf_url)
     except:
         print("doesnt exist")
 
