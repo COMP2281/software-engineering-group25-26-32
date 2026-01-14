@@ -70,10 +70,14 @@ def scrape(i):
         mybytes = fp.read()
         mystr = mybytes.decode("utf8")
         fp.close()
+        #print(mystr)
+        if '<p>You seem to be attempting to access an item that has been removed from the repository.</p>' in mystr:
+            print("doesnt exist")
+            return
         abstract = get_abstract(mystr)
         print("")
         award, keywords, date, faculty, dept = get_data(mystr)
-        write_to_db(abstract, award, keywords, date, faculty, dept, url)
+        #write_to_db(abstract, award, keywords, date, faculty, dept, url)
     except:
         print("doesnt exist")
 
@@ -81,5 +85,5 @@ def scrape(i):
 
 #url format: "https://etheses.dur.ac.uk/NUMBER/"
 #check all NUMBERs in the for loop
-for j in range(2,100):
+for j in range(36,37):
     scrape(j)
