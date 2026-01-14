@@ -1,4 +1,5 @@
 import urllib.request
+import sqlite3
 
 def get_abstract(mystr):
     absStr = "<h2>Abstract</h2>"
@@ -11,9 +12,9 @@ def get_abstract(mystr):
         abstract = abstract.replace("&#13;", "")
         endtag = abstract.find(">")
         abstract = abstract[endtag+1:]
-        print(abstract)
     else:
-        print("Abstract not avaliable")
+        abstract = None
+    return abstract
 
 def get_data(mystr):
     tblStart = '<table style="margin-bottom: 1em" cellpadding="3" class="ep_block" border="0">'
@@ -44,25 +45,37 @@ def get_data(mystr):
         dateEndIdx = table.find("</td>", dateIdx)
         date = table[dateIdx:dateEndIdx]
         date = date[date.find('<td valign="top" class="ep_row">')+len('<td valign="top" class="ep_row">'):]
-        print("Date:", date)
-        print("Keywords:", keywords)
-        print("Department:", dept)
-        print("Award:", award)
-        #table = f"Award: {award}"
-        #print(table)
+        return award, keywords, date, dept
+    else:
+        return None, None, None, None
+
+def write_to_db(abstract, award, keywords, date, dept, url):
+    DB_PATH = "./python/db/db.db"
+    conn = sqlite3.connect(DB_PATH)
+    cur = conn.cursor()
+    data = (abstract, award, keywords, date, dept, url)
+    cur.execute("INSERT INTO Thesis (abstract, award, keywords, date, department, url) VALUES (?, ?, ?, ?, ?, ?)", data)
+    conn.commit()
+    conn.close()
+    return
 
 def scrape(i):
     try:
+        url = f"https://etheses.dur.ac.uk/{i}/"
         fp = urllib.request.urlopen(f"https://etheses.dur.ac.uk/{i}/")
         mybytes = fp.read()
         mystr = mybytes.decode("utf8")
         fp.close()
-        get_abstract(mystr)
+        abstract = get_abstract(mystr)
         print("")
-        get_data(mystr)
-
+        award, keywords, date, dept = get_data(mystr)
+        write_to_db(abstract, award, keywords, date, dept, url)
     except:
         print("doesnt exist")
 
 
-scrape(1)
+
+#url format: "https://etheses.dur.ac.uk/NUMBER/"
+#check all NUMBERs in the for loop
+for j in range(100,200):
+    scrape(j)
