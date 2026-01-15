@@ -1,7 +1,13 @@
-import pymupdf, requests, sqlite3, pymupdf.layout #do not remove pymupdf.layout it is used internally by pymupdf4llm.
+import os, json, pymupdf, requests, sqlite3, pymupdf.layout #do not remove pymupdf.layout it is used internally by pymupdf4llm.
 import pymupdf4llm
 from llama_index.core import Document
+from dotenv import load_dotenv
 
+load_dotenv()
+
+def is_garbage(text):
+    #very basic algorithm to determine if a page contains actual text or is binary garbage (i.e. detects if OCR is needed)
+    return (sum(c.isalpha() for c in text) / max(len(text), 1) < 0.5) and (text.count(".")< 0.4*max(1,len(text))) and (text.count("-")< 0.4*max(1,len(text)))
 
 def pdf_urls_from_id_list(l):
     DB_PATH = "./python/db/db.db"
@@ -11,6 +17,16 @@ def pdf_urls_from_id_list(l):
     rows = cur.fetchall()
     conn.close()
     return rows
+
+def page_ocr_text(page:pymupdf.Page):
+    tessdata_dir = os.getenv("TESSDATA_PREFIX")
+    print(tessdata_dir)
+    if tessdata_dir is None:
+        raise ValueError("TESSDATA_PREFIX environment variable not set. OCR cannot proceed.")
+    tp = page.get_textpage_ocr(flags=0, dpi=300, full=True, tessdata=tessdata_dir)
+    text = tp.extractText()
+    return text
+
 
 def pdf_to_txt(l):
     """Convert the contents of PDF files corresponding to the input ID(s) into a single TXT file
@@ -28,8 +44,43 @@ def pdf_to_txt(l):
             doc = pymupdf.Document(stream=data, filetype="pdf")
             for page in doc: # iterate the document pages
                 text = page.get_text()
+                if is_garbage(text):
+                    text = page_ocr_text(page)
                 fulltext += text + "\n"
             doc.close()
+    return fulltext
+
+def pdf_to_txt_json(l):
+    """Convert the contents of PDF files corresponding to the input ID(s) into a JSON file. One line in the JSON file = one page in the pdf.
+    \nl = ID or list of IDs from the database
+    """
+    if type(l) is not list:
+        l = [l]
+    rows = pdf_urls_from_id_list(l)
+    fulltext = "" 
+    for row in rows:
+        pdf_url = row[0]
+        if pdf_url is not None:
+            r = requests.get(pdf_url)
+            data = r.content
+            doc = pymupdf.Document(stream=data, filetype="pdf")
+            for page in doc: # iterate the document pages
+                text = page.get_text()
+                if is_garbage(text):
+                    text = page_ocr_text(page)
+                json_ = {
+                    "id" : pdf_url+"_page_"+str(page.number),
+                    "text" : text,
+                    "metadata" : {
+                        "source": pdf_url,
+                        "page": page.number + 1,
+                        "type": "pdf"
+                    }
+                }
+                text = json.dumps(json_, ensure_ascii=False)
+                fulltext += text + "\n"
+            doc.close()
+            fulltext += "\n\n"
     return fulltext
 
 def pdf_to_md(l):
@@ -80,7 +131,10 @@ def pdf_to_llamadoc(l, how="txt"):
             else:
                 for page_num in range(len(doc)):
                     page = doc.load_page(page_num)
-                    text_page = page.get_text()
+                    if is_garbage(page.get_text()):
+                        text_page = page_ocr_text(page)
+                    else:
+                        text_page = page.get_text()
                     llama_docs.append(
                         Document(
                             text=text_page,
@@ -97,6 +151,8 @@ def write_to_file(content, out="output.txt"):
     """Write content to a file in the out/ directory
     \ncontent = string content to write
     \nout = output filename (default: output.txt)"""
+    if type(content) is list:
+        content = "\n".join([str(c) for c in content])
     OUT_PATH = "./python/out/"
     with open(f"{OUT_PATH}/{out}", "wb") as out_file:
         out_file.write(content.encode("utf-8"))
@@ -117,5 +173,8 @@ Example usage:
 Notes:
 - it takes ~2 seconds to convert to txt and ~61 seconds to convert to md, for a 281 page pdf.
 - Some non-standard characters get borked in both txt and md outputs.
-- Does not use OCR (as OCR is 1000 times slower). Only works for PDFs with embedded, non-obfuscated text.
+- OCR only supported for txt (and llamadoc with how=txt). It is very slow and can produce some weird shit
+For OCR to work, need to clone https://github.com/tesseract-ocr/tessdata and set TESSDATA_PREFIX = path_to_cloned_tessdata in .env file.
 """
+a = pdf_to_txt_json(145)
+write_to_file(a, out="example_output.json")
