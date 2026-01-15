@@ -62,6 +62,13 @@ def pdf_to_md(l, out="output.md"):
 # convert PDF files to TXT or MD to be more LLM-friendly
 # Note: MD is very slow compared to TXT but encodes extra structural information from the PDF.
 
-#example usage:
-pdf_to_txt([146])
-pdf_to_md([146])
+"""
+Example usage:
+    pdf_to_txt([147,146])
+    pdf_to_md(146)
+
+Notes:
+- it takes ~2 seconds to convert to txt and ~61 seconds to convert to md, for a 281 page pdf.
+- Some non-standard characters get borked in both txt and md outputs.
+- Does not use OCR (as OCR is 1000 times slower). Only works for PDFs with embedded text.
+"""
