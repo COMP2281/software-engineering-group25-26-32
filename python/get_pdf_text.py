@@ -156,16 +156,16 @@ def pdf_to_txt_json(id):
 #             doc.close()
 #     return llama_docs
 
-def write_to_file(content, out="output.txt"):
-    """Write content to a file in the out/ directory
-    \ncontent = string content to write
-    \nout = output filename (default: output.txt)"""
-    if type(content) is list:
-        content = "\n".join([str(c) for c in content])
-    OUT_PATH = "./python/out/"
-    with open(f"{OUT_PATH}/{out}", "wb") as out_file:
-        out_file.write(content.encode("utf-8"))
-    return
+# def write_to_file(content, out="output.txt"):
+#     """Write content to a file in the out/ directory
+#     \ncontent = string content to write
+#     \nout = output filename (default: output.txt)"""
+#     if type(content) is list:
+#         content = "\n".join([str(c) for c in content])
+#     OUT_PATH = "./python/out/"
+#     with open(f"{OUT_PATH}/{out}", "wb") as out_file:
+#         out_file.write(content.encode("utf-8"))
+#     return
 
 def doc_text_to_db(id, text):
     """Update the database entry for the given ID with the provided text
@@ -222,7 +222,7 @@ Notes:
 - OCR is supported for txt/json. It is very slow and can produce some weird shit, but is required for a significant number of the theses that either
   use a weird text encoding or are handwritten.
 - OCR final boss is the shit from 1925, even I cant decipher that so OCR has no chance.
-For OCR to work, need to clone https://github.com/tesseract-ocr/tessdata and set TESSDATA_PREFIX = path_to_cloned_tessdata in .env file.
+IMPORTANT: For OCR to work, need to clone https://github.com/tesseract-ocr/tessdata and set TESSDATA_PREFIX = path_to_cloned_tessdata in .env file.
 """
 # a = pdf_to_txt_json(145)
 # doc_text_to_db(145, a)
