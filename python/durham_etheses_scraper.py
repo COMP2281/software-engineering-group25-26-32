@@ -10,6 +10,8 @@ def get_title(mystr):
         idx = mystr.find(">", idx)
         idx2 = mystr.find("</h1>", idx)
         title = mystr[idx+1:idx2].lstrip().rstrip()
+        title = title.replace("<br />", " ")
+        title = title.replace("&amp;", "&")
     else:
         title = None
     return title
@@ -54,9 +56,12 @@ def get_data(mystr):
         idx2 = mystr.find("</table>", idx)
         table = mystr[idx:idx2]
         awardIdx = table.find('<th valign="top" class="ep_row">Award:</th>')
-        awardEndIdx = table.find("</td>", awardIdx)
-        award = table[awardIdx:awardEndIdx]
-        award = award[award.find('<td valign="top" class="ep_row">')+len('<td valign="top" class="ep_row">'):]
+        if awardIdx != -1:
+            awardEndIdx = table.find("</td>", awardIdx)
+            award = table[awardIdx:awardEndIdx]
+            award = award[award.find('<td valign="top" class="ep_row">')+len('<td valign="top" class="ep_row">'):]
+        else:
+            award = None
         keywordsIdx = table.find('<th valign="top" class="ep_row">Keywords:</th>')
         if keywordsIdx != -1:
             keywords = "Not available"
@@ -66,20 +71,27 @@ def get_data(mystr):
             keywords = keywords.replace(";", ",")
         else:
             keywords = None
-        deptInx = table.find('<th valign="top" class="ep_row">Faculty and Department:</th>')
-        deptEndIdx = table.find("</td>", deptInx)
-        dept = table[deptInx:deptEndIdx]
-        dept = dept[dept.find('<a'):]
-        dept = dept[dept.find('">')+2:]
-        dept = dept[:dept.find("</a>")]
-        dept = dept.replace("&gt;", ";")
-        faculty, dept = dept.split(";")
-        faculty = faculty.split(" ", maxsplit=2)[-1]
-        dept = ",".join(dept.split(",")[:-1]).lstrip()
+        deptIdx = table.find('<th valign="top" class="ep_row">Faculty and Department:</th>')
+        if deptIdx != -1:
+            deptEndIdx = table.find("</td>", deptIdx)
+            dept = table[deptIdx:deptEndIdx]
+            dept = dept[dept.find('<a'):]
+            dept = dept[dept.find('">')+2:]
+            dept = dept[:dept.find("</a>")]
+            dept = dept.replace("&gt;", ";")
+            faculty, dept = dept.split(";")
+            faculty = faculty.split(" ", maxsplit=2)[-1]
+            dept = ",".join(dept.split(",")[:-1]).lstrip()
+        else:
+            faculty = None
+            dept = None
         dateIdx = table.find('<th valign="top" class="ep_row">Thesis Date:</th>')
-        dateEndIdx = table.find("</td>", dateIdx)
-        date = table[dateIdx:dateEndIdx]
-        date = date[date.find('<td valign="top" class="ep_row">')+len('<td valign="top" class="ep_row">'):]
+        if dateIdx == -1:
+            dateEndIdx = table.find("</td>", dateIdx)
+            date = table[dateIdx:dateEndIdx]
+            date = date[date.find('<td valign="top" class="ep_row">')+len('<td valign="top" class="ep_row">'):]
+        else:
+            date = None
         return award, keywords, date, faculty, dept
     else:
         return None, None, None, None, None
@@ -98,10 +110,14 @@ def write_to_db(title, abstract, award, keywords, date, faculty, dept, url, pdf_
 def scrape(i):
     try:
         url = f"https://etheses.dur.ac.uk/{i}/"
-        fp = urllib.request.urlopen(f"https://etheses.dur.ac.uk/{i}/")
-        mybytes = fp.read()
-        mystr = mybytes.decode("utf8")
-        fp.close()
+        try:
+            fp = urllib.request.urlopen(f"https://etheses.dur.ac.uk/{i}/")
+            mybytes = fp.read()
+            mystr = mybytes.decode("utf8")
+            fp.close()
+        except:
+            print("doesnt exist")
+            return
         if '<p>You seem to be attempting to access an item that has been removed from the repository.</p>' in mystr:
             print("doesnt exist")
             return
@@ -112,7 +128,7 @@ def scrape(i):
         pdf_url = get_pdf_url(mystr)
         write_to_db(title,abstract, award, keywords, date, faculty, dept, url, pdf_url)
     except:
-        print("doesnt exist")
+        print("Error")
 
 start = 1
 with open("progress.txt", "r") as f: 
