@@ -1,3 +1,6 @@
+RATE_LIMIT_PAUSE = 0.1
+DB_PATH = "./db/db.db"
+
 import urllib.request
 import sqlite3
 def get_title(mystr):
@@ -25,7 +28,7 @@ def get_pdf_url(mystr):
         pdf_url = None
     return pdf_url
 
-
+import time
 
 def get_abstract(mystr):
     absStr = "<h2>Abstract</h2>"
@@ -81,10 +84,7 @@ def get_data(mystr):
     else:
         return None, None, None, None, None
 
-
-
 def write_to_db(title, abstract, award, keywords, date, faculty, dept, url, pdf_url):
-    DB_PATH = "./python/db/db.db"
     conn = sqlite3.connect(DB_PATH)
     cur = conn.cursor()
     data = (title, abstract, award, keywords, date, faculty, dept, url, pdf_url)
@@ -114,9 +114,13 @@ def scrape(i):
     except:
         print("doesnt exist")
 
-
-
+start = 1
+with open("progress.txt", "r") as f: 
+    start = int(f.readline())
 #url format: "https://etheses.dur.ac.uk/NUMBER/"
 #check all NUMBERs in the for loop
-for j in range(2,100):
+for j in range(start,16398):
+    with open("progress.txt", "w") as f:
+        f.write(str(j))
     scrape(j)
+    time.sleep(RATE_LIMIT_PAUSE) 
