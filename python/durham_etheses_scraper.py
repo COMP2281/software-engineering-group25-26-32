@@ -1,5 +1,5 @@
 RATE_LIMIT_PAUSE = 0.1
-DB_PATH = "./db/db.db"
+DB_PATH = "./python/db/db.db"
 
 import urllib.request
 import sqlite3
@@ -79,9 +79,13 @@ def get_data(mystr):
             dept = dept[dept.find('">')+2:]
             dept = dept[:dept.find("</a>")]
             dept = dept.replace("&gt;", ";")
-            faculty, dept = dept.split(";")
-            faculty = faculty.split(" ", maxsplit=2)[-1]
-            dept = ",".join(dept.split(",")[:-1]).lstrip()
+            try:
+                faculty, dept = dept.split(";")
+                faculty = faculty.split(" ", maxsplit=2)[-1]
+                dept = ",".join(dept.split(",")[:-1]).lstrip()
+            except:
+                faculty = dept
+                dept = None
         else:
             faculty = None
             dept = None
@@ -108,35 +112,33 @@ def write_to_db(title, abstract, award, keywords, date, faculty, dept, url, pdf_
 
 
 def scrape(i):
+    url = f"https://etheses.dur.ac.uk/{i}/"
     try:
-        url = f"https://etheses.dur.ac.uk/{i}/"
-        try:
-            fp = urllib.request.urlopen(f"https://etheses.dur.ac.uk/{i}/")
-            mybytes = fp.read()
-            mystr = mybytes.decode("utf8")
-            fp.close()
-        except:
-            print("doesnt exist")
-            return
-        if '<p>You seem to be attempting to access an item that has been removed from the repository.</p>' in mystr:
-            print("doesnt exist")
-            return
-        title = get_title(mystr)
-        abstract = get_abstract(mystr)
-        print("")
-        award, keywords, date, faculty, dept = get_data(mystr)
-        pdf_url = get_pdf_url(mystr)
-        write_to_db(title,abstract, award, keywords, date, faculty, dept, url, pdf_url)
+        fp = urllib.request.urlopen(f"https://etheses.dur.ac.uk/{i}/")
+        mybytes = fp.read()
+        mystr = mybytes.decode("utf8")
+        fp.close()
     except:
-        print("Error")
+        print("doesnt exist")
+        return
+    if '<p>You seem to be attempting to access an item that has been removed from the repository.</p>' in mystr:
+        print("doesnt exist")
+        return
+    title = get_title(mystr)
+    abstract = get_abstract(mystr)
+    print("")
+    award, keywords, date, faculty, dept = get_data(mystr)
+    pdf_url = get_pdf_url(mystr)
+    write_to_db(title,abstract, award, keywords, date, faculty, dept, url, pdf_url)
+    #print("Error")
 
 start = 1
-with open("progress.txt", "r") as f: 
+with open("./python/progress.txt", "r") as f: 
     start = int(f.readline())
 #url format: "https://etheses.dur.ac.uk/NUMBER/"
 #check all NUMBERs in the for loop
 for j in range(start,16398):
-    with open("progress.txt", "w") as f:
+    with open("./python/progress.txt", "w") as f:
         f.write(str(j))
     scrape(j)
     time.sleep(RATE_LIMIT_PAUSE) 
