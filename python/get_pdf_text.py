@@ -18,7 +18,7 @@ def pdf_urls_from_id_list(l):
     DB_PATH = "./python/db/db.db"
     conn = sqlite3.connect(DB_PATH)
     cur = conn.cursor()
-    cur.execute(f"SELECT pdf_url FROM Thesis WHERE id IN ({",".join("?"*len(l))})", tuple(l))
+    cur.execute(f"SELECT id, title, date, pdf_url FROM Thesis WHERE id IN ({",".join("?"*len(l))})", tuple(l))
     rows = cur.fetchall()
     conn.close()
     return rows
@@ -46,7 +46,7 @@ def page_ocr_text(page:pymupdf.Page):
 #     rows = pdf_urls_from_id_list(id)
 #     fulltext = "" 
 #     for row in rows:
-#         pdf_url = row[0]
+#         pdf_url = row[3]
 #         if pdf_url is not None:
 #             r = requests.get(pdf_url)
 #             data = r.content
@@ -68,7 +68,10 @@ def pdf_to_txt_json(id):
     rows = pdf_urls_from_id_list(id)
     fulltext = "" 
     for row in rows:
-        pdf_url = row[0]
+        id = row[0]
+        title = row[1]
+        date = row[2]
+        pdf_url = row[3]
         if pdf_url is not None:
             r = requests.get(pdf_url)
             data = r.content
@@ -100,7 +103,7 @@ def pdf_to_txt_json(id):
 #         id = [id]
 #     rows = pdf_urls_from_id_list(id)
 #     for row in rows:
-#         pdf_url = row[0]
+#         pdf_url = row[3]
 #         if pdf_url is not None:
 #             r = requests.get(pdf_url)
 #             data = r.content
@@ -119,7 +122,7 @@ def pdf_to_txt_json(id):
 #     rows = pdf_urls_from_id_list(id)
 #     llama_docs = []
 #     for row in rows:
-#         pdf_url = row[0]
+#         pdf_url = row[3]
 #         if pdf_url is not None:
 #             r = requests.get(pdf_url)
 #             data = r.content
@@ -224,7 +227,6 @@ Notes:
 - OCR final boss is the shit from 1925, even I cant decipher that so OCR has no chance.
 IMPORTANT: For OCR to work, need to clone https://github.com/tesseract-ocr/tessdata and set TESSDATA_PREFIX = path_to_cloned_tessdata in .env file.
 """
-# a = pdf_to_txt_json(145)
 # doc_text_to_db(145, a)
 # b = get_pdf_text(145)
 # write_to_file(b, out="out.json")
