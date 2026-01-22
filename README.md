@@ -11,3 +11,6 @@ Using python version 3.11.13 (**Important. Please use the same version to avoid 
 - **first time setup only:** `pip install -r requirements.txt`
 - `fastapi dev main.py`
 - fastAPI is now running at http://localhost:8000/ 
+
+## Full EThOS Metadata Link for Download
+https://bl.iro.bl.uk/concern/datasets/10cc13f9-797d-41f2-a7e2-d29f4306133e
