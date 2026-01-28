@@ -90,7 +90,7 @@ def get_data(mystr):
             faculty = None
             dept = None
         dateIdx = table.find('<th valign="top" class="ep_row">Thesis Date:</th>')
-        if dateIdx == -1:
+        if dateIdx != -1:
             dateEndIdx = table.find("</td>", dateIdx)
             date = table[dateIdx:dateEndIdx]
             date = date[date.find('<td valign="top" class="ep_row">')+len('<td valign="top" class="ep_row">'):]

@@ -1,6 +1,5 @@
 import os, time, json, pymupdf, requests, sqlite3, pymupdf.layout #do not remove pymupdf.layout it is used internally by pymupdf4llm.
 import pymupdf4llm
-from llama_index.core import Document
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -185,14 +184,18 @@ def doc_text_to_db(id, text):
 def upload_pdf_texts_to_db():
     """Convert **ALL** PDFs in the database to text and upload to the database"""
     all_ids = get_all_ids()
+    all_ids = [id for id in all_ids if id >= 4382]
     ctr = 0
     for id in all_ids:
         if ctr % 10 == 0 and ctr > 0:
             print(f"Processed {ctr} PDFs...")
             time.sleep(10) #avoid overwhelming any servers
         print(f"Processing ID {id}...")
-        text = pdf_to_txt_json(id)
-        doc_text_to_db(id, text)
+        try:
+            text = pdf_to_txt_json(id)
+            doc_text_to_db(id, text)
+        except Exception as e:
+            print(f"Error processing ID {id}: {e}")
         ctr +=1
     return
 

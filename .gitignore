@@ -224,3 +224,4 @@ node_modules/
 .DS_Store
 .experimentation
 out
+db.db
