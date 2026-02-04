@@ -220,3 +220,7 @@ package-lock.json
 node_modules/
 
 *.pyc
+
+*.csv
+*.DS_Store
+*.db
