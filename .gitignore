@@ -220,3 +220,7 @@ package-lock.json
 node_modules/
 
 *.pyc
+
+# Database ignore
+*.db
+*.DS_Store
