@@ -19,12 +19,14 @@ Using python version 3.11.x (**Important. Please use the same version to avoid c
 - `pip install -r requirements.txt`
 
 
-# Running the code
+# Running the code:
 
 ## Node.js
+- `cd nodejs`
 - `npm start`
 - go to http://localhost:8080/  
 
 ## Python FastAPI:
+- `cd python`
 - `fastapi dev main.py`
 - wait for `Application Startup Complete` message in console.
