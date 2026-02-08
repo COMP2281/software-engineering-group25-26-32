@@ -42,10 +42,11 @@ app.add_middleware(
 # Pydantic model for search term
 class SearchTerm(BaseModel):
     term: str
+    count: int  # default to TOP_K if not provided
 
 @app.post("/search")
 async def search_users(search_term: SearchTerm):
-    results = search(search_term.term, df, index, ids, model, TOP_K)
+    results = search(search_term.term, df, index, ids, model, search_term.count)
     if not results:
         return []
     return [{"name": f"{r[0]} — {r[1]} ({r[2]})"} for r in results]
