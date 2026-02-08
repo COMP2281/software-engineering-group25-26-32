@@ -2,7 +2,7 @@ import pandas as pd
 import unicodedata
 import re
 
-INPUT_CSV = "theses.csv"
+INPUT_CSV = "theses_utf8.csv"
 
 def normalize(text):
     if not isinstance(text, str):
@@ -14,7 +14,7 @@ def normalize(text):
     return text
 
 def load_theses():
-    df = pd.read_csv(INPUT_CSV, encoding="latin1", on_bad_lines="skip")
+    df = pd.read_csv(INPUT_CSV, encoding="utf-8", on_bad_lines="skip")
     df = df[["Title", "Author", "Date"]]
     df["title"] = df["Title"].apply(normalize)
     df["author"] = df["Author"].fillna("").apply(normalize)

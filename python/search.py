@@ -8,12 +8,19 @@ INDEX_FILE = "thesis.index"
 ID_FILE = "thesis_ids.npy"
 TOP_K = 10
 
-df = load_theses()
-index = faiss.read_index(INDEX_FILE)
-ids = np.load(ID_FILE)
-model = SentenceTransformer(MODEL_NAME)
+# df = load_theses()
+# index = faiss.read_index(INDEX_FILE)
+# ids = np.load(ID_FILE)
+# model = SentenceTransformer(MODEL_NAME)
 
-def search(query):
+def initialise(MODEL_NAME=MODEL_NAME, INDEX_FILE=INDEX_FILE, ID_FILE=ID_FILE):
+    df = load_theses()
+    index = faiss.read_index(INDEX_FILE)
+    ids = np.load(ID_FILE)
+    model = SentenceTransformer(MODEL_NAME)
+    return df, index, ids, model
+
+def search(query, df, index, ids, model, TOP_K=TOP_K):
     q = model.encode([query], normalize_embeddings=True)
     scores, idxs = index.search(q, TOP_K)
     results = []
@@ -23,8 +30,9 @@ def search(query):
     return results
 
 if __name__ == "__main__":
+    df, index, ids, model = initialise()
     while True:
         query = input("Search: ")
-        for r in search(query):
+        for r in search(query, df, index, ids, model):
             print(f"{r[0]} — {r[1]} ({r[2]})")
         print()

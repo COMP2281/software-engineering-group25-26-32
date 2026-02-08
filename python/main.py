@@ -1,7 +1,28 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from contextlib import asynccontextmanager
+from search import initialise, search
+from pydantic import BaseModel
 
-app = FastAPI()
+MODEL_NAME = "sentence-transformers/all-mpnet-base-v2"
+INDEX_FILE = "thesis.index"
+ID_FILE = "thesis_ids.npy"
+TOP_K = 10
+
+df, index, ids, model = None, None, None, None
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    global df, index, ids, model
+    #startup code here
+    print("Starting up...")
+    df, index, ids, model = initialise(MODEL_NAME, INDEX_FILE, ID_FILE)
+    yield
+    #shutdown code here
+    print("Shutting down...")
+
+
+app = FastAPI(lifespan=lifespan)
 
 #allow fastAPI endpoints to be accessed from localhost:8080 (the nodejs)
 origins = [
@@ -18,7 +39,13 @@ app.add_middleware(
 )
 
 
-#endpoints
-@app.get("/")
-async def main():
-    return {"message": "This is a message from FastAPI"}
+# Pydantic model for search term
+class SearchTerm(BaseModel):
+    term: str
+
+@app.post("/search")
+async def search_users(search_term: SearchTerm):
+    results = search(search_term.term, df, index, ids, model, TOP_K)
+    if not results:
+        return []
+    return [{"name": f"{r[0]} — {r[1]} ({r[2]})"} for r in results]

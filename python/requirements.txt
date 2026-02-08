@@ -1,2 +1,7 @@
 fastapi[standard]==0.122.0
 pydantic==2.12.4
+pandas
+numpy
+faiss-cpu
+torch
+sentence-transformers
