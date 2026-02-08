@@ -225,3 +225,4 @@ node_modules/
 .experimentation
 out
 db.db
+*.csv
