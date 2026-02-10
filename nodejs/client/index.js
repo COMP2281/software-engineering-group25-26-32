@@ -1,3 +1,7 @@
+const d = new Date()
+const year = d.getFullYear()
+document.getElementById("toYear").value = year;
+
 document.getElementById('searchForm').addEventListener('submit', async (event) => {
     event.preventDefault();
     const searchTerm = document.getElementById('searchTerm').value;
