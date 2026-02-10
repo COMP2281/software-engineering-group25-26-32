@@ -15,7 +15,7 @@
 Using python version 3.11.x (**Important. Please use the same version to avoid conflicts with packages**):
 - `cd python`
 - `python -m venv .venv`
-- `source .venv/bin/activate` (one Windows: `./.venv/Scripts/activate`) 
+- MacOS: `source .venv/bin/activate`, Windows: `./.venv/Scripts/activate`
 - `pip install -r requirements.txt`
 
 
