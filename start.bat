@@ -1,0 +1,1 @@
+start cmd /c "cd nodejs & npm start" & start cmd /c "cd python & call ./.venv/Scripts/activate & fastapi dev main.py" & code "D:\! CS\Y2\Software Engineering\software-engineering-group25-26-32"
