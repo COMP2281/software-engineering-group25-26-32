@@ -2,13 +2,18 @@ document.getElementById('searchForm').addEventListener('submit', async (event) =
     event.preventDefault();
     const searchTerm = document.getElementById('searchTerm').value;
     let resultCount = document.getElementById('resultCount').value;
+    let fromYear = document.getElementById('fromYear').value;
+    let toYear = document.getElementById('toYear').value;
+    let includeUnknown = document.getElementById('includeUnknown').checked;
     resultCount = parseInt(resultCount) || 10; // Default to 10 if input is invalid
+    fromYear = parseInt(fromYear) || 0; // Default to 0 if input is invalid
+    toYear = parseInt(toYear) || 3000; // Default to 3000 if input is invalid
 
     try {
         const response = await fetch('http://localhost:8000/search', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ term: searchTerm, count: resultCount })
+            body: JSON.stringify({ term: searchTerm, count: resultCount, fromYear: fromYear, toYear: toYear, includeUnknown: includeUnknown })
         });
 
         const results = await response.json();
@@ -18,7 +23,14 @@ document.getElementById('searchForm').addEventListener('submit', async (event) =
         if (results.length > 0) {
             results.forEach(item => {
                 const li = document.createElement('li');
-                li.textContent = item.name; // Assuming the database has a "name" column
+                // Handle 'nan' values for year and author
+                if (item.year == 0) {
+                    item.year = "Unknown Year";
+                }
+                if (item.author == 0) {
+                    item.author = "Unknown Author";
+                }
+                li.textContent = item.name + " - " + item.author + " (" + item.year + ")"; 
                 resultsList.appendChild(li);
                 document.getElementById('message').innerText = '';
 

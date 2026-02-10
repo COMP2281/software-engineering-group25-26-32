@@ -26,6 +26,7 @@ def search(query, df, index, ids, model, TOP_K=TOP_K):
     results = []
     for i, idx in enumerate(idxs[0]):
         row = df.iloc[ids[idx] - 1]
+        row.fillna(0, inplace=True)
         results.append((row["title"], row["author"], row["year"], scores[0][i]))
     return results
 

@@ -42,11 +42,25 @@ app.add_middleware(
 # Pydantic model for search term
 class SearchTerm(BaseModel):
     term: str
-    count: int  # default to TOP_K if not provided
+    count: int
+    fromYear: int
+    toYear: int
+    includeUnknown: bool
 
 @app.post("/search")
 async def search_users(search_term: SearchTerm):
-    results = search(search_term.term, df, index, ids, model, search_term.count)
-    if not results:
+    results = search(search_term.term, df, index, ids, model, 10000)
+    results2 = []
+    for result in results:
+        year = result[2]
+        if year ==0 and search_term.includeUnknown:
+            results2.append(result)
+        elif search_term.fromYear <= int(year) <= search_term.toYear:
+            results2.append(result)
+    if len(results2) > search_term.count:
+        results2 = results2[:search_term.count]
+    if not results2:
         return []
-    return [{"name": f"{r[0]} — {r[1]} ({r[2]})"} for r in results]
+    return [{"name": r[0],
+             "author": r[1],
+             "year": str(r[2])} for r in results2]
