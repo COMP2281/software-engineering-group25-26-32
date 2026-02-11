@@ -27,6 +27,7 @@ def initialise(MODEL_NAME=MODEL_NAME, INDEX_FILE=INDEX_FILE, ID_FILE=ID_FILE):
     return df, index, ids, model
 
 def search(query, df, index, ids, model, TOP_K=TOP_K):
+    print("Hello world")
     q = model.encode([query], normalize_embeddings=True)
     scores, idxs = index.search(q, TOP_K)
     results = []

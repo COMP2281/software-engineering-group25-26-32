@@ -49,6 +49,7 @@ class SearchTerm(BaseModel):
 
 @app.post("/search")
 async def search_users(search_term: SearchTerm):
+    print("hi")
     results = search(search_term.term, df, index, ids, model, 10000)
     results2 = []
     for result in results:
