@@ -1,10 +1,17 @@
 # First-time Setup:
 
 ## Required Files
-- theses_utf8.csv: https://a.piggypiggyyoinkyoink.website/dingus/db/theses_utf8.csv
-- thesis.index: https://a.piggypiggyyoinkyoink.website/dingus/db/thesis.index
-- thesis_ids.npy: https://a.piggypiggyyoinkyoink.website/dingus/db/thesis_ids.npy
-- Place all three files in the `python` folder (not in any sub-folders)
+### Durham E-Theses Database:
+https://a.piggypiggyyoinkyoink.website/dingus/db/db.db
+Place in `python/db` folder
+
+### durham_thesis.index:
+https://a.piggypiggyyoinkyoink.website/dingus/db/durham_thesis.index
+place in `python` folder (no sub-folders)
+### durham_thesis_ids.npy:
+https://a.piggypiggyyoinkyoink.website/dingus/db/durham_thesis_ids.npy
+place in `python` folder (no sub-folders)
+
 
 ## Node.js:
 - `cd nodejs`
