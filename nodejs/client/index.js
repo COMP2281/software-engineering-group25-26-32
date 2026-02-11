@@ -27,14 +27,10 @@ document.getElementById('searchForm').addEventListener('submit', async (event) =
         if (results.length > 0) {
             results.forEach(item => {
                 const li = document.createElement('li');
-                // Handle 'nan' values for year and author
+                // Handle 'nan' values for year
                 if (item.year == 0) {
                     item.year = "Unknown Year";
                 }
-                if (item.author == 0) {
-                    item.author = "Unknown Author";
-                }
-                li.textContent = item.name + " - " + item.author + " (" + item.year + ")"; 
                 resultsList.appendChild(li);
                 document.getElementById('message').innerText = '';
 

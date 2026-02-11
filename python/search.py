@@ -34,7 +34,7 @@ def search(query, df, index, ids, model, TOP_K=TOP_K):
     for i, idx in enumerate(idxs[0]):
         row = df.iloc[ids[idx] - 1]
         row.fillna(0, inplace=True)
-        results.append((row["title"], row["author"], row["year"], scores[0][i]))
+        results.append((row["title"], row["year"], scores[0][i]))
     return results
 
 if __name__ == "__main__":
@@ -42,8 +42,8 @@ if __name__ == "__main__":
     while True:
         query = input("Search: ")
         query = normalize(query)
-        for r in search(query):
-            print(f"{r['title']} — {r['author']} ({r['year']}) [Score: {r['score']:.2f}]")
-            print(f"Subject: {r['subject']}")
+        for r in search(query, df, index, ids, model):
+            print(f"{r['title']} ({r['year']}) [Score: {r['score']:.2f}]")
+            print(f"Department: {r['department']}")
             print(f"Abstract: {r['abstract'][:200]}...") # First 200 characters
             print()

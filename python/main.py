@@ -63,5 +63,4 @@ async def search_users(search_term: SearchTerm):
     if not results2:
         return []
     return [{"name": r[0],
-             "author": r[1],
-             "year": str(r[2])} for r in results2]
+             "year": str(r[1])} for r in results2]
