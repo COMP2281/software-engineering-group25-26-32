@@ -1,7 +1,10 @@
 import faiss
 import numpy as np
 from sentence_transformers import SentenceTransformer
-from prepare import load_theses
+from prepare import load_theses, normalize
+import re
+import unicodedata
+import torch
 
 MODEL_NAME = "sentence-transformers/all-mpnet-base-v2"
 INDEX_FILE = "thesis.index"
@@ -11,7 +14,10 @@ TOP_K = 10
 # df = load_theses()
 # index = faiss.read_index(INDEX_FILE)
 # ids = np.load(ID_FILE)
-# model = SentenceTransformer(MODEL_NAME)
+# device = "cuda" if torch.cuda.is_available() else "cpu"
+# print(f"Device Used: {device}")
+# print("Downloading model..")
+# model = SentenceTransformer(MODEL_NAME, device=device) # Download model
 
 def initialise(MODEL_NAME=MODEL_NAME, INDEX_FILE=INDEX_FILE, ID_FILE=ID_FILE):
     df = load_theses()
@@ -34,6 +40,9 @@ if __name__ == "__main__":
     df, index, ids, model = initialise()
     while True:
         query = input("Search: ")
-        for r in search(query, df, index, ids, model):
-            print(f"{r[0]} — {r[1]} ({r[2]})")
-        print()
+        query = normalize(query)
+        for r in search(query):
+            print(f"{r['title']} — {r['author']} ({r['year']}) [Score: {r['score']:.2f}]")
+            print(f"Subject: {r['subject']}")
+            print(f"Abstract: {r['abstract'][:200]}...") # First 200 characters
+            print()
