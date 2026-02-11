@@ -52,7 +52,7 @@ async def search_users(search_term: SearchTerm):
     results = search(search_term.term, df, index, ids, model, 100)
     results2 = []
     for result in results:
-        year = result[1]
+        year = result[2]
         if year ==0 and search_term.includeUnknown:
             results2.append(result)
         elif search_term.fromYear <= int(year) <= search_term.toYear:
@@ -62,4 +62,5 @@ async def search_users(search_term: SearchTerm):
     if not results2:
         return []
     return [{"name": r[0],
-             "year": str(r[1])} for r in results2]
+             "author": r[1],
+             "year": str(r[2])} for r in results2]

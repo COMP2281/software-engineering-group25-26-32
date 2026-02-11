@@ -31,7 +31,10 @@ document.getElementById('searchForm').addEventListener('submit', async (event) =
                 if (item.year == 0) {
                     item.year = "Unknown Year";
                 }
-                li.textContent = item.name + " (" + item.year + ")"; 
+                if (item.author == 0) {
+                    item.author = "Unknown Author";
+                }
+                li.textContent = item.name + " - " + item.author + " (" + item.year + ")"; 
                 resultsList.appendChild(li);
                 document.getElementById('message').innerText = '';
 

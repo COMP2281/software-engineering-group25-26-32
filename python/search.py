@@ -31,7 +31,8 @@ def search(query, df, index, ids, model, TOP_K=TOP_K):
         row = df.iloc[ids[idx] - 1]
         row.fillna(0, inplace=True)
         row["score"] = scores[0][i]
-        results.append((row["title"], row["year"], row["abstract"], row["department"], scores[0][i]))
+        # if this gives an error "author not found" then redownload the db from https://a.piggypiggyyoinkyoink.website/dingus/db/db.db
+        results.append((row["title"], row["author"], row["year"], row["abstract"], row["department"], scores[0][i]))
     return results
 
 if __name__ == "__main__":
@@ -40,7 +41,7 @@ if __name__ == "__main__":
         query = input("Search: ")
         query = normalize(query)
         for r in search(query, df, index, ids, model):
-            print(f"{r[0]} ({r[1]}) [Score: {r[4]:.2f}]")
-            print(f"Department: {r[3]}")
-            print(f"Abstract: {r[2][:200]}...") # First 200 characters
+            print(f"{r[0]} - {r[1]} ({r[2]}) [Score: {r[5]:.2f}]")
+            print(f"Department: {r[4]}")
+            print(f"Abstract: {r[3][:200]}...") # First 200 characters
             print()

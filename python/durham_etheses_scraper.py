@@ -16,7 +16,15 @@ def get_title(mystr):
         title = None
     return title
 
-
+def get_author(mystr):
+    authorStr = '<span class="person_name">'
+    idx = mystr.find(authorStr)
+    if idx != -1:
+        idx2 = mystr.find("</span>", idx)
+        author = mystr[idx+len(authorStr):idx2]
+    else:
+        author = None
+    return author
 
 def get_pdf_url(mystr):
     docUrlStr = '<span class="ep_document_citation">'
@@ -100,11 +108,11 @@ def get_data(mystr):
     else:
         return None, None, None, None, None
 
-def write_to_db(title, abstract, award, keywords, date, faculty, dept, url, pdf_url):
+def write_to_db(title, author, abstract, award, keywords, date, faculty, dept, url, pdf_url):
     conn = sqlite3.connect(DB_PATH)
     cur = conn.cursor()
-    data = (title, abstract, award, keywords, date, faculty, dept, url, pdf_url)
-    cur.execute("INSERT INTO Thesis (title, abstract, award, keywords, date, faculty, department, url, pdf_url) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", data)
+    data = (title, author, abstract, award, keywords, date, faculty, dept, url, pdf_url)
+    cur.execute("INSERT INTO Thesis (title, author, abstract, award, keywords, date, faculty, department, url, pdf_url) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", data)
     conn.commit()
     conn.close()
     return
@@ -125,11 +133,12 @@ def scrape(i):
         print("doesnt exist")
         return
     title = get_title(mystr)
+    author = get_author(mystr)
     abstract = get_abstract(mystr)
     print("")
     award, keywords, date, faculty, dept = get_data(mystr)
     pdf_url = get_pdf_url(mystr)
-    write_to_db(title,abstract, award, keywords, date, faculty, dept, url, pdf_url)
+    write_to_db(title, author, abstract, award, keywords, date, faculty, dept, url, pdf_url)
     #print("Error")
 
 start = 1
