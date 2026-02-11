@@ -49,11 +49,9 @@ class SearchTerm(BaseModel):
 
 @app.post("/search")
 async def search_users(search_term: SearchTerm):
-    print("hi")
-    results = search(search_term.term, df, index, ids, model, 10)
+    results = search(search_term.term, df, index, ids, model, 100)
     results2 = []
     for result in results:
-        print(result)
         year = result[1]
         if year ==0 and search_term.includeUnknown:
             results2.append(result)

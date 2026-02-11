@@ -4,7 +4,6 @@ import re
 import sqlite3
 
 DB_PATH = "./db/db.db"
-# INPUT_CSV = "theses_utf8.csv"
 
 def normalize(text):
     if not isinstance(text, str):
@@ -19,12 +18,10 @@ def load_theses():
     conn = sqlite3.connect(DB_PATH)
     df = pd.read_sql_query("SELECT title, date, abstract, department FROM Thesis", conn)
     conn.close()
-    #df = pd.read_csv(INPUT_CSV, encoding="utf-8", on_bad_lines="skip")
     df = df[["title", "date", "abstract", "department"]] 
 
     # Normalization
     df["title"] = df["title"].apply(normalize)
-    # df["author"] = df["author"].fillna("").apply(normalize)
     df["abstract"] = df["abstract"].fillna("").apply(normalize)
     df["department"] = df["department"].fillna("").apply(normalize)
     df["year"] = df["date"].astype(str).str.extract(r"((19|20)\d{2})")[0]
