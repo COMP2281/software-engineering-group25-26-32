@@ -14,16 +14,33 @@ def normalize(text):
     return text
 
 def load_theses():
-    df = pd.read_csv(INPUT_CSV, encoding="latin1", on_bad_lines="skip")
-    df = df[["Title", "Author", "Date"]]
+    df = pd.read_csv(INPUT_CSV, encoding="utf-8", on_bad_lines="skip")
+    df = df[["Title", "Author", "Date", "Abstract", "Subject Discipline"]] 
+
+    # Normalization
     df["title"] = df["Title"].apply(normalize)
     df["author"] = df["Author"].fillna("").apply(normalize)
+    df["abstract"] = df["Abstract"].fillna("").apply(normalize)
+    df["subject"] = df["Subject Discipline"].fillna("").apply(normalize)
     df["year"] = df["Date"].astype(str).str.extract(r"((19|20)\d{2})")[0]
+
     df = df[df["title"].str.split().str.len() >= 3]
     df = df.drop_duplicates(subset="title")
+
     df = df.reset_index(drop=True)
     df["id"] = df.index + 1
-    return df[["id", "title", "author", "year"]]
+    return df[["id", "title", "author", "abstract", "subject", "year"]]
+
+def build_text(row):
+    parts = [row["title"]]
+    if row["author"]:
+        parts.append("Author: " + row["author"])
+    if row.get("abstract"):
+        parts.append(row["abstract"])
+    if row.get("subject"):
+        parts.append("Subject: " + row["subject"])
+    return ". ".join(parts)
+
 
 if __name__ == "__main__":
     df = load_theses()
