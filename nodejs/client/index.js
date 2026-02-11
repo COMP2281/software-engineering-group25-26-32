@@ -31,6 +31,7 @@ document.getElementById('searchForm').addEventListener('submit', async (event) =
                 if (item.year == 0) {
                     item.year = "Unknown Year";
                 }
+                li.textContent = item.name + " (" + item.year + ")"; 
                 resultsList.appendChild(li);
                 document.getElementById('message').innerText = '';
 

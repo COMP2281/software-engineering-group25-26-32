@@ -5,8 +5,8 @@ from search import initialise, search
 from pydantic import BaseModel
 
 MODEL_NAME = "sentence-transformers/all-mpnet-base-v2"
-INDEX_FILE = "thesis.index"
-ID_FILE = "thesis_ids.npy"
+INDEX_FILE = "durham_thesis.index"
+ID_FILE = "durham_thesis_ids.npy"
 TOP_K = 10
 
 df, index, ids, model = None, None, None, None
@@ -50,10 +50,11 @@ class SearchTerm(BaseModel):
 @app.post("/search")
 async def search_users(search_term: SearchTerm):
     print("hi")
-    results = search(search_term.term, df, index, ids, model, 10000)
+    results = search(search_term.term, df, index, ids, model, 10)
     results2 = []
     for result in results:
-        year = result[2]
+        print(result)
+        year = result[1]
         if year ==0 and search_term.includeUnknown:
             results2.append(result)
         elif search_term.fromYear <= int(year) <= search_term.toYear:

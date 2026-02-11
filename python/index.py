@@ -9,8 +9,8 @@ print(torch.cuda.is_available())
 print(torch.cuda.get_device_name(0))
 
 MODEL_NAME = "sentence-transformers/all-mpnet-base-v2"
-INDEX_FILE = "thesis.index"
-ID_FILE = "thesis_ids.npy"
+INDEX_FILE = "durham_thesis.index"
+ID_FILE = "durham_thesis_ids.npy"
 BATCH_SIZE = 256
 
 df = load_theses()
