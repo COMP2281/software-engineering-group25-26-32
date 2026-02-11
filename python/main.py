@@ -49,11 +49,11 @@ class SearchTerm(BaseModel):
 
 @app.post("/search")
 async def search_users(search_term: SearchTerm):
-    results = search(search_term.term, df, index, ids, model, 10000)
+    results = search(search_term.term, df, index, ids, model, search_term.count, search_term.fromYear, search_term.toYear, search_term.includeUnknown)
     results2 = []
     for result in results:
         year = result[2]
-        if year ==0 and search_term.includeUnknown:
+        if year == 0 and search_term.includeUnknown:
             results2.append(result)
         elif search_term.fromYear <= int(year) <= search_term.toYear:
             results2.append(result)

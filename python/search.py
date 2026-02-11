@@ -2,6 +2,7 @@ import faiss
 import numpy as np
 from sentence_transformers import SentenceTransformer
 from prepare import load_theses
+from datetime import datetime
 
 MODEL_NAME = "sentence-transformers/all-mpnet-base-v2"
 INDEX_FILE = "thesis.index"
@@ -20,14 +21,17 @@ def initialise(MODEL_NAME=MODEL_NAME, INDEX_FILE=INDEX_FILE, ID_FILE=ID_FILE):
     model = SentenceTransformer(MODEL_NAME)
     return df, index, ids, model
 
-def search(query, df, index, ids, model, TOP_K=TOP_K):
-    q = model.encode([query], normalize_embeddings=True)
-    scores, idxs = index.search(q, TOP_K)
+def search(query, df, index, ids, model, TOP_K=TOP_K, fromYear=1700, toYear=datetime.now().year, includeUnknown=False):
     results = []
-    for i, idx in enumerate(idxs[0]):
-        row = df.iloc[ids[idx] - 1]
-        row.fillna(0, inplace=True)
-        results.append((row["title"], row["author"], row["year"], scores[0][i]))
+    while results.count < TOP_K:
+        q = model.encode([query], normalize_embeddings=True)
+        scores, idxs = index.search(q, TOP_K)
+        for i, idx in enumerate(idxs[0]):
+            row = df.iloc[ids[idx] - 1]
+            row.fillna(0, inplace=True)
+            year = row["year"]
+        if year <= toYear and year >= fromYear and includeUnknown:
+            results.append((row["title"], row["author"], row["year"], scores[0][i]))
     return results
 
 if __name__ == "__main__":
