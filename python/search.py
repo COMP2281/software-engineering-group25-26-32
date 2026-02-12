@@ -3,6 +3,8 @@ import numpy as np
 from sentence_transformers import SentenceTransformer
 from prepare import load_theses
 from datetime import datetime
+from prepare import normalize
+import pandas
 
 MODEL_NAME = "sentence-transformers/all-mpnet-base-v2"
 INDEX_FILE = "thesis.index"
@@ -24,7 +26,7 @@ def initialise(MODEL_NAME=MODEL_NAME, INDEX_FILE=INDEX_FILE, ID_FILE=ID_FILE):
     model = SentenceTransformer(MODEL_NAME)
     return df, index, ids, model
 
-def search(query, df, index, ids, model, TOP_K=TOP_K, fromYear=1700, toYear=datetime.now().year, includeUnknown=False):
+def search(query, df:pandas.DataFrame, index, ids, model, TOP_K=TOP_K, fromYear=1700, toYear=datetime.now().year, includeUnknown=False):
     results = []
     q = model.encode([query], normalize_embeddings=True)
 
@@ -33,10 +35,11 @@ def search(query, df, index, ids, model, TOP_K=TOP_K, fromYear=1700, toYear=date
     for i, idx in enumerate(idxs[0]):
         try:
             row = df.iloc[ids[idx] - 1]
+            row.fillna("0", inplace=True)
             year = row["year"]
 
             # Checks
-            if not year or str(year).strip() == "":
+            if not year or str(year).strip() == "0":
                 if not includeUnknown:
                     continue
             else:
@@ -46,7 +49,7 @@ def search(query, df, index, ids, model, TOP_K=TOP_K, fromYear=1700, toYear=date
                     continue
             
             # Add it to the list of results
-            results.append((row["title"], row["author"], row["year"], scores[0][i]))
+            results.append((row["title"], row["author"], row["year"], row["abstract"], row["subject"], scores[0][i]))
             
             if len(results) >= TOP_K:
                 break
@@ -61,8 +64,8 @@ if __name__ == "__main__":
     while True:
         query = input("Search: ")
         query = normalize(query)
-        for r in search(query):
-            print(f"{r['title']} — {r['author']} ({r['year']}) [Score: {r['score']:.2f}]")
-            print(f"Subject: {r['subject']}")
-            print(f"Abstract: {r['abstract'][:200]}...") # First 200 characters
+        for r in search(query,df, index, ids, model):
+            print(f"{r[0]} — {r[1]} ({r[2]}) [Score: {r[5]:.2f}]")
+            print(f"Subject: {r[4]}")
+            print(f"Abstract: {r[3][:200]}...") # First 200 characters
             print()
