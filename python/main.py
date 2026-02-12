@@ -49,18 +49,9 @@ class SearchTerm(BaseModel):
 
 @app.post("/search")
 async def search_users(search_term: SearchTerm):
-    results = search(search_term.term, df, index, ids, model, 100)
-    results2 = []
-    for result in results:
-        year = result[2]
-        if year ==0 and search_term.includeUnknown:
-            results2.append(result)
-        elif search_term.fromYear <= int(year) <= search_term.toYear:
-            results2.append(result)
-    if len(results2) > search_term.count:
-        results2 = results2[:search_term.count]
-    if not results2:
+    results = search(search_term.term, df, index, ids, model, search_term.count, search_term.fromYear, search_term.toYear, search_term.includeUnknown)
+    if not results:
         return []
     return [{"name": r[0],
              "author": r[1],
-             "year": str(r[2])} for r in results2]
+             "year": str(r[2])} for r in results]
