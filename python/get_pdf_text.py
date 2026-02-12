@@ -1,5 +1,11 @@
+from multiprocessing.forkserver import main
 import os, time, json, pymupdf, requests, sqlite3, pymupdf.layout #do not remove pymupdf.layout it is used internally by pymupdf4llm.
 import pymupdf4llm
+import concurrent.futures
+import multiprocessing
+import queue
+import threading
+import time
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -8,7 +14,7 @@ def get_all_ids():
     DB_PATH = "./python/db/db.db"
     conn = sqlite3.connect(DB_PATH)
     cur = conn.cursor()
-    cur.execute("SELECT id FROM Thesis") 
+    cur.execute("SELECT id FROM Thesis WHERE pdf_text IS NULL") 
     rows = cur.fetchall()
     conn.close()
     return [row[0] for row in rows]
@@ -17,7 +23,7 @@ def pdf_urls_from_id_list(l):
     DB_PATH = "./python/db/db.db"
     conn = sqlite3.connect(DB_PATH)
     cur = conn.cursor()
-    cur.execute(f"SELECT id, title, date, pdf_url FROM Thesis WHERE id IN ({",".join("?"*len(l))})", tuple(l))
+    cur.execute(f"SELECT id, title, date, pdf_url FROM Thesis WHERE id IN ({','.join('?'*len(l))})", tuple(l))
     rows = cur.fetchall()
     conn.close()
     return rows
@@ -181,6 +187,44 @@ def doc_text_to_db(id, text):
     conn.close()
     return
 
+
+
+def get_pdf_text(id):
+    """Retrieve the stored PDF text from the database for the given ID
+    \nid = ID from the database
+    \nReturns the stored PDF text as a string"""
+    DB_PATH = "./python/db/db.db"
+    conn = sqlite3.connect(DB_PATH)
+    cur = conn.cursor()
+    cur.execute("SELECT pdf_text FROM Thesis WHERE id = ?", (id,))
+    row = cur.fetchone()
+    conn.close()
+    if row:
+        return row[0]
+    else:
+        return None
+def process_pdf(id):
+    print(f"Processing ID {id}...")
+    time.sleep(6.7) 
+    try:
+        text = pdf_to_txt_json(id)
+        return (id, text, None)
+    except Exception as e:
+        return (id, None, str(e))
+
+
+def writer_thread(result_queue):
+    while True:
+        item = result_queue.get()
+        if item is None:
+            break
+        id, text, error = item
+        if error:
+            print(f"Error processing ID {id}: {error}")
+        else:
+            doc_text_to_db(id, text)
+            print(f"Finished processing ID {id}")
+
 def upload_pdf_texts_to_db():
     """Convert **ALL** PDFs in the database to text and upload to the database"""
     all_ids = get_all_ids()
@@ -199,20 +243,30 @@ def upload_pdf_texts_to_db():
         ctr +=1
     return
 
-def get_pdf_text(id):
-    """Retrieve the stored PDF text from the database for the given ID
-    \nid = ID from the database
-    \nReturns the stored PDF text as a string"""
-    DB_PATH = "./python/db/db.db"
-    conn = sqlite3.connect(DB_PATH)
-    cur = conn.cursor()
-    cur.execute("SELECT pdf_text FROM Thesis WHERE id = ?", (id,))
-    row = cur.fetchone()
-    conn.close()
-    if row:
-        return row[0]
-    else:
-        return None
+def upload_pdf_texts_to_db_parallel():
+    all_ids = [id for id in get_all_ids()]
+
+    result_queue = queue.Queue()
+
+    # Start DB writer thread
+    writer = threading.Thread(target=writer_thread, args=(result_queue,))
+    writer.start()
+
+    with concurrent.futures.ProcessPoolExecutor(
+        max_workers=multiprocessing.cpu_count()
+    ) as executor:
+
+        futures = [executor.submit(process_pdf, id) for id in all_ids]
+
+        for i, future in enumerate(concurrent.futures.as_completed(futures)):
+            result_queue.put(future.result())
+
+            if i % 10 == 0 and i > 0:
+                print(f"Processed {i} PDFs...")
+
+    # Stop writer
+    result_queue.put(None)
+    writer.join()
 # convert PDF files to TXT, MD or llamadocs to be more LLM-friendly
 # Note: MD is very slow compared to TXT but encodes extra structural information from the PDF.
 
@@ -230,7 +284,6 @@ Notes:
 - OCR final boss is the shit from 1925, even I cant decipher that so OCR has no chance.
 IMPORTANT: For OCR to work, need to clone https://github.com/tesseract-ocr/tessdata and set TESSDATA_PREFIX = path_to_cloned_tessdata in .env file.
 """
-# doc_text_to_db(145, a)
-# b = get_pdf_text(145)
-# write_to_file(b, out="out.json")
-upload_pdf_texts_to_db()
+
+if __name__ == "__main__":
+    upload_pdf_texts_to_db_parallel()
