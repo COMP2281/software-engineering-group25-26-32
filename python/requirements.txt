@@ -1,5 +1,0 @@
-fastapi[standard]==0.122.0
-pydantic==2.12.4
-pymupdf-layout==1.26.6
-pymupdf4llm==0.2.9
-requests==2.32.5
