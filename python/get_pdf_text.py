@@ -9,8 +9,10 @@ import time
 from dotenv import load_dotenv
 
 load_dotenv()
+RATE_LIMIT_PAUSE = 6.7
 
 def get_all_ids():
+    """Get all IDs from the db that havent currently been processed"""
     DB_PATH = "./python/db/db.db"
     conn = sqlite3.connect(DB_PATH)
     cur = conn.cursor()
@@ -20,6 +22,7 @@ def get_all_ids():
     return [row[0] for row in rows]
 
 def pdf_urls_from_id_list(l):
+    """Get the PDF URLs corresponding to a list of IDs from the database"""
     DB_PATH = "./python/db/db.db"
     conn = sqlite3.connect(DB_PATH)
     cur = conn.cursor()
@@ -29,11 +32,12 @@ def pdf_urls_from_id_list(l):
     return rows
 
 def is_garbage(text):
-    #very basic algorithm to determine if a page contains actual text or is binary garbage (i.e. detects if OCR is needed)
+    """***very*** basic algorithm to determine if a page contains actual text or is binary garbage (i.e. detects if OCR is needed)"""
     return (sum(c.isalpha() for c in text) / max(len(text), 1) < 0.5) and (text.count(".")< 0.4*max(1,len(text))) and (text.count("-")< 0.4*max(1,len(text)))
 
 
 def page_ocr_text(page:pymupdf.Page):
+    """Perform OCR on a page. Note: requires tessdata to be installed from https://github.com/tesseract-ocr/tessdata and the TESSDATA_PREFIX environment variable to be set to the tessdata directory"""
     tessdata_dir = os.getenv("TESSDATA_PREFIX")
     if tessdata_dir is None:
         raise ValueError("TESSDATA_PREFIX environment variable not set. OCR cannot proceed.")
@@ -41,28 +45,6 @@ def page_ocr_text(page:pymupdf.Page):
     text = tp.extractText()
     return text
 
-
-# def pdf_to_txt(id):
-#     """Convert the contents of PDF files corresponding to the input ID(s) into a single TXT file
-#     \nid = ID from the database
-#     """
-#     if type(id) is not list:
-#         id = [id]
-#     rows = pdf_urls_from_id_list(id)
-#     fulltext = "" 
-#     for row in rows:
-#         pdf_url = row[3]
-#         if pdf_url is not None:
-#             r = requests.get(pdf_url)
-#             data = r.content
-#             doc = pymupdf.Document(stream=data, filetype="pdf")
-#             for page in doc: # iterate the document pages
-#                 text = page.get_text()
-#                 if is_garbage(text):
-#                     text = page_ocr_text(page)
-#                 fulltext += text + "\n"
-#             doc.close()
-#     return fulltext
 
 def pdf_to_txt_json(id):
     """Convert the contents of PDF files corresponding to the input ID into a JSON file. One line in the JSON file = one page in the pdf.
@@ -74,8 +56,6 @@ def pdf_to_txt_json(id):
     fulltext = "" 
     for row in rows:
         id = row[0]
-        title = row[1]
-        date = row[2]
         pdf_url = row[3]
         if pdf_url is not None:
             r = requests.get(pdf_url)
@@ -100,81 +80,6 @@ def pdf_to_txt_json(id):
             fulltext += "\n\n"
     return fulltext
 
-# def pdf_to_md(id):
-#     """Convert the contents of PDF files corresponding to the imput ID(s) into a single MD file
-#     \nid = ID from the database
-#     """
-#     if type(id) is not list:
-#         id = [id]
-#     rows = pdf_urls_from_id_list(id)
-#     for row in rows:
-#         pdf_url = row[3]
-#         if pdf_url is not None:
-#             r = requests.get(pdf_url)
-#             data = r.content
-#             doc = pymupdf.Document(stream=data, filetype="pdf")
-#             md_text = pymupdf4llm.to_markdown(doc)
-#             doc.close()
-#     return md_text
-
-# def pdf_to_llamadoc(id, how="txt"):
-#     """Convert the contents of PDF file(s) corresponding to the input ID(s) into a Llama Index Document list
-#     \nid = ID from the database
-#     \nhow = "txt" or "md" for text or markdown output (default: "txt"). Txt is significantly faster
-#     \nReturns a list of Llama Index Documents, one per page of each PDF."""
-#     if type(id) is not list:
-#         id = [id]
-#     rows = pdf_urls_from_id_list(id)
-#     llama_docs = []
-#     for row in rows:
-#         pdf_url = row[3]
-#         if pdf_url is not None:
-#             r = requests.get(pdf_url)
-#             data = r.content
-#             doc = pymupdf.Document(stream=data, filetype="pdf")
-#             if how == "md":
-#                 for page_num in range(len(doc)):
-#                     page = doc.load_page(page_num)
-#                     md_page = pymupdf4llm.to_markdown(page)
-#                     llama_docs.append(
-#                         Document(
-#                             text=md_page,
-#                             metadata={
-#                                 "source": pdf_url,
-#                                 "page": page_num + 1
-#                             }
-#                         )
-#                     )
-#             else:
-#                 for page_num in range(len(doc)):
-#                     page = doc.load_page(page_num)
-#                     if is_garbage(page.get_text()):
-#                         text_page = page_ocr_text(page)
-#                     else:
-#                         text_page = page.get_text()
-#                     llama_docs.append(
-#                         Document(
-#                             text=text_page,
-#                             metadata={
-#                                 "source": pdf_url,
-#                                 "page": page_num + 1
-#                             }
-#                         )
-#                     )
-#             doc.close()
-#     return llama_docs
-
-# def write_to_file(content, out="output.txt"):
-#     """Write content to a file in the out/ directory
-#     \ncontent = string content to write
-#     \nout = output filename (default: output.txt)"""
-#     if type(content) is list:
-#         content = "\n".join([str(c) for c in content])
-#     OUT_PATH = "./python/out/"
-#     with open(f"{OUT_PATH}/{out}", "wb") as out_file:
-#         out_file.write(content.encode("utf-8"))
-#     return
-
 def doc_text_to_db(id, text):
     """Update the database entry for the given ID with the provided text
     \nid = ID from the database
@@ -186,7 +91,6 @@ def doc_text_to_db(id, text):
     conn.commit()
     conn.close()
     return
-
 
 
 def get_pdf_text(id):
@@ -203,9 +107,11 @@ def get_pdf_text(id):
         return row[0]
     else:
         return None
+    
+
 def process_pdf(id):
     print(f"Processing ID {id}...")
-    time.sleep(6.7) 
+    time.sleep(RATE_LIMIT_PAUSE) 
     try:
         text = pdf_to_txt_json(id)
         return (id, text, None)
@@ -214,6 +120,7 @@ def process_pdf(id):
 
 
 def writer_thread(result_queue):
+    """Thread to write PDF contents to DB once they've been OCR'd"""
     while True:
         item = result_queue.get()
         if item is None:
@@ -267,23 +174,7 @@ def upload_pdf_texts_to_db_parallel():
     # Stop writer
     result_queue.put(None)
     writer.join()
-# convert PDF files to TXT, MD or llamadocs to be more LLM-friendly
-# Note: MD is very slow compared to TXT but encodes extra structural information from the PDF.
 
-"""
-Example usage:
-    id = 145
-    j = pdf_to_txt_json(id)
-    doc_text_to_db(id, j)
-
-Notes:
-- it takes ~2 seconds to convert to txt/json and ~61 seconds to convert to md (with formatting), for a 281 page pdf (no OCR).
-- Some non-standard characters get borked in both txt and md outputs.
-- OCR is supported for txt/json. It is very slow and can produce some weird shit, but is required for a significant number of the theses that either
-  use a weird text encoding or are handwritten.
-- OCR final boss is the shit from 1925, even I cant decipher that so OCR has no chance.
-IMPORTANT: For OCR to work, need to clone https://github.com/tesseract-ocr/tessdata and set TESSDATA_PREFIX = path_to_cloned_tessdata in .env file.
-"""
 
 if __name__ == "__main__":
     upload_pdf_texts_to_db_parallel()

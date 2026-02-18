@@ -21,12 +21,19 @@ document.getElementById('searchForm').addEventListener('submit', async (event) =
         });
 
         const results = await response.json();
-        const resultsList = document.getElementById('results');
-        resultsList.innerHTML = '';
+        const resultsDiv = document.getElementById('results');
+        resultsDiv.innerHTML = '';
 
         if (results.length > 0) {
-            results.forEach(item => {
-                const li = document.createElement('li');
+            ctr = 0;
+            resultsDiv.innerHTML = "<h2>Search Results:</h2>";
+            for (const item of results) {
+                ctr++;
+                let div = document.createElement('div');
+                div.classList.add('accordion-item');
+                let h2 = document.createElement('h2');
+                h2.classList.add('accordion-header');
+                h2.setAttribute('id', 'heading' + ctr);
                 // Handle 'nan' values for year
                 if (item.year == 0) {
                     item.year = "Unknown Year";
@@ -34,16 +41,49 @@ document.getElementById('searchForm').addEventListener('submit', async (event) =
                 if (item.author == 0) {
                     item.author = "Unknown Author";
                 }
-                li.textContent = item.name + " - " + item.author + " (" + item.year + ")"; 
-                resultsList.appendChild(li);
-                document.getElementById('message').innerText = '';
+                let button = document.createElement('button');
+                button.classList.add('accordion-button', 'collapsed');
+                button.setAttribute('type', 'button');
+                button.setAttribute('data-bs-toggle', 'collapse');
+                button.setAttribute('data-bs-target', '#collapse' + ctr);
+                button.setAttribute('aria-expanded', 'false');
+                button.setAttribute('aria-controls', 'collapse' + ctr);
 
-            });
+                button.innerHTML = "<b>" + item.name + "</b> &nbsp;-&nbsp; " + item.author + " (" + item.year + ")"; 
+
+                h2.appendChild(button);
+                div.appendChild(h2);
+
+                let divCollapse = document.createElement('div');
+                divCollapse.classList.add('accordion-collapse', 'collapse');
+                divCollapse.setAttribute('id', 'collapse' + ctr);
+
+                let divBody = document.createElement('div');
+                divBody.classList.add('accordion-body');
+
+                divBody.innerHTML = "<h5>Abstract:</h5>";
+                if (item.abstract) {
+                    divBody.innerHTML += item.abstract;
+                } else {
+                    divBody.innerHTML += "No abstract available.";
+                }
+                divBody.innerHTML += "<br><h5>Full Thesis:</h5>";
+                if (item.pdf_url) {
+                    divBody.innerHTML += `<a href="${item.pdf_url}" target="_blank">View PDF</a>`;
+                } else {
+                    divBody.innerHTML += "Not available.";
+                }
+
+                divCollapse.appendChild(divBody);
+                div.appendChild(divCollapse);
+
+                resultsDiv.appendChild(div);
+            };
         } else {
-            document.getElementById('message').innerText = 'No results found.';
+            document.getElementById('results').innerText = 'No results found.';
         }
     } catch (error) {
         console.error('Error:', error);
-        document.getElementById('message').innerText = 'An error occurred.';
+        document.getElementById('results').innerText = 'An error occurred.';
     }
 });

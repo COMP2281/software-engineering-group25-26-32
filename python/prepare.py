@@ -16,15 +16,16 @@ def normalize(text):
 
 def load_theses():
     conn = sqlite3.connect(DB_PATH)
-    df = pd.read_sql_query("SELECT title, author, date, abstract, department FROM Thesis", conn)
+    df = pd.read_sql_query("SELECT title, author, date, abstract, department, pdf_url FROM Thesis", conn)
     conn.close()
-    df = df[["title", "author", "date", "abstract", "department"]] 
+    df = df[["title", "author", "date", "abstract", "department", "pdf_url"]] 
 
     # Normalization
     df["title"] = df["title"].apply(normalize)
     df["author"] = df["author"].apply(normalize)
     df["abstract"] = df["abstract"].fillna("").apply(normalize)
     df["department"] = df["department"].fillna("").apply(normalize)
+    df["pdf_url"] = df["pdf_url"].fillna("")
     df["year"] = df["date"].astype(str).str.extract(r"((19|20)\d{2})")[0]
 
     df = df[df["title"].str.split().str.len() >= 3]
@@ -32,7 +33,7 @@ def load_theses():
 
     df = df.reset_index(drop=True)
     df["id"] = df.index + 1
-    return df[["id", "title", "author",  "abstract", "department", "year"]]
+    return df[["id", "title", "author",  "abstract", "department", "year", "pdf_url"]]
 
 def build_text(row):
     parts = [row["title"]]
