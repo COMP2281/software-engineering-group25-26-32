@@ -1,8 +1,32 @@
-RATE_LIMIT_PAUSE = 0.1
-DB_PATH = "./python/db/db.db"
-
+import os
 import urllib.request
 import sqlite3
+import time
+
+
+RATE_LIMIT_PAUSE = 0.1
+DB_PATH = "./python/db/db.db"
+if not os.path.exists(DB_PATH):
+    os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
+    conn = sqlite3.connect(DB_PATH)
+    conn.execute('''CREATE TABLE "Thesis" (
+	"id"	INTEGER NOT NULL,
+	"title"	TEXT,
+	"author"	TEXT,
+	"abstract"	TEXT,
+	"award"	NUMERIC,
+	"keywords"	TEXT,
+	"date"	NUMERIC,
+	"faculty"	TEXT,
+	"department"	TEXT,
+	"url"	TEXT,
+	"pdf_url"	TEXT,
+	"pdf_text"	TEXT,
+	PRIMARY KEY("id" AUTOINCREMENT)
+)''')
+    conn.commit()
+    conn.close()
+
 def get_title(mystr):
     titleStr = "<h1"
     idx = mystr.find(titleStr)
@@ -38,7 +62,6 @@ def get_pdf_url(mystr):
         pdf_url = None
     return pdf_url
 
-import time
 
 def get_abstract(mystr):
     absStr = "<h2>Abstract</h2>"
@@ -135,11 +158,10 @@ def scrape(i):
     title = get_title(mystr)
     author = get_author(mystr)
     abstract = get_abstract(mystr)
-    print("")
+    print("success")
     award, keywords, date, faculty, dept = get_data(mystr)
     pdf_url = get_pdf_url(mystr)
     write_to_db(title, author, abstract, award, keywords, date, faculty, dept, url, pdf_url)
-    #print("Error")
 
 start = 1
 with open("./python/progress.txt", "r") as f: 

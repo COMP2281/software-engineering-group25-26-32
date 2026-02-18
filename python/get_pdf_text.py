@@ -1,4 +1,3 @@
-from multiprocessing.forkserver import main
 import os, time, json, pymupdf, requests, sqlite3, pymupdf.layout #do not remove pymupdf.layout it is used internally by pymupdf4llm.
 import pymupdf4llm
 import concurrent.futures
@@ -10,10 +9,12 @@ from dotenv import load_dotenv
 
 load_dotenv()
 RATE_LIMIT_PAUSE = 6.7
+DB_PATH = "./python/db/db.db"
+TESSDATA_PATH = os.getenv("TESSDATA_PREFIX")
+
 
 def get_all_ids():
     """Get all IDs from the db that havent currently been processed"""
-    DB_PATH = "./python/db/db.db"
     conn = sqlite3.connect(DB_PATH)
     cur = conn.cursor()
     cur.execute("SELECT id FROM Thesis WHERE pdf_text IS NULL") 
@@ -23,7 +24,6 @@ def get_all_ids():
 
 def pdf_urls_from_id_list(l):
     """Get the PDF URLs corresponding to a list of IDs from the database"""
-    DB_PATH = "./python/db/db.db"
     conn = sqlite3.connect(DB_PATH)
     cur = conn.cursor()
     cur.execute(f"SELECT id, title, date, pdf_url FROM Thesis WHERE id IN ({','.join('?'*len(l))})", tuple(l))
@@ -38,10 +38,9 @@ def is_garbage(text):
 
 def page_ocr_text(page:pymupdf.Page):
     """Perform OCR on a page. Note: requires tessdata to be installed from https://github.com/tesseract-ocr/tessdata and the TESSDATA_PREFIX environment variable to be set to the tessdata directory"""
-    tessdata_dir = os.getenv("TESSDATA_PREFIX")
-    if tessdata_dir is None:
+    if TESSDATA_PATH is None:
         raise ValueError("TESSDATA_PREFIX environment variable not set. OCR cannot proceed.")
-    tp = page.get_textpage_ocr(flags=0, dpi=300, full=True, tessdata=tessdata_dir)
+    tp = page.get_textpage_ocr(flags=0, dpi=300, full=True, tessdata=TESSDATA_PATH)
     text = tp.extractText()
     return text
 
@@ -84,7 +83,6 @@ def doc_text_to_db(id, text):
     """Update the database entry for the given ID with the provided text
     \nid = ID from the database
     \ntext = text content to store in the database"""
-    DB_PATH = "./python/db/db.db"
     conn = sqlite3.connect(DB_PATH)
     cur = conn.cursor()
     cur.execute("UPDATE Thesis SET pdf_text = ? WHERE id = ?", (text, id))
@@ -97,7 +95,6 @@ def get_pdf_text(id):
     """Retrieve the stored PDF text from the database for the given ID
     \nid = ID from the database
     \nReturns the stored PDF text as a string"""
-    DB_PATH = "./python/db/db.db"
     conn = sqlite3.connect(DB_PATH)
     cur = conn.cursor()
     cur.execute("SELECT pdf_text FROM Thesis WHERE id = ?", (id,))
