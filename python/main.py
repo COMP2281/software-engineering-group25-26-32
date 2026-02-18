@@ -17,6 +17,7 @@ async def lifespan(app: FastAPI):
     #startup code here
     print("Starting up...")
     df, index, ids, model = initialise(MODEL_NAME, INDEX_FILE, ID_FILE)
+    print("Startup complete.")
     yield
     #shutdown code here
     print("Shutting down...")
@@ -54,4 +55,8 @@ async def search_users(search_term: SearchTerm):
         return []
     return [{"name": r[0],
              "author": r[1],
-             "year": str(r[2])} for r in results]
+             "year": str(r[2]),
+             "abstract": r[3],
+             "department": r[4],
+             "pdf_url": r[5]
+             } for r in results]

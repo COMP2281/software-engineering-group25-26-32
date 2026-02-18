@@ -9,13 +9,6 @@ INDEX_FILE = "durham_thesis.index"
 ID_FILE = "durham_thesis_ids.npy"
 TOP_K = 10
 
-# df = load_theses()
-# index = faiss.read_index(INDEX_FILE)
-# ids = np.load(ID_FILE)
-# device = "cuda" if torch.cuda.is_available() else "cpu"
-# print(f"Device Used: {device}")
-# print("Downloading model..")
-# model = SentenceTransformer(MODEL_NAME, device=device) # Download model
 
 def initialise(MODEL_NAME=MODEL_NAME, INDEX_FILE=INDEX_FILE, ID_FILE=ID_FILE):
     df = load_theses()
@@ -80,7 +73,7 @@ def search(query, df, index, ids, model, TOP_K=TOP_K, fromYear=1700, toYear=date
                     continue
             
             # Add it to the list of results
-            results.append((row["title"], row["author"], row["year"], row["abstract"], row["department"], scores[0][i]))
+            results.append((row["title"], row["author"], row["year"], row["abstract"], row["department"], row["pdf_url"], scores[0][i]))
             
             if len(results) >= TOP_K:
                 break
@@ -96,7 +89,7 @@ if __name__ == "__main__":
         query = input("Search: ")
         query = normalize(query)
         for r in search(query, df, index, ids, model):
-            print(f"{r[0]} - {r[1]} ({r[2]}) [Score: {r[5]:.2f}]")
+            print(f"{r[0]} - {r[1]} ({r[2]}) [Score: {r[-1]:.2f}]")
             print(f"Department: {r[4]}")
             print(f"Abstract: {r[3][:200]}...") # First 200 characters
             print()
