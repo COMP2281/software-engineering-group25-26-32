@@ -1,0 +1,1 @@
+wt new-tab -p "Command Prompt" -d "%cd%" cmd /c "cd nodejs & npm start" & wt new-tab -p "Command Prompt" -d "%cd%" cmd /c "cd python & call ./.venv/Scripts/activate & fastapi dev main.py" 

@@ -1,15 +1,25 @@
 <html>
     <head>
-        <title>User Search</title>
+        <title>Durham E-Theses Search</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+        <link rel="stylesheet" href="index.css">
     </head>
     <body>
-        <h1>User Search Tool</h1>
-        <form id="searchForm">
-            <input type="text" id="searchTerm" placeholder="Enter search term" required />
-            <button type="submit">Search</button>
-        </form>
-        <p id="message"></p>
-        <ul id="results"></ul>
+        <div class = "container2">
+            <h1>Durham E-Theses Search Tool</h1>
+            <form id="searchForm">
+                <input type="text" id="searchTerm" placeholder="Enter search term" required />
+                <button type="submit">Search</button><br>
+                <span>Max number of results:</span> <input type="number" id="resultCount" value="10" min="1" max="100" /><br>
+                <span>From year:</span> <input type="number" id="fromYear" value="1700" min="1" /> <span>to year:</span> <input type="number" id="toYear" value = "3000" /><br>
+                <span>Include theses with unknown year of publication:</span> <input type="checkbox" id="includeUnknown" checked /><br>
+            </form>
+        </div>
+        <div id = "resultsContainer" class = "container2">
+            <div id = "results" class = "accordion"></div>
+        </div>
+        <br><br>
     </body>
     <script src="index.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
 </html>
