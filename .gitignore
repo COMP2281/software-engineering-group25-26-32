@@ -226,3 +226,5 @@ node_modules/
 out
 db.db
 *.csv
+*.npy
+*.index
