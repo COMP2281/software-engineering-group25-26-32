@@ -58,6 +58,9 @@ def get_pdf_url(mystr):
         idx += len('href="')
         idx2 = mystr.find('"', idx)
         pdf_url = mystr[idx:idx2]
+        check = pdf_url.find("pdf")
+        if check == -1:
+            pdf_url = None
     else:
         pdf_url = None
     return pdf_url

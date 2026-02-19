@@ -1,5 +1,4 @@
-import os, time, json, pymupdf, requests, sqlite3, pymupdf.layout #do not remove pymupdf.layout it is used internally by pymupdf4llm.
-import pymupdf4llm
+import os, time, json, pymupdf, requests, sqlite3
 import concurrent.futures
 import multiprocessing
 import queue
