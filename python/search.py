@@ -5,6 +5,7 @@ from prepare import load_theses
 from datetime import datetime
 from prepare import normalize
 import pandas
+from rapidfuzz import fuzz
 
 MODEL_NAME = "sentence-transformers/all-mpnet-base-v2"
 INDEX_FILE = "thesis.index"
@@ -26,7 +27,12 @@ def initialise(MODEL_NAME=MODEL_NAME, INDEX_FILE=INDEX_FILE, ID_FILE=ID_FILE):
     model = SentenceTransformer(MODEL_NAME)
     return df, index, ids, model
 
-def search(query, df:pandas.DataFrame, index, ids, model, TOP_K=TOP_K, fromYear=1700, toYear=datetime.now().year, includeUnknown=False):
+def similarityAuthor(a, b, threshold=80):
+    if not a or not b:
+        return False
+    return fuzz.token_sort_ratio(a, b) >= threshold
+
+def search(query, df:pandas.DataFrame, index, ids, model, TOP_K=TOP_K, fromYear=1700, toYear=datetime.now().year, includeUnknown=False, authorField=None, depoCheckboxes=[]):
     results = []
     q = model.encode([query], normalize_embeddings=True)
 
@@ -40,14 +46,31 @@ def search(query, df:pandas.DataFrame, index, ids, model, TOP_K=TOP_K, fromYear=
 
             # Checks
             if not year or str(year).strip() == "0":
-                if not includeUnknown:
+                if not includeUnknown: # Skip if year is unknown and we don't want to include unknowns
                     continue
             else:
-                # Filters here
                 year = int(year)
-                if year < fromYear or year > toYear:
+                if year < fromYear or year > toYear: # If year is outside the range, skip
                     continue
             
+            # Author filter
+            author = str(row["author"]).strip().lower()
+            # Fuzzy search (how similar are they to one another, if author field is filled in, it must be similar enough)
+            if authorField:
+                if not similarityAuthor(authorField, author):
+                    # If it's filled out but can't find anything similar enough, skip
+                    continue
+
+            
+            # Check if any subject checkboxes exist
+            if len(depoCheckboxes) > 0:
+                # normalize department filter
+                normaCheckboxes = [d.strip().lower() for d in depoCheckboxes]
+                thesis_dept = str(row["department"]).strip().lower()
+                if thesis_dept not in normaCheckboxes:
+                    continue
+
+
             # Add it to the list of results
             results.append((row["title"], row["author"], row["year"], row["abstract"], row["subject"], scores[0][i]))
             
