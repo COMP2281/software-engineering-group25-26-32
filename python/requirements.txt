@@ -6,3 +6,4 @@ faiss-cpu
 torch
 sentence-transformers
 requests==2.32.5
+rapidfuzz

@@ -2,7 +2,7 @@ import faiss
 import numpy as np
 from sentence_transformers import SentenceTransformer
 from prepare import load_theses
-from datetime import datetime
+import datetime
 from prepare import normalize
 import pandas
 from rapidfuzz import fuzz
@@ -27,7 +27,7 @@ def similarityAuthor(a, b, threshold=80):
         return False
     return fuzz.token_sort_ratio(a, b) >= threshold
 
-def search(query, df:pandas.DataFrame, index, ids, model, TOP_K=TOP_K, fromYear=1700, toYear=datetime.now().year, includeUnknown=False, authorField=None, depoCheckboxes=[]):
+def search(query, df:pandas.DataFrame, index, ids, model, TOP_K=TOP_K, fromYear=1700, toYear=datetime.datetime.now().year, includeUnknown=False, authorField=None, depoCheckboxes=[]):
     results = []
     q = model.encode([query], normalize_embeddings=True)
 

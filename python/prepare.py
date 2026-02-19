@@ -20,7 +20,7 @@ def load_theses():
     conn.close()
     df = df[["title", "author", "date", "abstract", "department", "pdf_url"]] 
 
-    # Normalization
+    # Normalisation
     df["title"] = df["title"].apply(normalize)
     df["author"] = df["author"].apply(normalize)
     df["abstract"] = df["abstract"].fillna("").apply(normalize)
