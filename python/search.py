@@ -8,6 +8,7 @@ import pandas
 from rapidfuzz import fuzz
 from prepare import load_theses, normalize
 import datetime
+import re
 
 MODEL_NAME = "sentence-transformers/all-mpnet-base-v2"
 INDEX_FILE = "durham_thesis.index"
@@ -26,13 +27,64 @@ def get_all_departments(df):
     depts = df["department"].unique().tolist()
     depts.sort()
     return depts
-def similarityAuthor(a, b, threshold=80):
-    if not a or not b:
-        return False
-    return fuzz.token_sort_ratio(a, b) >= threshold
 
-def search(query, df:pandas.DataFrame, index, ids, model, TOP_K=TOP_K, fromYear=1700, toYear=datetime.datetime.now().year, includeUnknown=False, authorField=None, deptCheckboxes=[]):
+def canonical_author(name):
+    if not name:
+        return None
+    name = name.lower().strip()
+    # Comma format
+    if "," in name:
+        parts = [p.strip() for p in name.split(",", 1)]  # Split only first two commas (assuming Surname, Given Name(s) format and ignores all other things like Smith, John Connor, PHD)
+        if len(parts) == 2:
+            last = parts[0]
+            rest = parts[1]
+            name = f"{rest} {last}"
+
+    name = re.sub(r"[^\w\s]", "", name)
+    tokens = name.split()
+
+    if not tokens:
+        return None
+
+    return {
+        "tokens": tokens,
+        "first": tokens[0],
+        "last": tokens[-1],
+        "initials": [t[0] for t in tokens if t]
+    }
+
+
+def similarityAuthor(queryName, targetCanon):
+    if not queryName or not targetCanon:
+        return False
+
+    q = canonical_author(queryName)
+    t = canonical_author(targetCanon)
+
+    if not q or not t:
+        return False
+
+    if fuzz.ratio(q["last"], t["last"]) < 85: # Similarity parameter might need tuning for sensitivity of spelling mistakes vs. substrings/wrong authors
+        return False
+
+    # Check if names match
+    if q["first"] == t["first"]:
+        return True
+    
+    # Check if first letters match
+    if q["first"][0] == t["first"][0]:
+        return True
+
+    # Optional fuzzy fallback
+    return fuzz.token_sort_ratio(queryName, " ".join(t["tokens"])) >= 85
+
+    # return False
+
+
+def search(query, df:pandas.DataFrame, index, ids, model, TOP_K=TOP_K, fromYear=1700, toYear=datetime.datetime.now().year, includeUnknown=False, authorField=None, deptCheckboxes=None):
     results = []
+    if deptCheckboxes is None:
+        deptCheckboxes = []
     q = model.encode([query], normalize_embeddings=True)
 
     # By default, search for 5x the request just in case there are many results that get filtered out
