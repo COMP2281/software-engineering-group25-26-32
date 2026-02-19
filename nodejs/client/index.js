@@ -1,6 +1,39 @@
 const d = new Date()
 const year = d.getFullYear()
 document.getElementById("toYear").value = year;
+document.getElementById("fromYear").setAttribute("max", year);
+document.getElementById("toYear").setAttribute("max", year);
+
+div = document.getElementById("departmentFilters");
+departments = async function fetchDepartments() {
+    try {
+        const response = await fetch('http://localhost:8000/departments');
+        const departments = await response.json();
+        console.log(departments);
+        for (const dept of departments) {
+            if (dept === "") continue; // Skip empty department names
+            div.classList.add('form-check');
+            let input = document.createElement('input');
+            input.classList.add('form-check-input');
+            input.classList.add('dept-checkbox');
+            input.type = 'checkbox';
+            input.id = dept;
+            input.value = dept;
+            let label = document.createElement('label');
+            label.classList.add('form-check-label');
+            label.setAttribute('for', dept);
+            label.textContent = dept;
+            div.appendChild(input);
+            div.appendChild(label);
+            div.appendChild(document.createElement('br'));
+        }
+    } catch (error) {
+        console.error("Error fetching departments:", error);
+    }
+}
+div.style.display = "none";
+document.getElementById("unknownDeptSpan").style.display = "none";
+departments();
 
 document.getElementById('searchForm').addEventListener('submit', async (event) => {
     event.preventDefault();
@@ -12,12 +45,13 @@ document.getElementById('searchForm').addEventListener('submit', async (event) =
     resultCount = parseInt(resultCount) || 10; // Default to 10 if input is invalid
     fromYear = parseInt(fromYear) || 0; // Default to 0 if input is invalid
     toYear = parseInt(toYear) || 3000; // Default to 3000 if input is invalid
-
+    let authorField = document.getElementById('author').value;
+    let depts = Array.from(document.querySelectorAll('.dept-checkbox:checked')).map(cb => cb.value)
     try {
         const response = await fetch('http://localhost:8000/search', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ term: searchTerm, count: resultCount, fromYear: fromYear, toYear: toYear, includeUnknown: includeUnknown })
+            body: JSON.stringify({ term: searchTerm, count: resultCount, fromYear: fromYear, toYear: toYear, includeUnknown: includeUnknown, authorField: authorField, departments: depts })
         });
 
         const results = await response.json();
@@ -85,5 +119,19 @@ document.getElementById('searchForm').addEventListener('submit', async (event) =
     } catch (error) {
         console.error('Error:', error);
         document.getElementById('results').innerText = 'An error occurred.';
+    }
+});
+
+document.getElementById("includeAllDepts").addEventListener('change', function() {
+    const checkboxes = document.querySelectorAll('.dept-checkbox');
+    checkboxes.forEach(cb => cb.checked = false); // Uncheck all department checkboxes
+    if (this.checked) {
+        document.getElementById("departmentFilters").style.display = "none";
+        document.getElementById("unknownDeptSpan").style.display = "none";
+
+    } else {
+        document.getElementById("departmentFilters").style.display = "block";
+        document.getElementById("unknownDeptSpan").style.display = "block";
+
     }
 });
