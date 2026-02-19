@@ -1,6 +1,11 @@
 import faiss
 import numpy as np
 from sentence_transformers import SentenceTransformer
+from prepare import load_theses
+from datetime import datetime
+from prepare import normalize
+import pandas
+from rapidfuzz import fuzz
 from prepare import load_theses, normalize
 import datetime
 
@@ -16,8 +21,13 @@ def initialise(MODEL_NAME=MODEL_NAME, INDEX_FILE=INDEX_FILE, ID_FILE=ID_FILE):
     ids = np.load(ID_FILE)
     model = SentenceTransformer(MODEL_NAME)
     return df, index, ids, model
-"""
-def search(query, df, index, ids, model, TOP_K=TOP_K, fromYear=1700, toYear=datetime.now().year, includeUnknown=False):
+
+def similarityAuthor(a, b, threshold=80):
+    if not a or not b:
+        return False
+    return fuzz.token_sort_ratio(a, b) >= threshold
+
+def search(query, df:pandas.DataFrame, index, ids, model, TOP_K=TOP_K, fromYear=1700, toYear=datetime.now().year, includeUnknown=False, authorField=None, depoCheckboxes=[]):
     results = []
     q = model.encode([query], normalize_embeddings=True)
 
@@ -26,52 +36,36 @@ def search(query, df, index, ids, model, TOP_K=TOP_K, fromYear=1700, toYear=date
     for i, idx in enumerate(idxs[0]):
         try:
             row = df.iloc[ids[idx] - 1]
+            row.fillna("0", inplace=True)
             year = row["year"]
 
             # Checks
-            if not year or str(year).strip() == "":
-                if not includeUnknown:
+            if not year or str(year).strip() == "0":
+                if not includeUnknown: # Skip if year is unknown and we don't want to include unknowns
                     continue
             else:
-                # Filters here
                 year = int(year)
-                if year < fromYear or year > toYear:
+                if year < fromYear or year > toYear: # If year is outside the range, skip
                     continue
             
-            # Add it to the list of results
-            results.append((row["title"], row["author"], row["year"], scores[0][i]))
-            
-            if len(results) >= TOP_K:
-                break
-        except Exception as e:
-            print(f"Search error: {e}")
-            break
+            # Author filter
+            author = str(row["author"]).strip().lower()
+            # Fuzzy search (how similar are they to one another, if author field is filled in, it must be similar enough)
+            if authorField:
+                if not similarityAuthor(authorField, author):
+                    # If it's filled out but can't find anything similar enough, skip
+                    continue
 
-    return results
-"""
-def search(query, df, index, ids, model, TOP_K=TOP_K, fromYear=1700, toYear=datetime.datetime.now().year, includeUnknown=False):
-    q = model.encode([query], normalize_embeddings=True)
-    scores, idxs = index.search(q, TOP_K*5)
-    results = []
-    for i, idx in enumerate(idxs[0]):
-        row = df.iloc[ids[idx] - 1]
-        row.fillna(0, inplace=True)
-        row["score"] = scores[0][i]
-        # if this gives an error "author not found" then redownload the db from https://a.piggypiggyyoinkyoink.website/dingus/db/db.db
-        try:
-            row = df.iloc[ids[idx] - 1]
-            year = row["year"]
-
-            # Checks
-            if not year or str(year).strip() == "":
-                if not includeUnknown:
-                    continue
-            else:
-                # Filters here
-                year = int(year)
-                if year < fromYear or year > toYear:
-                    continue
             
+            # Check if any subject checkboxes exist
+            if len(depoCheckboxes) > 0:
+                # normalize department filter
+                normaCheckboxes = [d.strip().lower() for d in depoCheckboxes]
+                thesis_dept = str(row["department"]).strip().lower()
+                if thesis_dept not in normaCheckboxes:
+                    continue
+
+
             # Add it to the list of results
             results.append((row["title"], row["author"], row["year"], row["abstract"], row["department"], row["pdf_url"], scores[0][i]))
             
@@ -80,6 +74,7 @@ def search(query, df, index, ids, model, TOP_K=TOP_K, fromYear=1700, toYear=date
         except Exception as e:
             print(f"Search error: {e}")
             break
+
 
     return results
 
