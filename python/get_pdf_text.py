@@ -128,23 +128,6 @@ def writer_thread(result_queue):
             doc_text_to_db(id, text)
             print(f"Finished processing ID {id}")
 
-def upload_pdf_texts_to_db():
-    """Convert **ALL** PDFs in the database to text and upload to the database"""
-    all_ids = get_all_ids()
-    all_ids = [id for id in all_ids if id >= 4382]
-    ctr = 0
-    for id in all_ids:
-        if ctr % 10 == 0 and ctr > 0:
-            print(f"Processed {ctr} PDFs...")
-            time.sleep(10) #avoid overwhelming any servers
-        print(f"Processing ID {id}...")
-        try:
-            text = pdf_to_txt_json(id)
-            doc_text_to_db(id, text)
-        except Exception as e:
-            print(f"Error processing ID {id}: {e}")
-        ctr +=1
-    return
 
 def upload_pdf_texts_to_db_parallel():
     all_ids = [id for id in get_all_ids()]
