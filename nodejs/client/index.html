@@ -6,17 +6,34 @@
     </head>
     <body>
         <div class = "container2">
-            <h1>Durham E-Theses Search Tool</h1>
-            <form id="searchForm">
-                <input type="text" id="searchTerm" placeholder="Enter search term" required />
-                <button type="submit">Search</button><br>
-                <span>Max number of results:</span> <input type="number" id="resultCount" value="10" min="1" max="100" /><br>
-                <span>From year:</span> <input type="number" id="fromYear" value="1700" min="1" /> <span>to year:</span> <input type="number" id="toYear" value = "3000" /><br>
-                <span>Include theses with unknown year of publication:</span> <input type="checkbox" id="includeUnknown" checked /><br>
-            </form>
-        </div>
-        <div id = "resultsContainer" class = "container2">
-            <div id = "results" class = "accordion"></div>
+            <div class = "row">
+                <div class = "col-3">
+                    <div class = "container2">
+                        <h1>Durham E-Theses Search Tool</h1>
+                        <form id="searchForm">
+                            <input type="text" id="searchTerm" placeholder="Enter search term" required />
+                            <button type="submit">Search</button><br>
+                            <span>Max number of results:</span> <input type="number" id="resultCount" value="10" min="1" max="100" /><br>
+                            <h5>Filters</h5>
+                            <span>From year:</span> <input type="number" id="fromYear" value="1700" min="1" max="3000" /><br>
+                            <span>To year:</span> <input type="number" id="toYear" value = "3000" min="1" max="3000" /><br>
+                            <span>Include theses with unknown year of publication:</span> <input type="checkbox" id="includeUnknown" checked /><br>
+                            <span>Author:</span> <input type="text" id="author" placeholder="Enter author name" /><br>
+                            <span>Include theses from all departments:</span> <input type="checkbox" id="includeAllDepts" checked /><br>
+                            <div id="departmentFilters" class="checkbox-group">
+                                <h6>Select Departments:</h6>
+                            </div>
+                            <span id = "unknownDeptSpan"><span>Include theses with unknown department:</span>&nbsp; <input type="checkbox" class = "form-check-input dept-checkbox" id="includeUnknownDept" value = ""/></span><br>
+                        </form>
+                    </div>
+
+                </div>
+                <div class = "col-9">
+                    <div id = "resultsContainer" class = "container2">
+                        <div id = "results" class = "accordion"></div>
+                    </div>
+                </div>
+            </div>
         </div>
         <br><br>
     </body>

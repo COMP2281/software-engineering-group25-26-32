@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
-from search import initialise, search
+from search import initialise, search, get_all_departments
 from pydantic import BaseModel
 
 MODEL_NAME = "sentence-transformers/all-mpnet-base-v2"
@@ -10,13 +10,15 @@ ID_FILE = "durham_thesis_ids.npy"
 TOP_K = 10
 
 df, index, ids, model = None, None, None, None
+departments = None
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    global df, index, ids, model
+    global df, index, ids, model, departments
     #startup code here
     print("Starting up...")
     df, index, ids, model = initialise(MODEL_NAME, INDEX_FILE, ID_FILE)
+    departments = get_all_departments(df)
     print("Startup complete.")
     yield
     #shutdown code here
@@ -47,10 +49,11 @@ class SearchTerm(BaseModel):
     fromYear: int
     toYear: int
     includeUnknown: bool
-
+    authorField: str
+    departments: list
 @app.post("/search")
 async def search_users(search_term: SearchTerm):
-    results = search(search_term.term, df, index, ids, model, search_term.count, search_term.fromYear, search_term.toYear, search_term.includeUnknown)
+    results = search(search_term.term, df, index, ids, model, search_term.count, search_term.fromYear, search_term.toYear, search_term.includeUnknown, authorField=search_term.authorField, deptCheckboxes=search_term.departments)
     if not results:
         return []
     return [{"name": r[0],
@@ -60,3 +63,7 @@ async def search_users(search_term: SearchTerm):
              "department": r[4],
              "pdf_url": r[5]
              } for r in results]
+
+@app.get("/departments")
+async def get_departments():
+    return departments
