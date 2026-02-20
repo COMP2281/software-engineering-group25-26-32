@@ -3,6 +3,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from search import initialise, search, get_all_departments
 from pydantic import BaseModel
+from durham_etheses_scraper import scrape, get_last_id, get_latest_id
+from get_pdf_text import upload_pdf_texts_to_db_parallel
 
 MODEL_NAME = "sentence-transformers/all-mpnet-base-v2"
 INDEX_FILE = "durham_thesis.index"
@@ -67,3 +69,17 @@ async def search_users(search_term: SearchTerm):
 @app.get("/departments")
 async def get_departments():
     return departments
+
+@app.post("/update-db")
+async def update_db():
+    last_id = get_last_id()
+    latest_id = get_latest_id()
+    print(f"Last ID in DB: {last_id}, Latest ID on site: {latest_id}")
+    # if last_id == latest_id:
+    #     return {"message": "Database is already up to date"}
+    for i in range(last_id + 1, latest_id + 1):
+        result = scrape(i)
+        if result == 0:
+            print("Successfully added thesis with ID", i, "to the database.")
+    upload_pdf_texts_to_db_parallel()
+    return {"message": "Database updated successfully"}

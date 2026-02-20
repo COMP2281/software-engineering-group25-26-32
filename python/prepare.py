@@ -1,9 +1,12 @@
+import os, unicodedata, re, sqlite3
 import pandas as pd
-import unicodedata
-import re
-import sqlite3
+from dotenv import load_dotenv
 
-DB_PATH = "./db/db.db"
+load_dotenv()
+try:
+    DB_PATH = os.environ.get("DB_PATH")
+except:
+    DB_PATH = "./db/db.db"
 
 def normalize(text):
     if not isinstance(text, str):

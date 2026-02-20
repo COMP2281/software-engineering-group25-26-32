@@ -1,14 +1,8 @@
-import faiss
+import faiss, pandas, datetime, re
 import numpy as np
 from sentence_transformers import SentenceTransformer
-from prepare import load_theses
-import datetime
-from prepare import normalize
-import pandas
 from rapidfuzz import fuzz
 from prepare import load_theses, normalize
-import datetime
-import re
 
 MODEL_NAME = "sentence-transformers/all-mpnet-base-v2"
 INDEX_FILE = "durham_thesis.index"

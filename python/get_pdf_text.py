@@ -1,25 +1,24 @@
-import os, time, json, pymupdf, requests, sqlite3
+import os, time, json, pymupdf, requests, sqlite3, multiprocessing, queue, threading
 import concurrent.futures
-import multiprocessing
-import queue
-import threading
-import time
 from dotenv import load_dotenv
 
 load_dotenv()
 RATE_LIMIT_PAUSE = 6.7
-DB_PATH = "./python/db/db.db"
+try:
+    DB_PATH = os.environ.get("DB_PATH")
+except:
+    DB_PATH = "./db/db.db"
 TESSDATA_PATH = os.getenv("TESSDATA_PREFIX")
 
 
-def get_all_ids():
+def get_unprocessed_ids():
     """Get all IDs from the db that havent currently been processed"""
     conn = sqlite3.connect(DB_PATH)
     cur = conn.cursor()
-    cur.execute("SELECT id FROM Thesis WHERE pdf_text IS NULL") 
+    cur.execute("SELECT id, pdf_url FROM Thesis WHERE pdf_text IS NULL AND pdf_url IS NOT NULL") 
     rows = cur.fetchall()
     conn.close()
-    return [row[0] for row in rows]
+    return [row[0] for row in rows if row[1].find(".pdf") != -1]
 
 def pdf_urls_from_id_list(l):
     """Get the PDF URLs corresponding to a list of IDs from the database"""
@@ -130,8 +129,9 @@ def writer_thread(result_queue):
 
 
 def upload_pdf_texts_to_db_parallel():
-    all_ids = [id for id in get_all_ids()]
-
+    ids = [id for id in get_unprocessed_ids()]
+    print(ids)
+    print(len(ids))
     result_queue = queue.Queue()
 
     # Start DB writer thread
@@ -142,7 +142,7 @@ def upload_pdf_texts_to_db_parallel():
         max_workers=multiprocessing.cpu_count()
     ) as executor:
 
-        futures = [executor.submit(process_pdf, id) for id in all_ids]
+        futures = [executor.submit(process_pdf, id) for id in ids]
 
         for i, future in enumerate(concurrent.futures.as_completed(futures)):
             result_queue.put(future.result())

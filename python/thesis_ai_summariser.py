@@ -1,9 +1,14 @@
-import sqlite3, json, ollama
+import sqlite3, json, ollama, os
+from dotenv import load_dotenv
 # Ollama Thesis Summariser - extremely slow given our hardware limitations
 # (takes like 10 minutes to summarise a 150 page thesis with GPU) but the summary is kinda decent
 # Requires isntallation of Ollama and Mistral model (ollama pull mistral)
 
-DB_PATH = "./db/db.db"
+load_dotenv()
+try:
+    DB_PATH = os.environ.get("DB_PATH")
+except:
+    DB_PATH = "./db/db.db"
 DOC_ID = 160
 MODEL = "mistral"
 PAGES_PER_CHUNK = 3

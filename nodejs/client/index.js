@@ -135,3 +135,10 @@ document.getElementById("includeAllDepts").addEventListener('change', function()
 
     }
 });
+
+document.getElementById("dbu").addEventListener('click', async function() {
+    const response = await fetch("http://localhost:8000/update-db",{
+        method: 'POST'
+    });
+    console.log(response);
+});

@@ -1,6 +1,5 @@
+import faiss, torch
 import numpy as np
-import faiss
-import torch
 from sentence_transformers import SentenceTransformer
 from prepare import load_theses, build_text
 

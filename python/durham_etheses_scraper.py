@@ -1,11 +1,15 @@
-import os
+import os, sqlite3, time
 import urllib.request
-import sqlite3
-import time
+from dotenv import load_dotenv
 
+load_dotenv()
 
 RATE_LIMIT_PAUSE = 0.1
-DB_PATH = "./python/db/db.db"
+
+try:
+    DB_PATH = os.environ.get("DB_PATH")
+except:
+    DB_PATH = "./db/db.db"
 if not os.path.exists(DB_PATH):
     os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
     conn = sqlite3.connect(DB_PATH)
@@ -154,25 +158,59 @@ def scrape(i):
         fp.close()
     except:
         print("doesnt exist")
-        return
+        return 1
     if '<p>You seem to be attempting to access an item that has been removed from the repository.</p>' in mystr:
         print("doesnt exist")
-        return
+        return 1
     title = get_title(mystr)
     author = get_author(mystr)
     abstract = get_abstract(mystr)
-    print("success")
     award, keywords, date, faculty, dept = get_data(mystr)
     pdf_url = get_pdf_url(mystr)
     write_to_db(title, author, abstract, award, keywords, date, faculty, dept, url, pdf_url)
+    print("success", i)
+    return 0
 
-start = 1
-with open("./python/progress.txt", "r") as f: 
-    start = int(f.readline())
-#url format: "https://etheses.dur.ac.uk/NUMBER/"
-#check all NUMBERs in the for loop
-for j in range(start,16398):
-    with open("./python/progress.txt", "w") as f:
-        f.write(str(j))
-    scrape(j)
-    time.sleep(RATE_LIMIT_PAUSE) 
+def get_last_id():
+    conn = sqlite3.connect(DB_PATH)
+    cur = conn.cursor()
+    cur.execute("SELECT url FROM Thesis WHERE url IS NOT NULL ORDER BY id DESC LIMIT 1")
+    row = cur.fetchone()
+    conn.close()
+    if row:
+        url = row[0][:-1]
+        id = url.split("/")[-1]
+        return int(id)
+    else:
+        return 0
+
+def get_latest_id():
+    latest_page = urllib.request.urlopen("https://etheses.dur.ac.uk/cgi/latest")
+    mybytes = latest_page.read()
+    mystr = mybytes.decode("utf8")
+    latest_page.close()
+    idx1 = mystr.find('<div class="ep_latest_result">')
+    if idx1 != -1:
+        mystr = mystr[idx1:]
+        idx2 = mystr.find("</div>")
+        latest_result = mystr[:idx2]
+        a_start = latest_result.find('<a href="')
+        a = latest_result[a_start+len('<a href="'):]
+        if a_start != -1:
+            a_end = a.find('/"')
+            latest_id = (a[:a_end]).split("/")[-1]
+            return int(latest_id)
+    return None
+
+
+if __name__ == "__main__":
+    print(get_last_id())
+    print(get_latest_id())
+    # start = 1
+    # #url format: "https://etheses.dur.ac.uk/NUMBER/"
+    # #check all NUMBERs in the for loop
+    # for j in range(start,16398):
+    #     with open("./python/progress.txt", "w") as f:
+    #         f.write(str(j))
+    #     scrape(j)
+    #     time.sleep(RATE_LIMIT_PAUSE) 
