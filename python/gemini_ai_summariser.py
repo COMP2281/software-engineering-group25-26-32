@@ -61,13 +61,21 @@ def summarise_thesis(DOC_ID=DOC_ID):
     - Implications
 
     Be detailed but concise. Include page numbers of information used to generate the summary.
-    Produce your summary in a HTML format, using only <h5> and <h6> for headings and subheadings.
+    Produce your summary in a HTML format, using only <h5> and <h6> for headings and subheadings. 
+    DO NOT WRAP THE SUMMARY IN ANY <html>, <code> etc TAGS,MARKDOWN CODE BLOCKS OR ANY OTHER CONTAINER
     \n\n{pages}
     """)
     except Exception as e:
         print("Error generating summary:", str(e))
         return "Error generating summary"
     res = response.text
+    # seriously, gemini, at least be consistent with your formatting :/
     if res.find("```html") != -1:
         res = res.split("```html")[1].split("```")[0].strip()
+    if res.find("<html>") != -1:
+        res = res.split("<html>")[1].split("</html>")[0].strip()
+    if res.find("<code>") != -1:
+        res = res.split("<code>")[1].split("</code>")[0].strip()
+        if res[0] == '"' and res[-1] == '"':
+            res = res[1:-1]
     return res
