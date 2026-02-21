@@ -46,23 +46,27 @@ def load_pages(doc_id):
 # Summarise using Gemini - need GEMINI_API_KEY in .env
 def summarise_thesis(DOC_ID=DOC_ID):
     pages = load_pages(DOC_ID)
-    client = gemini.Client(api_key=os.environ.get("GEMINI_API_KEY"))
-    response = client.models.generate_content(
-        model="gemini-2.5-flash", contents=f"""
-Summarise the following thesis text including:
+    try:
+        client = gemini.Client(api_key=os.environ.get("GEMINI_API_KEY"))
+        response = client.models.generate_content(
+            model="gemini-2.5-flash", contents=f"""
+    Summarise the following thesis text including:
 
-- Overall theme
-- Core research question or purpose
-- Key arguments
-- Important findings
-- Methodology (if present)
-- Conclusions
-- Implications
+    - Overall theme
+    - Core research question or purpose
+    - Key arguments
+    - Important findings
+    - Methodology (if present)
+    - Conclusions
+    - Implications
 
-Be detailed but concise. Include page numbers of information used to generate the summary.
-Produce your summary in a HTML format, using only <h5> and <h6> for headings and subheadings.
-\n\n{pages}
-""")
+    Be detailed but concise. Include page numbers of information used to generate the summary.
+    Produce your summary in a HTML format, using only <h5> and <h6> for headings and subheadings.
+    \n\n{pages}
+    """)
+    except Exception as e:
+        print("Error generating summary:", str(e))
+        return "Error generating summary"
     res = response.text
     if res.find("```html") != -1:
         res = res.split("```html")[1].split("```")[0].strip()
