@@ -25,6 +25,17 @@ Using python version 3.11.x (**Important. Please use the same version to avoid c
 - MacOS: `source .venv/bin/activate`, Windows: `./.venv/Scripts/activate`
 - `pip install -r requirements.txt`
 
+## Environment Variables
+Create a file in the `python` folder called `.env` and insert the following lines:
+```
+TESSDATA_PREFIX = <...>/tessdata  
+DB_PATH = <...>/db.db  
+GEMINI_API_KEY = <your_gemini_api_key>  
+```
+Replacing `<...>` with the correct paths to the files on your machine, and `<your_gemini_api_key>` with your Gemini API key  
+Tessdata can be cloned from https://github.com/tesseract-ocr/tessdata and is required to add full thesis texts to the database.  
+A Gemini API key can be generated from https://aistudio.google.com/api-keys
+
 
 # Running the code:
 
