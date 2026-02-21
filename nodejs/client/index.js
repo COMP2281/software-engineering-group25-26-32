@@ -9,7 +9,7 @@ departments = async function fetchDepartments() {
     try {
         const response = await fetch('http://localhost:8000/departments');
         const departments = await response.json();
-        console.log(departments);
+        // console.log(departments);
         for (const dept of departments) {
             if (dept === "") continue; // Skip empty department names
             div.classList.add('form-check');
@@ -95,24 +95,41 @@ document.getElementById('searchForm').addEventListener('submit', async (event) =
                 let divBody = document.createElement('div');
                 divBody.classList.add('accordion-body');
 
-                divBody.innerHTML = "<h5>Abstract:</h5>";
+                divBody.innerHTML = "<h4>Abstract:</h4>";
                 if (item.abstract) {
                     divBody.innerHTML += item.abstract;
                 } else {
                     divBody.innerHTML += "No abstract available.";
                 }
-                divBody.innerHTML += "<br><h5>Full Thesis:</h5>";
+                divBody.innerHTML += "<br><h4>Full Thesis:</h4>";
                 if (item.pdf_url) {
                     divBody.innerHTML += `<a href="${item.pdf_url}" target="_blank">View PDF</a>`;
+                    divBody.innerHTML += `<br><button id =summary-btn-${item.db_id} class="btn btn-secondary btn-sm mt-2 summary-btn">Summarise Thesis</button>`;
                 } else {
                     divBody.innerHTML += "Not available.";
                 }
 
                 divCollapse.appendChild(divBody);
                 div.appendChild(divCollapse);
-
                 resultsDiv.appendChild(div);
+
+                
             };
+                document.querySelectorAll(`.summary-btn`).forEach(btn => {
+                    btn.addEventListener('click', async function() {
+                        const db_id = this.id.split('-')[2];
+                        this.disabled = true;
+                        this.insertAdjacentHTML('afterend', `<div id = "summary-${db_id}"><br><h4>AI Summary:</h4><span>Generating summary...</span></div>`);
+                        const summaryResponse = await fetch(`http://localhost:8000/summarise/${db_id}`);
+                        const summaryData = await summaryResponse.json();
+                        console.log(summaryData.summary);
+                        let summary = summaryData.summary
+                        var converter = new showdown.Converter();
+                        summary = converter.makeHtml(summary);
+                        document.getElementById(`summary-${db_id}`).innerHTML = `<br><h4>AI Summary:</h4>${summary}`;
+                        this.style.display = "none";
+                    });
+                });
         } else {
             document.getElementById('results').innerText = 'No results found.';
         }

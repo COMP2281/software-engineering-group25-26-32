@@ -7,7 +7,10 @@ try:
 except:
     DB_PATH = "./db/db.db"
 DOC_ID = 160
-
+try:
+    GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
+except:
+    raise Exception("GEMINI_API_KEY environment variable not found. Please set it in .env")
 
 # load thesis pages from db
 def load_pages(doc_id):
@@ -33,7 +36,7 @@ def load_pages(doc_id):
             continue
         try:
             data = json.loads(line)
-            pages.append(f"PAGE-{data['metadata']['page']}: \n {data['text']}")
+            pages.append(f"PDF PAGE {data['metadata']['page']}: \n {data['text']}")
         except:
             print("JSON parse error")
             continue
@@ -56,8 +59,11 @@ Summarise the following thesis text including:
 - Conclusions
 - Implications
 
-Be detailed but concise Include page numbers of information used to generate the summary.
+Be detailed but concise. Include page numbers of information used to generate the summary.
+Produce your summary in a HTML format, using only <h5> and <h6> for headings and subheadings.
 \n\n{pages}
 """)
     res = response.text
+    if res.find("```html") != -1:
+        res = res.split("```html")[1].split("```")[0].strip()
     return res

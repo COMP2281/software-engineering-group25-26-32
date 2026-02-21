@@ -117,7 +117,7 @@ def search(query, df:pandas.DataFrame, index, ids, model, TOP_K=TOP_K, fromYear=
 
 
             # Add it to the list of results
-            results.append((row["title"], row["author"], row["year"], row["abstract"], row["department"], row["pdf_url"], scores[0][i]))
+            results.append((row["title"], row["author"], row["year"], row["abstract"], row["department"], row["pdf_url"], row["db_id"], float(scores[0][i])))
             
             if len(results) >= TOP_K:
                 break

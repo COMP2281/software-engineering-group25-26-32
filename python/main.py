@@ -5,6 +5,7 @@ from search import initialise, search, get_all_departments
 from pydantic import BaseModel
 from durham_etheses_scraper import scrape, get_last_id, get_latest_id
 from get_pdf_text import upload_pdf_texts_to_db_parallel
+from gemini_ai_summariser import summarise_thesis
 
 MODEL_NAME = "sentence-transformers/all-mpnet-base-v2"
 INDEX_FILE = "durham_thesis.index"
@@ -53,6 +54,7 @@ class SearchTerm(BaseModel):
     includeUnknown: bool
     authorField: str
     departments: list
+
 @app.post("/search")
 async def search_users(search_term: SearchTerm):
     results = search(search_term.term, df, index, ids, model, search_term.count, search_term.fromYear, search_term.toYear, search_term.includeUnknown, authorField=search_term.authorField, deptCheckboxes=search_term.departments)
@@ -63,7 +65,8 @@ async def search_users(search_term: SearchTerm):
              "year": str(r[2]),
              "abstract": r[3],
              "department": r[4],
-             "pdf_url": r[5]
+             "pdf_url": r[5],
+             "db_id": str(r[6])
              } for r in results]
 
 @app.get("/departments")
@@ -71,15 +74,26 @@ async def get_departments():
     return departments
 
 @app.post("/update-db")
+# Updates the DB with new theses uploaded to Duahm-Etheses, including PDF text extraction if full PDF is released.
 async def update_db():
     last_id = get_last_id()
     latest_id = get_latest_id()
     print(f"Last ID in DB: {last_id}, Latest ID on site: {latest_id}")
-    # if last_id == latest_id:
-    #     return {"message": "Database is already up to date"}
+    if last_id == latest_id:
+        return {"message": "Database is already up to date"}
     for i in range(last_id + 1, latest_id + 1):
         result = scrape(i)
         if result == 0:
             print("Successfully added thesis with ID", i, "to the database.")
     upload_pdf_texts_to_db_parallel()
     return {"message": "Database updated successfully"}
+
+@app.get("/summarise/{db_id}")
+async def summarise(db_id: int):
+    if True:
+        summary = summarise_thesis(db_id)
+    else:
+        sample_file = open("./sample_summary.txt", "r")
+        summary = sample_file.readlines()
+        sample_file.close()
+    return {"summary": summary}
