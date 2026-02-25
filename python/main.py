@@ -31,7 +31,7 @@ async def lifespan(app: FastAPI):
     print("Shutting down...")
 
 
-app = FastAPI()
+app = FastAPI(lifespan=lifespan)
 
 #allow fastAPI endpoints to be accessed from localhost:8080 (the nodejs)
 origins = [
@@ -102,15 +102,16 @@ async def summarise(db_id: int):
 
 @app.get("/login")
 async def login(username: str, password: str):
-    if login(username, password):
+    if check_creds(username, password):
         token = generate_token(username)
-        response = JSONResponse(content={"message": "Login successful"})
+        response = JSONResponse(content={"message": "Login successful", "token": token})
         response.set_cookie(key="token", value=token, httponly=True)
         return response
-    return {"message": "Invalid credentials"}
+    raise HTTPException(status_code=401, detail="Invalid username or password")
 
-@app.get("/test")
+@app.get("/token")
 async def test(token: Annotated[str | None, Cookie()] = None):
+    print("Received token:", token)
     if not verify_token(token):
         raise HTTPException(status_code=401, detail="Unauthorized")
     return {"message": "Token is valid"}

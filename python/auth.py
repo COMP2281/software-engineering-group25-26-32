@@ -12,7 +12,7 @@ if DB_PATH is None:
 if SECRET_KEY is None:
     SECRET_KEY = "default_secret_key"
 
-def login(username, password):
+def check_creds(username, password):
     conn = sqlite3.connect(DB_PATH)
     cur = conn.cursor()
 
