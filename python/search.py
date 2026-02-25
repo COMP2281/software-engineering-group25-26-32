@@ -83,6 +83,9 @@ def search(query, df:pandas.DataFrame, index, ids, model, TOP_K=TOP_K, fromYear=
         deptCheckboxes = []
     q = model.encode([query], normalize_embeddings=True)
 
+    # TODO: If the search term is empty edge case
+    # TODO: Recursive search with increased K perhaps?
+
     # By default, search for 5x the request just in case there are many results that get filtered out
     scores, idxs = index.search(q, TOP_K*5)
     for i, idx in enumerate(idxs[0]):

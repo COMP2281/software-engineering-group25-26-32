@@ -42,11 +42,19 @@ document.getElementById('searchForm').addEventListener('submit', async (event) =
     let fromYear = document.getElementById('fromYear').value;
     let toYear = document.getElementById('toYear').value;
     let includeUnknown = document.getElementById('includeUnknown').checked;
+
     resultCount = parseInt(resultCount) || 10; // Default to 10 if input is invalid
     fromYear = parseInt(fromYear) || 0; // Default to 0 if input is invalid
     toYear = parseInt(toYear) || 3000; // Default to 3000 if input is invalid
     let authorField = document.getElementById('author').value;
     let depts = Array.from(document.querySelectorAll('.dept-checkbox:checked')).map(cb => cb.value)
+
+    // Check if searchTerm AND authorField are empty, if so reject search
+    if (!searchTerm && !authorField) {
+        document.getElementById('results').setCustomValidity('Please enter a search term or author name.');
+        return;
+    }
+
     try {
         const response = await fetch('http://localhost:8000/search', {
             method: 'POST',
