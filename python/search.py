@@ -82,11 +82,37 @@ def similarityAuthor(queryName, targetCanon):
 
 def search(query, df:pandas.DataFrame, index, ids, model, TOP_K=TOP_K, fromYear=1700, toYear=datetime.datetime.now().year, includeUnknown=False, authorField=None, deptCheckboxes=None, recurse=False):
     results = []
+
     if deptCheckboxes is None:
         deptCheckboxes = []
+    
+    df = df.fillna("0") 
+
+    if query.strip() == "":
+        # Handle edge case where search query is blank, but author query isnt
+        # Department filter
+        if len(deptCheckboxes) > 0 and not (len(deptCheckboxes) == 1 and deptCheckboxes[0] == ""):
+            # normalize department filter
+            normaCheckboxes = [d.strip().lower() for d in deptCheckboxes]
+            df = df[df["department"].apply(lambda dept: str(dept).strip().lower() in normaCheckboxes if len(normaCheckboxes) > 0 else True)]
+        # Year filter
+        df = df[df["year"].apply(lambda year: ((not year or str(year).strip() == "0" or int(year) >= fromYear and int(year) <= toYear) if includeUnknown else ((year and str(year).strip() != "0") and int(year) >= fromYear and int(year) <= toYear)))]
+        # Author filter
+        if authorField:
+            df = df[df["author"].apply(lambda a: similarityAuthor(authorField, str(a.strip().lower())) if str(a).strip().lower() != "0" else False)]
+            for i, row in df.iterrows():
+                results.append((row["title"], row["author"], row["year"], row["abstract"], row["department"], row["pdf_url"], row["db_id"], 0.0))
+                # Return correct number of results
+                if len(results) >= TOP_K:
+                    break
+        else:
+            # This should never run but its here anyways
+            results = []
+        return results
+        
+                
     q = model.encode([query], normalize_embeddings=True)
 
-    # TODO: If the search term is empty edge case
     # TODO: Recursive search with increased K perhaps?
 
     # By default, search for 5x the request just in case there are many results that get filtered out
