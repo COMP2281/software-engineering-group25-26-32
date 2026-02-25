@@ -2,12 +2,13 @@ const express = require("express");
 const app = express ();
 const http = require("http");
 const path = require("path");
+const cookieParser = require("cookie-parser");
 const server = http.createServer(app);
 
 const port = process.env.PORT || 8080;
 
 app.use(express.static("./client"));
-
+app.use(cookieParser());
 app.use(express.json());
 
 app.get("/", (req, res) => {
@@ -18,7 +19,18 @@ app.get("/login", (req, res) => {
     res.sendFile(path.join(__dirname, "client/login.html"));
 });
 
-app.get("/admin", (req, res) => {
+app.get("/admin", async (req, res) => {
+    const token = req.cookies.token;
+    if (!token) {
+        return res.redirect('/login');
+    }
+    const response = await fetch('http://localhost:8000/token', {
+        method: 'GET',
+        headers: { 'Cookie': `token=${token}` }
+    });
+    if (!response.ok) {
+        return res.redirect('/login');
+    }
     res.sendFile(path.join(__dirname, "client/admin.html"));
 });
 
