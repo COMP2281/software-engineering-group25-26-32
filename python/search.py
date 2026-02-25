@@ -10,8 +10,8 @@ ID_FILE = "durham_thesis_ids.npy"
 TOP_K = 10
 
 
-def initialise(MODEL_NAME=MODEL_NAME, INDEX_FILE=INDEX_FILE, ID_FILE=ID_FILE):
-    df = load_theses()
+def initialise(MODEL_NAME=MODEL_NAME, INDEX_FILE=INDEX_FILE, ID_FILE=ID_FILE, DB_PATH="./db/db.db"):
+    df = load_theses(DB_PATH)
     index = faiss.read_index(INDEX_FILE)
     ids = np.load(ID_FILE)
     model = SentenceTransformer(MODEL_NAME)

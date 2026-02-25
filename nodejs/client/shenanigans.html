@@ -1,0 +1,27 @@
+<html>
+    <head>
+        <title>Durham E-Theses Search</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+        <link rel="stylesheet" href="styles.css">
+    </head>
+    <body>
+        <div class = "container">
+            <form id="uploadForm">
+                <h1>File Upload</h1>
+                <input type="file" id="fileInput" required /><br>
+                Name of title field: <input type = "text" id = "titleField">
+                Name of author field: <input type = "text" id = "authorField">
+                Name of year field: <input type = "text" id = "yearField">
+                Name of department/subject field: <input type = "text" id = "deptField">
+                Name of keywords field: <input type = "text" id = "keywordsField">
+                Name of abstract field: <input type = "text" id = "abstractField">
+                Name of PDF link field: <input type = "text" id = "pdfUrlField">
+                Name of URL field: <input type = "text" id = "urlField">
+                <button type="submit">Upload</button>
+            </form>
+        </div>
+    </body>
+    <script src="https://cdn.jsdelivr.net/npm/showdown@2.1.0/dist/showdown.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+    <script src="shenanigans.js"></script>
+</html>

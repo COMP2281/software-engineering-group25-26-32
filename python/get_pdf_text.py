@@ -13,7 +13,7 @@ if DB_PATH is None:
 TESSDATA_PATH = os.getenv("TESSDATA_PREFIX")
 
 
-def get_unprocessed_ids():
+def get_unprocessed_ids(DB_PATH=DB_PATH):
     """Get all IDs from the db that havent currently been processed"""
     conn = sqlite3.connect(DB_PATH)
     cur = conn.cursor()
@@ -22,7 +22,7 @@ def get_unprocessed_ids():
     conn.close()
     return [row[0] for row in rows if row[1].find(".pdf") != -1]
 
-def pdf_urls_from_id_list(l):
+def pdf_urls_from_id_list(l, DB_PATH=DB_PATH):
     """Get the PDF URLs corresponding to a list of IDs from the database"""
     conn = sqlite3.connect(DB_PATH)
     cur = conn.cursor()
@@ -45,13 +45,13 @@ def page_ocr_text(page:pymupdf.Page):
     return text
 
 
-def pdf_to_txt_json(id):
+def pdf_to_txt_json(id, DB_PATH=DB_PATH):
     """Convert the contents of PDF files corresponding to the input ID into a JSON file. One line in the JSON file = one page in the pdf.
     \nid = ID from the database
     """
     if type(id) is not list:
         id = [id]
-    rows = pdf_urls_from_id_list(id)
+    rows = pdf_urls_from_id_list(id, DB_PATH=DB_PATH)
     fulltext = "" 
     for row in rows:
         id = row[0]
@@ -79,7 +79,7 @@ def pdf_to_txt_json(id):
             fulltext += "\n\n"
     return fulltext
 
-def doc_text_to_db(id, text):
+def doc_text_to_db(id, text, DB_PATH=DB_PATH):
     """Update the database entry for the given ID with the provided text
     \nid = ID from the database
     \ntext = text content to store in the database"""
@@ -91,7 +91,7 @@ def doc_text_to_db(id, text):
     return
 
 
-def get_pdf_text(id):
+def get_pdf_text(id, DB_PATH=DB_PATH):
     """Retrieve the stored PDF text from the database for the given ID
     \nid = ID from the database
     \nReturns the stored PDF text as a string"""
@@ -106,17 +106,17 @@ def get_pdf_text(id):
         return None
     
 
-def process_pdf(id):
+def process_pdf(id, DB_PATH=DB_PATH):
     print(f"Processing ID {id}...")
     time.sleep(RATE_LIMIT_PAUSE) 
     try:
-        text = pdf_to_txt_json(id)
+        text = pdf_to_txt_json(id, DB_PATH=DB_PATH)
         return (id, text, None)
     except Exception as e:
         return (id, None, str(e))
 
 
-def writer_thread(result_queue):
+def writer_thread(result_queue, DB_PATH=DB_PATH):
     """Thread to write PDF contents to DB once they've been OCR'd"""
     while True:
         item = result_queue.get()
@@ -126,25 +126,25 @@ def writer_thread(result_queue):
         if error:
             print(f"Error processing ID {id}: {error}")
         else:
-            doc_text_to_db(id, text)
+            doc_text_to_db(id, text, DB_PATH=DB_PATH)
             print(f"Finished processing ID {id}")
 
 
-def upload_pdf_texts_to_db_parallel():
-    ids = [id for id in get_unprocessed_ids()]
+def upload_pdf_texts_to_db_parallel(DB_PATH=DB_PATH):
+    ids = [id for id in get_unprocessed_ids(DB_PATH=DB_PATH)]
     print(ids)
     print(len(ids))
     result_queue = queue.Queue()
 
     # Start DB writer thread
-    writer = threading.Thread(target=writer_thread, args=(result_queue,))
+    writer = threading.Thread(target=writer_thread, args=(result_queue, DB_PATH))
     writer.start()
 
     with concurrent.futures.ProcessPoolExecutor(
         max_workers=multiprocessing.cpu_count()
     ) as executor:
 
-        futures = [executor.submit(process_pdf, id) for id in ids]
+        futures = [executor.submit(process_pdf, id, DB_PATH=DB_PATH) for id in ids]
 
         for i, future in enumerate(concurrent.futures.as_completed(futures)):
             result_queue.put(future.result())

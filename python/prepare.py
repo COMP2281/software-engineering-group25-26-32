@@ -19,7 +19,7 @@ def normalize(text):
     text = re.sub(r"([!?.,;:]){2,}", r"\1", text)
     return text
 
-def load_theses():
+def load_theses(DB_PATH=DB_PATH):
     conn = sqlite3.connect(DB_PATH)
     df = pd.read_sql_query("SELECT title, author, date, abstract, department, pdf_url, id AS db_id FROM Thesis", conn)
     conn.close()

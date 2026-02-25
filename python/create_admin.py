@@ -8,7 +8,7 @@ except:
 if DB_PATH is None:
     DB_PATH = "./db/db.db"
 
-def create_admin(username, password):
+def create_admin(username, password, DB_PATH=DB_PATH):
     conn = sqlite3.connect(DB_PATH)
     cur = conn.cursor()
 
@@ -43,7 +43,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Create an admin user for the thesis search application.")
     parser.add_argument("username", type=str, help="The username for the admin user.")
     parser.add_argument("password", type=str, help="The password for the admin user.")
+    parser.add_argument("--db", type=str, default=DB_PATH, help="Path to the SQLite database file.")
     args = parser.parse_args()
     if not args.username or not args.password:
         print("Error: Both username and password are required.")
-    create_admin(args.username, args.password)
+    create_admin(args.username, args.password, args.db_path)

@@ -145,7 +145,7 @@ def get_data(mystr):
     else:
         return None, None, None, None, None
 
-def write_to_db(title, author, abstract, award, keywords, date, faculty, dept, url, pdf_url):
+def write_to_db(title, author, abstract, award, keywords, date, faculty, dept, url, pdf_url, DB_PATH=DB_PATH):
     conn = sqlite3.connect(DB_PATH)
     cur = conn.cursor()
     data = (title, author, abstract, award, keywords, date, faculty, dept, url, pdf_url)
@@ -156,7 +156,7 @@ def write_to_db(title, author, abstract, award, keywords, date, faculty, dept, u
 
 
 
-def scrape(i):
+def scrape(i, DB_PATH=DB_PATH):
     url = f"https://etheses.dur.ac.uk/{i}/"
     try:
         fp = urllib.request.urlopen(f"https://etheses.dur.ac.uk/{i}/")
@@ -178,7 +178,7 @@ def scrape(i):
     print("success", i)
     return 0
 
-def get_last_id():
+def get_last_id(DB_PATH=DB_PATH):
     conn = sqlite3.connect(DB_PATH)
     cur = conn.cursor()
     cur.execute("SELECT url FROM Thesis WHERE url IS NOT NULL ORDER BY id DESC LIMIT 1")
@@ -191,7 +191,7 @@ def get_last_id():
     else:
         return 0
 
-def get_latest_id():
+def get_latest_id(DB_PATH=DB_PATH):
     latest_page = urllib.request.urlopen("https://etheses.dur.ac.uk/cgi/latest")
     mybytes = latest_page.read()
     mystr = mybytes.decode("utf8")

@@ -15,7 +15,7 @@ except:
     raise Exception("GEMINI_API_KEY environment variable not found. Please set it in .env")
 
 # load thesis pages from db
-def load_pages(doc_id):
+def load_pages(doc_id, DB_PATH=DB_PATH):
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
 
@@ -46,8 +46,8 @@ def load_pages(doc_id):
     return pages
 
 # Summarise using Gemini - need GEMINI_API_KEY in .env
-def summarise_thesis(DOC_ID=DOC_ID):
-    pages = load_pages(DOC_ID)
+def summarise_thesis(DOC_ID=DOC_ID, DB_PATH=DB_PATH):
+    pages = load_pages(DOC_ID, DB_PATH)
     try:
         client = gemini.Client(api_key=os.environ.get("GEMINI_API_KEY"))
         response = client.models.generate_content(
