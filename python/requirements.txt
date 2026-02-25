@@ -11,3 +11,4 @@ dotenv
 pymupdf
 google-genai
 bcrypt
+pyjwt[crypto]

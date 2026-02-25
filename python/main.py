@@ -1,11 +1,14 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Cookie, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from typing import Annotated 
 from contextlib import asynccontextmanager
 from search import initialise, search, get_all_departments
 from pydantic import BaseModel
 from durham_etheses_scraper import scrape, get_last_id, get_latest_id
 from get_pdf_text import upload_pdf_texts_to_db_parallel
 from gemini_ai_summariser import summarise_thesis
+from auth import *
 
 MODEL_NAME = "sentence-transformers/all-mpnet-base-v2"
 INDEX_FILE = "durham_thesis.index"
@@ -28,7 +31,7 @@ async def lifespan(app: FastAPI):
     print("Shutting down...")
 
 
-app = FastAPI(lifespan=lifespan)
+app = FastAPI()
 
 #allow fastAPI endpoints to be accessed from localhost:8080 (the nodejs)
 origins = [
@@ -77,7 +80,9 @@ async def get_departments():
 # TODO: Make this permission based
 # TODO: Make this not hang the server / multithreading?
 # Updates the DB with new theses uploaded to Durham-Etheses, including PDF text extraction if full PDF is released.
-async def update_db():
+async def update_db(token: Annotated[str | None, Cookie()] = None):
+    if not verify_token(token):
+        raise HTTPException(status_code=401, detail="Unauthorized")
     last_id = get_last_id()
     latest_id = get_latest_id()
     print(f"Last ID in DB: {last_id}, Latest ID on site: {latest_id}")
@@ -92,10 +97,20 @@ async def update_db():
 
 @app.get("/summarise/{db_id}")
 async def summarise(db_id: int):
-    if True:
-        summary = summarise_thesis(db_id)
-    else:
-        sample_file = open("./sample_summary.txt", "r")
-        summary = sample_file.readlines()
-        sample_file.close()
+    summary = summarise_thesis(db_id)
     return {"summary": summary}
+
+@app.get("/login")
+async def login(username: str, password: str):
+    if login(username, password):
+        token = generate_token(username)
+        response = JSONResponse(content={"message": "Login successful"})
+        response.set_cookie(key="token", value=token, httponly=True)
+        return response
+    return {"message": "Invalid credentials"}
+
+@app.get("/test")
+async def test(token: Annotated[str | None, Cookie()] = None):
+    if not verify_token(token):
+        raise HTTPException(status_code=401, detail="Unauthorized")
+    return {"message": "Token is valid"}
