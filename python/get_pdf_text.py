@@ -8,6 +8,8 @@ try:
     DB_PATH = os.environ.get("DB_PATH")
 except:
     DB_PATH = "./db/db.db"
+if DB_PATH is None:
+    DB_PATH = "./db/db.db"
 TESSDATA_PATH = os.getenv("TESSDATA_PREFIX")
 
 

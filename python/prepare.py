@@ -7,6 +7,8 @@ try:
     DB_PATH = os.environ.get("DB_PATH")
 except:
     DB_PATH = "./db/db.db"
+if DB_PATH is None:
+    DB_PATH = "./db/db.db"
 
 def normalize(text):
     if not isinstance(text, str):

@@ -10,26 +10,33 @@ try:
     DB_PATH = os.environ.get("DB_PATH")
 except:
     DB_PATH = "./db/db.db"
+if DB_PATH is None:
+    DB_PATH = "./db/db.db"
 if not os.path.exists(DB_PATH):
     os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
-    conn = sqlite3.connect(DB_PATH)
-    conn.execute('''CREATE TABLE "Thesis" (
-	"id"	INTEGER NOT NULL,
-	"title"	TEXT,
-	"author"	TEXT,
-	"abstract"	TEXT,
-	"award"	NUMERIC,
-	"keywords"	TEXT,
-	"date"	NUMERIC,
-	"faculty"	TEXT,
-	"department"	TEXT,
-	"url"	TEXT,
-	"pdf_url"	TEXT,
-	"pdf_text"	TEXT,
-	PRIMARY KEY("id" AUTOINCREMENT)
-)''')
-    conn.commit()
-    conn.close()
+
+conn = sqlite3.connect(DB_PATH)
+conn.execute(
+    '''
+    CREATE TABLE IF NOT EXISTS "Thesis" (
+    "id"	INTEGER NOT NULL,
+    "title"	TEXT,
+    "author"	TEXT,
+    "abstract"	TEXT,
+    "award"	NUMERIC,
+    "keywords"	TEXT,
+    "date"	NUMERIC,
+    "faculty"	TEXT,
+    "department"	TEXT,
+    "url"	TEXT,
+    "pdf_url"	TEXT,
+    "pdf_text"	TEXT,
+    PRIMARY KEY("id" AUTOINCREMENT)
+    )
+    '''
+    )
+conn.commit()
+conn.close()
 
 def get_title(mystr):
     titleStr = "<h1"
