@@ -81,8 +81,6 @@ def similarityAuthor(queryName, targetCanon):
     # Optional fuzzy fallback
     return fuzz.token_sort_ratio(queryName, " ".join(t["tokens"])) >= 85
 
-    # return False
-
 
 def search(query, df:pandas.DataFrame, index, ids, model, TOP_K=TOP_K, fromYear=1700, toYear=datetime.datetime.now().year, includeUnknown=False, authorField=None, deptCheckboxes=None, recurse=False):
     results = []

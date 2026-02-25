@@ -51,7 +51,7 @@ document.getElementById('searchForm').addEventListener('submit', async (event) =
 
     // Check if searchTerm AND authorField are empty, if so reject search
     if (!searchTerm && !authorField) {
-        document.getElementById('results').setCustomValidity('Please enter a search term or author name.');
+        document.getElementById('searchTerm').setCustomValidity('Please enter a search term or author name.');
         return;
     }
 
