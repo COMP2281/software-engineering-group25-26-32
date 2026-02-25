@@ -48,8 +48,6 @@ def canonical_author(name):
     }
 
 
-# Bug: When searching only 1 name, doesn't work
-# TODO: Fix that
 def similarityAuthor(queryName, targetCanon):
     if not queryName or not targetCanon:
         return False
