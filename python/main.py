@@ -9,6 +9,7 @@ from durham_etheses_scraper import scrape, get_last_id, get_latest_id
 from get_pdf_text import upload_pdf_texts_to_db_parallel
 from gemini_ai_summariser import summarise_thesis
 from auth import *
+from create_admin import create_admin
 
 MODEL_NAME = "sentence-transformers/all-mpnet-base-v2"
 INDEX_FILE = "durham_thesis.index"
@@ -81,7 +82,7 @@ async def get_departments():
 # Updates the DB with new theses uploaded to Durham-Etheses, including PDF text extraction if full PDF is released.
 async def update_db(token: Annotated[str | None, Cookie()] = None):
     if not verify_token(token):
-        raise HTTPException(status_code=401, detail="Unauthorized")
+        raise HTTPException(status_code=401, detail="Unauthorised")
     last_id = get_last_id()
     latest_id = get_latest_id()
     print(f"Last ID in DB: {last_id}, Latest ID on site: {latest_id}")
@@ -103,7 +104,7 @@ async def summarise(db_id: int):
 async def login(username: str, password: str):
     if check_creds(username, password):
         token = generate_token(username)
-        response = JSONResponse(content={"message": "Login successful", "token": token})
+        response = JSONResponse(content={"message": "Login successful"})
         response.set_cookie(key="token", value=token, httponly=True)
         return response
     raise HTTPException(status_code=401, detail="Invalid username or password")
@@ -112,5 +113,19 @@ async def login(username: str, password: str):
 async def test(token: Annotated[str | None, Cookie()] = None):
     print("Received token:", token)
     if not verify_token(token):
-        raise HTTPException(status_code=401, detail="Unauthorized")
+        raise HTTPException(status_code=401, detail="Unauthorised")
     return {"message": "Token is valid"}
+
+
+class AdminUser(BaseModel):
+    username: str
+    password: str
+
+@app.post("/create-admin")
+async def create_admin_endpoint(admin_user: AdminUser, token: Annotated[str | None, Cookie()] = None):
+    if not verify_token(token):
+        raise HTTPException(status_code=401, detail="Unauthorised")
+    success = create_admin(admin_user.username, admin_user.password)
+    if not success:
+        raise HTTPException(status_code=500, detail="Failed to create admin user")
+    return {"message": "Admin user created successfully"}

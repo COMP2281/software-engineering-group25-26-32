@@ -27,8 +27,13 @@ def create_admin(username, password):
         cur.execute("INSERT INTO Admin (username, password) VALUES (?, ?)", (username, password))
         conn.commit()
         print(f"Admin user '{username}' created successfully.")
+        return True
     except sqlite3.IntegrityError:
         print(f"Error: Admin user '{username}' already exists.")
+        return False
+    except Exception as e:
+        print(f"Error creating admin user: {e}")
+        return False
     finally:
         cur.close()
         conn.close()

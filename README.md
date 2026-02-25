@@ -51,5 +51,5 @@ A Gemini API key can be generated from https://aistudio.google.com/api-keys
 
 # Creating an Admin User
 - `cd python`
-- `python create-admin.py <username> <password>`
+- `python create_admin.py <username> <password>`
 - Login with the credentials at http://localhost:8080/login
