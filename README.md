@@ -48,3 +48,8 @@ A Gemini API key can be generated from https://aistudio.google.com/api-keys
 - `cd python`
 - `fastapi dev main.py`
 - wait for `Application Startup Complete` message in console.
+
+# Creating an Admin User
+- `cd python`
+- `python create-admin.py <username> <password>`
+- Login with the credentials at http://localhost:8080/login
