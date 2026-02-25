@@ -53,9 +53,16 @@ def canonical_author(name):
 def similarityAuthor(queryName, targetCanon):
     if not queryName or not targetCanon:
         return False
-
-    q = canonical_author(queryName)
+    
     t = canonical_author(targetCanon)
+    q = canonical_author(queryName)
+    
+    # Search one name case
+    if " " not in queryName:
+        # Fuzzy search over each token in the target name, if any are similar enough, consider it a match
+        for token in t["tokens"]:
+            if fuzz.ratio(queryName, token) >= 85:
+                return True
 
     if not q or not t:
         return False
@@ -77,7 +84,7 @@ def similarityAuthor(queryName, targetCanon):
     # return False
 
 
-def search(query, df:pandas.DataFrame, index, ids, model, TOP_K=TOP_K, fromYear=1700, toYear=datetime.datetime.now().year, includeUnknown=False, authorField=None, deptCheckboxes=None):
+def search(query, df:pandas.DataFrame, index, ids, model, TOP_K=TOP_K, fromYear=1700, toYear=datetime.datetime.now().year, includeUnknown=False, authorField=None, deptCheckboxes=None, recurse=False):
     results = []
     if deptCheckboxes is None:
         deptCheckboxes = []
@@ -131,15 +138,22 @@ def search(query, df:pandas.DataFrame, index, ids, model, TOP_K=TOP_K, fromYear=
             break
 
 
+    if len(results) == 0:
+        # No results were found, try recursive call once
+        if recurse:
+            return results
+        results = search(query, df, index, ids, model, TOP_K*2, fromYear, toYear, includeUnknown, authorField, deptCheckboxes, recurse=True)
     return results
 
 if __name__ == "__main__":
     df, index, ids, model = initialise()
     while True:
         query = input("Search: ")
+        authQuery = input("Author filter (optional): ")
         query = normalize(query)
-        for r in search(query, df, index, ids, model):
+        for r in search(query, df, index, ids, model, 10, 1700, datetime.datetime.now().year, True, authQuery, None):
             print(f"{r[0]} - {r[1]} ({r[2]}) [Score: {r[-1]:.2f}]")
+            print(f"PDF URL: {r[5]}")
             print(f"Department: {r[4]}")
             print(f"Abstract: {r[3][:200]}...") # First 200 characters
             print()
