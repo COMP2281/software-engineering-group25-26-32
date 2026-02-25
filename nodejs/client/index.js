@@ -37,6 +37,7 @@ departments();
 
 document.getElementById('searchForm').addEventListener('submit', async (event) => {
     event.preventDefault();
+    document.getElementById('searchTerm').setCustomValidity(''); // Clear any previous custom validity messages
     const searchTerm = document.getElementById('searchTerm').value;
     let resultCount = document.getElementById('resultCount').value;
     let fromYear = document.getElementById('fromYear').value;
