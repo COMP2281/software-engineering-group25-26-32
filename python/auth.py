@@ -2,13 +2,13 @@ import sqlite3, os, bcrypt, jwt
 from dotenv import load_dotenv
 load_dotenv()
 try:
-    DB_PATH = os.environ.get("DB_PATH")
+    DB_PATH = os.environ.get("USERS_DB_PATH")
     SECRET_KEY = os.environ.get("SECRET_KEY")
 except:
-    DB_PATH = "./db/db.db"
+    DB_PATH = "./db/users.db"
     SECRET_KEY = "default_secret_key"
 if DB_PATH is None:
-    DB_PATH = "./db/db.db"
+    DB_PATH = "./db/users.db"
 if SECRET_KEY is None:
     SECRET_KEY = "default_secret_key"
 
