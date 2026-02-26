@@ -11,15 +11,10 @@
                 DB or CSV File: <input type="file" id="fileInput"/><br>
                 Index File: <input type="file" id="indexFileInput"><br>
                 IDs File: <input type="file" id="idsFileInput"><br>
-                Name of title field: <input type = "text" id = "titleField">
-                Name of author field: <input type = "text" id = "authorField">
-                Name of year field: <input type = "text" id = "yearField">
-                Name of department/subject field: <input type = "text" id = "deptField">
-                Name of keywords field: <input type = "text" id = "keywordsField">
-                Name of abstract field: <input type = "text" id = "abstractField">
-                Name of PDF link field: <input type = "text" id = "pdfUrlField">
-                Name of URL field: <input type = "text" id = "urlField">
                 <button type="submit">Upload</button>
+                <p>DB files must be SQLite databases with some of the following fields. CSV files must have some of the following fields. Names must be exact (case-sensitive). Other fields will be ignored.</p>
+                <p>Fields: title, author, abstract, award, faculty, department, keywords, date, url, pdf_url, pdf_text</p>
+                <p>Note: <code>pdf_url</code> must be a direct download link to a PDF. For other links (e.g. to the repository webpage containing information about a thesis) use the <code>url</code> field instead.</p>
             </form>
         </div>
     </body>

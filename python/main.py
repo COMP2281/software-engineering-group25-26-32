@@ -162,14 +162,6 @@ async def create_admin_endpoint(admin_user: AdminUser, token: Annotated[str | No
 async def upload(file: Annotated[UploadFile | None, File()] = None,
     indexFile: Annotated[UploadFile | None, File()] = None,
     idsFile: Annotated[UploadFile | None, File()] = None,
-    titleField: Annotated[str | None, Form()] = None,
-    authorField: Annotated[str | None, Form()] = None,
-    yearField: Annotated[str | None, Form()] = None,
-    abstractField: Annotated[str | None, Form()] = None,
-    deptField: Annotated[str | None, Form()] = None,
-    keywordsField: Annotated[str | None, Form()] = None,
-    pdfUrlField: Annotated[str | None, Form()] = None,
-    urlField: Annotated[str | None, Form()] = None,
     token: Annotated[str | None, Cookie()] = None
 ):
     global df, index, ids, model, departments, DB_PATH
@@ -186,21 +178,14 @@ async def upload(file: Annotated[UploadFile | None, File()] = None,
 
     if file:
         db_fields = ["title", "author", "date", "abstract", "department", "keywords", "pdf_url", "url", "pdf_text"]
-        possible_fields = [titleField, authorField, yearField, abstractField, deptField, keywordsField, pdfUrlField, urlField]
-        fields = [f for f in possible_fields if f is not None and f != ""]
         # read uploaded csv file
         if file.filename.endswith(".csv"):
             contents = await file.read()
-            if len(fields) == 0:
-                raise HTTPException(status_code=400, detail="At least one field must be specified")
             df2 = pd.read_csv(io.StringIO(contents.decode('utf-8')))
-            df2 = df2[fields]
-            try:
-                for i, field in enumerate(possible_fields):
-                    if field in fields:
-                        df2.rename(columns={field: db_fields[i]}, inplace=True)
-            except Exception as e:
-                raise HTTPException(status_code=400, detail=f"Error processing fields: {str(e)}")
+            valid_fields = [f for f in db_fields if f in df2.columns]
+            if len(valid_fields) == 0:
+                raise HTTPException(status_code=400, detail=f"CSV does not contain any required fields. Expected at least one of: {db_fields}")
+            df2 = df2[valid_fields]
             con = sqlite3.connect(DB_PATH)
             con.execute("DROP TABLE IF EXISTS Thesis")
             con.execute(
@@ -240,37 +225,25 @@ async def upload(file: Annotated[UploadFile | None, File()] = None,
                 f.write(contents)
             await file.close()
             # check if the uploaded db has the correct schema
-            with sqlite3.connect("./db/temp.db") as con:
-                cur = con.execute("SELECT * FROM Thesis LIMIT 1")
-                temp_fields = [field[0] for field in cur.description]
-            db_fields = set(db_fields)
-            if db_fields.issubset(set(temp_fields)):
-                shutil.copyfile("./db/temp.db", DB_PATH)
-                try:
-                    os.remove("./db/temp.db")
-                except Exception as e:pass
-            else:
-                if len(fields) == 0:
+            try:
+                with sqlite3.connect("./db/temp.db") as con:
                     try:
-                        os.remove("./db/temp.db")
-                    except Exception as e:pass
-                    raise HTTPException(status_code=400, detail=f"Uploaded database has incorrect schema. Expected fields: {db_fields}")
-                else:
-                    for field in fields:
-                        try:
-                            with sqlite3.connect("./db/temp.db") as con:
-                                con.execute(f"ALTER TABLE Thesis RENAME COLUMN {field} TO {db_fields[possible_fields.index(field)]}")
-                                con.commit()
-                        except Exception as e:
-                            os.remove("./db/temp.db")
-                            raise HTTPException(status_code=400, detail=f"Error processing fields: {str(e)}")
+                        cur = con.execute("SELECT * FROM Thesis LIMIT 1")
+                    except Exception as e:
+                        raise HTTPException(status_code=400, detail=f"Uploaded database does not contain a 'Thesis' table with the correct schema: {str(e)}")
+                    temp_fields = [field[0] for field in cur.description]
+            except Exception as e:
+                raise HTTPException(status_code=400, detail=f"Error reading uploaded database: {str(e)}")
+            if set(db_fields).issubset(set(temp_fields)) or set(temp_fields).issubset(set(db_fields)):pass
+            else:
+                raise HTTPException(status_code=400, detail=f"Uploaded database does not contain the correct fields. Expected fields: {db_fields}. Uploaded database fields: {temp_fields}")
 
-                    for field in db_fields:
-                        if field not in temp_fields:
-                            with sqlite3.connect("./db/temp.db") as con:
-                                con.execute(f"ALTER TABLE Thesis ADD COLUMN {field} TEXT")
-                                con.commit()
-                    shutil.copyfile("./db/temp.db", DB_PATH)
+            for field in db_fields:
+                if field not in temp_fields:
+                    with sqlite3.connect("./db/temp.db") as con:
+                        con.execute(f"ALTER TABLE Thesis ADD COLUMN {field} TEXT")
+                        con.commit()
+            shutil.copyfile("./db/temp.db", DB_PATH)
 
         else:
             raise HTTPException(status_code=400, detail="Invalid file type")

@@ -17,14 +17,6 @@ document.getElementById("uploadForm").addEventListener('submit', async function(
     if (idsFile){
         formData.append("idsFile", idsFile);
     }
-    formData.append("titleField", document.getElementById("titleField").value);
-    formData.append("authorField", document.getElementById("authorField").value);
-    formData.append("yearField", document.getElementById("yearField").value);
-    formData.append("deptField", document.getElementById("deptField").value);
-    formData.append("keywordsField", document.getElementById("keywordsField").value);
-    formData.append("abstractField", document.getElementById("abstractField").value);
-    formData.append("pdfUrlField", document.getElementById("pdfUrlField").value);
-    formData.append("urlField", document.getElementById("urlField").value);
     const response = await fetch("http://localhost:8000/upload", {
         method: 'POST',
         credentials: 'include',
