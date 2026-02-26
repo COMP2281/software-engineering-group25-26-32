@@ -39,6 +39,7 @@ departments = None
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     global df, index, ids, model, departments, DB_PATH
+    #startup code here
     load_dotenv(override=True)
     try:
         DB_PATH = os.environ.get("DB_PATH")
@@ -46,10 +47,12 @@ async def lifespan(app: FastAPI):
         DB_PATH = "./db/db.db"
     if DB_PATH is None:
         DB_PATH = "./db/db.db"
-    #startup code here
     print("Starting up...")
-    df, index, ids, model = initialise(MODEL_NAME, INDEX_FILE, ID_FILE, DB_PATH)
-    departments = get_all_departments(df)
+    if os.path.isfile(DB_PATH) and os.path.isfile(INDEX_FILE) and os.path.isfile(ID_FILE):
+        df, index, ids, model = initialise(MODEL_NAME, INDEX_FILE, ID_FILE, DB_PATH)
+        departments = get_all_departments(df)
+    else:
+        print("Warning: Database, index or IDs file not found. Please upload them through the admin panel.")
     print("Startup complete.")
     yield
     #shutdown code here
