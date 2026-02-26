@@ -2,11 +2,11 @@ import argparse, sqlite3, os, bcrypt
 from dotenv import load_dotenv
 load_dotenv()
 try:
-    DB_PATH = os.environ.get("DB_PATH")
+    DB_PATH = os.environ.get("USERS_DB_PATH")
 except:
-    DB_PATH = "./db/db.db"
+    DB_PATH = "./db/users.db"
 if DB_PATH is None:
-    DB_PATH = "./db/db.db"
+    DB_PATH = "./db/users.db"
 
 def create_admin(username, password, DB_PATH=DB_PATH):
     conn = sqlite3.connect(DB_PATH)
@@ -43,8 +43,10 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Create an admin user for the thesis search application.")
     parser.add_argument("username", type=str, help="The username for the admin user.")
     parser.add_argument("password", type=str, help="The password for the admin user.")
-    parser.add_argument("--db", type=str, default=DB_PATH, help="Path to the SQLite database file.")
+    parser.add_argument("--db", type=str, default=DB_PATH, help="Path to the SQLite user database file.")
     args = parser.parse_args()
     if not args.username or not args.password:
         print("Error: Both username and password are required.")
-    create_admin(args.username, args.password, args.db_path)
+    if args.db:
+        DB_PATH = args.db
+    create_admin(args.username, args.password, DB_PATH)
