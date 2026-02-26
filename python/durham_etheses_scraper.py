@@ -185,6 +185,8 @@ def get_last_id(DB_PATH=DB_PATH):
     row = cur.fetchone()
     conn.close()
     if row:
+        if row[0].find("https://etheses.dur.ac.uk/") == -1:
+            return -1
         url = row[0][:-1]
         id = url.split("/")[-1]
         return int(id)

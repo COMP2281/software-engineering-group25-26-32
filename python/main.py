@@ -10,14 +10,15 @@ from pydantic import BaseModel
 from durham_etheses_scraper import scrape, get_last_id, get_latest_id
 from get_pdf_text import upload_pdf_texts_to_db_parallel
 from gemini_ai_summariser import summarise_thesis
-# from index import build_index
+try:
+    from index import build_index
+except:
+    print("Warning: CUDA is not available on the server. Index cannot be updated with new theses until CUDA is avaibale.")
 from auth import *
 from create_admin import create_admin
 import pandas as pd
 import io
-import gc
 import shutil
-import time
 
 load_dotenv()
 
@@ -105,22 +106,33 @@ async def get_departments():
 
 @app.post("/update-db")
 # TODO: Make this not hang the server / multithreading?
-# TODO: This currently doesnt update the index so new theses wont come up in search results until index is rebuilt
 # Updates the DB with new theses uploaded to Durham-Etheses, including PDF text extraction if full PDF is released.
 async def update_db(token: Annotated[str | None, Cookie()] = None):
     if not verify_token(token):
         raise HTTPException(status_code=401, detail="Unauthorised")
     last_id = get_last_id()
-    latest_id = get_latest_id()
-    print(f"Last ID in DB: {last_id}, Latest ID on site: {latest_id}")
-    if last_id == latest_id:
-        return {"message": "Database is already up to date"}
-    for i in range(last_id + 1, latest_id + 1):
-        result = scrape(i)
-        if result == 0:
-            print("Successfully added thesis with ID", i, "to the database.")
+    if last_id != -1:
+        # Durham Etheses only.
+        latest_id = get_latest_id()
+        print(f"Last ID in DB: {last_id}, Latest ID on site: {latest_id}")
+        if last_id == latest_id:
+            return {"message": "Database is already up to date"}
+        for i in range(last_id + 1, latest_id + 1):
+            result = scrape(i)
+            if result == 0:
+                print("Successfully added thesis with ID", i, "to the database.")
     upload_pdf_texts_to_db_parallel(DB_PATH=DB_PATH)
     return {"message": "Database updated successfully"}
+
+@app.post("/index")
+async def rebuild_index(token: Annotated[str | None, Cookie()] = None):
+    if not verify_token(token):
+        raise HTTPException(status_code=401, detail="Unauthorised")
+    try:
+        build_index(df, index, ids, model, DB_PATH=DB_PATH, INDEX_FILE=INDEX_FILE, ID_FILE=ID_FILE)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to build index: {str(e)}")
+    return {"message": "Index rebuilt successfully"}
 
 @app.get("/summarise/{db_id}")
 async def summarise(db_id: int):
@@ -248,10 +260,14 @@ async def upload(file: Annotated[UploadFile | None, File()] = None,
         else:
             raise HTTPException(status_code=400, detail="Invalid file type")
     if indexFile:
+        if not indexFile.filename.endswith(".index"):
+            raise HTTPException(status_code=400, detail="Index file must have .index extension")
         contents = await indexFile.read()
         with open(INDEX_FILE, "wb") as f:
             f.write(contents)
     if idsFile:
+        if not idsFile.filename.endswith(".npy"):
+            raise HTTPException(status_code=400, detail="IDs file must have .npy extension")
         contents = await idsFile.read()
         with open(ID_FILE, "wb") as f:
             f.write(contents)

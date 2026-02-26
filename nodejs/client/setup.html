@@ -8,14 +8,18 @@
         <div class = "container">
             <form id="uploadForm">
                 <h1>File Upload</h1>
-                DB or CSV File: <input type="file" id="fileInput"/><br>
-                Index File: <input type="file" id="indexFileInput"><br>
-                IDs File: <input type="file" id="idsFileInput"><br>
+                DB or CSV File (.db/.csv): <input type="file" id="fileInput" accept=".db,.csv"/><br>
+                Index File (.index): <input type="file" id="indexFileInput" accept=".index"/><br>
+                IDs File (.npy): <input type="file" id="idsFileInput" accept=".npy"/><br>
                 <button type="submit">Upload</button>
-                <p>DB files must be SQLite databases with some of the following fields. CSV files must have some of the following fields. Names must be exact (case-sensitive). Other fields will be ignored.</p>
-                <p>Fields: title, author, abstract, award, faculty, department, keywords, date, url, pdf_url, pdf_text</p>
-                <p>Note: <code>pdf_url</code> must be a direct download link to a PDF. For other links (e.g. to the repository webpage containing information about a thesis) use the <code>url</code> field instead.</p>
             </form>
+                <p>DB files must be SQLite databases with  the following fields. CSV files must have the following fields.<b> Names must be exact (case-sensitive)</b>. Other fields will be ignored.<br>
+                Required Fields: title, author, abstract, department, date<br>
+                Optional Fields: url (link to thesis webpage), pdf_url (direct download link to PDF of thesis), keywords, award, faculty<br>
+                The Index File and IDs File must match the uploaded dataset, and must have been generated using index.py.<br>
+                Note: <code>pdf_url</code> must be a direct download link to a PDF. For other links (e.g. to the repository webpage containing information about a thesis) use the <code>url</code> field instead.<br>
+                If you do not have the Index and IDs file for your database, you can generate them using the "Index Update" button in the Admin panel.</p>
+                <a href = "/admin">Back to Admin Panel</a>
         </div>
     </body>
     <script src="https://cdn.jsdelivr.net/npm/showdown@2.1.0/dist/showdown.min.js"></script>

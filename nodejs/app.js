@@ -34,7 +34,7 @@ app.get("/admin", async (req, res) => {
     res.sendFile(path.join(__dirname, "client/admin.html"));
 });
 
-app.get("/upload", async (req, res) => {
+app.get("/setup", async (req, res) => {
     const token = req.cookies.token;
     if (!token) {
         return res.redirect('/login');
@@ -46,7 +46,7 @@ app.get("/upload", async (req, res) => {
     if (!response.ok) {
         return res.redirect('/login');
     }
-    res.sendFile(path.join(__dirname, "client/shenanigans.html"));
+    res.sendFile(path.join(__dirname, "client/setup.html"));
 });
 
 server.listen(port, () => console.log('Server running on port', port));

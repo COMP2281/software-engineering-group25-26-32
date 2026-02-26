@@ -5,6 +5,13 @@ document.getElementById("dbu").addEventListener('click', async function() {
     });
     console.log(response);
 });
+document.getElementById("idx").addEventListener('click', async function() {
+    const response = await fetch("http://localhost:8000/index",{
+        method: 'POST',
+        credentials: 'include'
+    });
+    console.log(response);
+});
 
 document.getElementById("createAdminForm").addEventListener('submit', async function(e) {
     e.preventDefault();
