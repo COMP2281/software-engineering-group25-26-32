@@ -82,12 +82,10 @@ def similarityAuthor(queryName, targetCanon):
 
 def search(query, df:pandas.DataFrame, index, ids, model, TOP_K=TOP_K, fromYear=1700, toYear=datetime.datetime.now().year, includeUnknown=False, authorField=None, deptCheckboxes=None, recurse=False):
     results = []
-
     if deptCheckboxes is None:
         deptCheckboxes = []
     
     df = df.fillna("0") 
-
     if query.strip() == "":
         # Handle edge case where search query is blank, but author query isnt
         # Department filter

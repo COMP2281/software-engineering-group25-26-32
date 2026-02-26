@@ -1,4 +1,4 @@
-import faiss, torch
+import faiss, torch, os
 import numpy as np
 from sentence_transformers import SentenceTransformer
 from prepare import load_theses, build_text
@@ -40,3 +40,6 @@ def build_index(DB_PATH="./db/db.db"):
     np.save(ID_FILE, ids)
 
     print(f"Indexed {index.ntotal} titles")
+
+if __name__ == "__main__":
+    build_index()

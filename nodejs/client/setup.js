@@ -2,12 +2,21 @@ document.getElementById("uploadForm").addEventListener('submit', async function(
     e.preventDefault();
     const fileInput = document.getElementById("fileInput");
     const file = fileInput.files[0];
-    if (!file) {
-        alert("Please select a file to upload.");
-        return;
-    }
+    const indexFileInput = document.getElementById("indexFileInput");
+    const indexFile = indexFileInput.files[0];
+    const idsFileInput = document.getElementById("idsFileInput");
+    const idsFile = idsFileInput.files[0];
+    console.log(file, indexFile, idsFile);
     const formData = new FormData();
-    formData.append("file", file);
+    if (file){
+        formData.append("file", file);
+    }
+    if (indexFile){
+        formData.append("indexFile", indexFile);
+    }
+    if (idsFile){
+        formData.append("idsFile", idsFile);
+    }
     formData.append("titleField", document.getElementById("titleField").value);
     formData.append("authorField", document.getElementById("authorField").value);
     formData.append("yearField", document.getElementById("yearField").value);
