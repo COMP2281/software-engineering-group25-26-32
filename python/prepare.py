@@ -6,7 +6,7 @@ load_dotenv()
 DB_PATH = os.environ.get("DB_PATH", "./db/db.db")
 
 
-def normalize(text):
+def normalise(text):
     if not isinstance(text, str):
         return ""
     text = unicodedata.normalize("NFKC", text)
@@ -22,10 +22,10 @@ def load_theses(DB_PATH=DB_PATH):
     df = df[["title", "author", "date", "abstract", "department", "pdf_url", "db_id"]] 
 
     # Normalisation
-    df["title"] = df["title"].apply(normalize)
-    df["author"] = df["author"].apply(normalize)
-    df["abstract"] = df["abstract"].fillna("").apply(normalize)
-    df["department"] = df["department"].fillna("").apply(normalize)
+    df["title"] = df["title"].apply(normalise)
+    df["author"] = df["author"].apply(normalise)
+    df["abstract"] = df["abstract"].fillna("").apply(normalise)
+    df["department"] = df["department"].fillna("").apply(normalise)
     df["pdf_url"] = df["pdf_url"].fillna("")
     df["year"] = df["date"].astype(str).str.extract(r"((19|20)\d{2})")[0]
     df["db_id"] = df["db_id"].astype(int)
@@ -38,7 +38,10 @@ def load_theses(DB_PATH=DB_PATH):
     return df[["id", "title", "author",  "abstract", "department", "year", "pdf_url", "db_id"]]
 
 def build_text(row):
-    parts = [row["title"]]
+    try:
+        parts = [row["title"]]
+    except KeyError:
+        parts = []
     if row.get("abstract"):
         parts.append(row["abstract"])
     if row.get("department"):
