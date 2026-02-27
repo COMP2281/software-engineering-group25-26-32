@@ -12,3 +12,5 @@ pymupdf
 google-genai
 bcrypt
 pyjwt[crypto]
+pytest
+httpx
