@@ -26,13 +26,7 @@ MODEL_NAME = "sentence-transformers/all-mpnet-base-v2"
 INDEX_FILE = "durham_thesis.index"
 ID_FILE = "durham_thesis_ids.npy"
 TOP_K = 10
-try:
-    DB_PATH = os.environ.get("DB_PATH")
-except:
-    DB_PATH = "./db/db.db"
-if DB_PATH is None:
-    DB_PATH = "./db/db.db"
-
+DB_PATH = os.environ.get("DB_PATH", "./db/db.db")
 df, index, ids, model = None, None, None, None
 departments = None
 
@@ -40,13 +34,7 @@ departments = None
 async def lifespan(app: FastAPI):
     global df, index, ids, model, departments, DB_PATH
     #startup code here
-    load_dotenv(override=True)
-    try:
-        DB_PATH = os.environ.get("DB_PATH")
-    except:
-        DB_PATH = "./db/db.db"
-    if DB_PATH is None:
-        DB_PATH = "./db/db.db"
+
     print("Starting up...")
     if os.path.isfile(DB_PATH) and os.path.isfile(INDEX_FILE) and os.path.isfile(ID_FILE):
         df, index, ids, model = initialise(MODEL_NAME, INDEX_FILE, ID_FILE, DB_PATH)

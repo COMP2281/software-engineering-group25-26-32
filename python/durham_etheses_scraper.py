@@ -6,12 +6,7 @@ load_dotenv()
 
 RATE_LIMIT_PAUSE = 0.1
 
-try:
-    DB_PATH = os.environ.get("DB_PATH")
-except:
-    DB_PATH = "./db/db.db"
-if DB_PATH is None:
-    DB_PATH = "./db/db.db"
+DB_PATH = os.environ.get("DB_PATH", "./db/db.db")
 if not os.path.exists(DB_PATH):
     os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
 

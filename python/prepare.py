@@ -3,12 +3,8 @@ import pandas as pd
 from dotenv import load_dotenv
 
 load_dotenv()
-try:
-    DB_PATH = os.environ.get("DB_PATH")
-except:
-    DB_PATH = "./db/db.db"
-if DB_PATH is None:
-    DB_PATH = "./db/db.db"
+DB_PATH = os.environ.get("DB_PATH", "./db/db.db")
+
 
 def normalize(text):
     if not isinstance(text, str):

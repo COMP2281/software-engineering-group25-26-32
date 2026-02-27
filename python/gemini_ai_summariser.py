@@ -2,12 +2,8 @@ import sqlite3, json, os
 from dotenv import load_dotenv
 import google.genai as gemini
 load_dotenv()
-try:
-    DB_PATH = os.environ.get("DB_PATH")
-except:
-    DB_PATH = "./db/db.db"
-if DB_PATH is None:
-    DB_PATH = "./db/db.db"
+DB_PATH = os.environ.get("DB_PATH", "./db/db.db")
+
 DOC_ID = 160
 try:
     GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")

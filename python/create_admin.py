@@ -1,10 +1,7 @@
 import argparse, sqlite3, os, bcrypt
 from dotenv import load_dotenv
 load_dotenv()
-try:
-    DB_PATH = os.environ.get("USERS_DB_PATH")
-except:
-    DB_PATH = "./db/users.db"
+DB_PATH = os.environ.get("USERS_DB_PATH", "./db/users.db")
 if DB_PATH is None:
     DB_PATH = "./db/users.db"
 
