@@ -41,6 +41,8 @@ def create_admin(test_user_db_path, monkeypatch):
     yield create_admin
 
 
+# TESTS FOR create_admin()
+
 def test_create_admin_success(create_admin):
     # Test creating a new admin user
     result = create_admin.create_admin("NEW_ADMIN", "newpassword")
@@ -69,6 +71,9 @@ def test_create_admin_missing_fields(create_admin):
     # Test creating an admin user with missing password
     result = create_admin.create_admin("USERNAME", "")
     assert result == False
+
+
+# TESTS FOR main() (CLI argument handling)
 
 def test_handle_valid_cli_arguments(create_admin, monkeypatch):
     # Mock create_admin so we can just test the passing of CLI arguments

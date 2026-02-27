@@ -2,7 +2,7 @@ import faiss, pandas, datetime, re
 import numpy as np
 from sentence_transformers import SentenceTransformer
 from rapidfuzz import fuzz
-from prepare import load_theses, normalize
+from prepare import load_theses, normalise
 
 MODEL_NAME = "sentence-transformers/all-mpnet-base-v2"
 INDEX_FILE = "durham_thesis.index"
@@ -170,7 +170,7 @@ if __name__ == "__main__":
     while True:
         query = input("Search: ")
         authQuery = input("Author filter (optional): ")
-        query = normalize(query)
+        query = normalise(query)
         for r in search(query, df, index, ids, model, 10, 1700, datetime.datetime.now().year, True, authQuery, None):
             print(f"{r[0]} - {r[1]} ({r[2]}) [Score: {r[-1]:.2f}]")
             print(f"PDF URL: {r[5]}")
