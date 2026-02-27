@@ -1,13 +1,17 @@
 import os
 import tempfile
 import sqlite3
+import bcrypt
 import pytest
 import types
 import sys
 from fastapi.testclient import TestClient
 
+# INITIALISE MOCK DBS
+
 @pytest.fixture(scope="session")
 def test_db_path():
+    # Create temporary db
     fd, path = tempfile.mkstemp(suffix=".db")
     os.close(fd)
 
@@ -31,11 +35,38 @@ def test_db_path():
     con.close()
 
     yield path
-
+    # Delete temp db after tests complete
     os.remove(path)
 
+@pytest.fixture(scope="session")
+def test_user_db_path():
+    # Create temporary db
+    f, path = tempfile.mkstemp(suffix=".db")
+    os.close(f)
+    # Create mock Admin table and add test user
+    con = sqlite3.connect(path)
+    con.execute("""
+        CREATE TABLE IF NOT EXISTS Admin (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT UNIQUE NOT NULL,
+            password TEXT NOT NULL
+        )
+    """)
+    con.commit()
+    # Add test user with username "TEST" and password "password"
+    password = bcrypt.hashpw("password".encode('utf-8'), bcrypt.gensalt()) # has password for testing login functionality
+    con.execute("INSERT INTO Admin (username, password) VALUES (?, ?)", ("TEST", password))
+    con.commit()
+    con.close()
+    yield path
+    # Delete temp db after tests complete
+    os.remove(path)
+
+
+# INITIALISE TEST CLIENT WITH MOCKED FUNCTIONS
+
 @pytest.fixture
-def client(test_db_path, monkeypatch):
+def client(test_db_path, test_user_db_path, monkeypatch):
 
     fake_module = types.ModuleType("fake")
     # Mock torch import so it doesnt have a seizure
@@ -55,6 +86,7 @@ def client(test_db_path, monkeypatch):
 
     # Override env before app import so it uses mock DB
     monkeypatch.setenv("DB_PATH", test_db_path)
+    monkeypatch.setenv("USERS_DB_PATH", test_user_db_path)
 
     # Import AFTER env patch
     import main
@@ -88,16 +120,173 @@ def client(test_db_path, monkeypatch):
     with TestClient(main.app) as c:
         yield c
 
+
+
+# TESTS FOR /departments
+
 def test_departments(client):
     response = client.get("/departments")
     assert response.status_code == 200
     # check response matches mock data
     assert response.json() == ["Computer Science", "Maths"]
 
+
+# TESTS FOR /search
+def test_search(client, monkeypatch):
+    import main
+    # Mock search_theses to return fake search results instead of actually performing a search
+    fake_results = [
+        ["name", "author", "year", "abstract", "department", "pdf_url", "db_id"],
+        ["name2", "author2", "year2", "abstract2", "department2", "pdf_url2", "db_id2"]
+    ]
+    monkeypatch.setattr(main, "search",
+                        lambda query, *args, **kwargs: fake_results)
+    fake_return = [{
+        "name": "name",
+        "author": "author",
+        "year": "year",
+        "abstract": "abstract",
+        "department": "department",
+        "pdf_url": "pdf_url",
+        "db_id": "db_id"
+    }, {
+        "name": "name2",
+        "author": "author2",
+        "year": "year2",
+        "abstract": "abstract2",
+        "department": "department2",
+        "pdf_url": "pdf_url2",
+        "db_id": "db_id2"
+    }]
+    response = client.post("/search", json={"term": "test query", "count":10, "fromYear": 1700, "toYear": 2026, "includeUnknown": True, "authorField": "", "departments": []})
+    assert response.status_code == 200
+    # check response matches mock search results
+    assert response.json() == fake_return
+
+def test_search_no_query(client, monkeypatch):
+    import main
+    # Mock search_theses to return fake search results instead of actually performing a search
+    fake_results = [
+        ["name", "author", "year", "abstract", "department", "pdf_url", "db_id"],
+        ["name2", "author2", "year2", "abstract2", "department2", "pdf_url2", "db_id2"]
+    ]
+    monkeypatch.setattr(main, "search",
+                        lambda query, *args, **kwargs: fake_results)
+    fake_return = [{
+        "name": "name",
+        "author": "author",
+        "year": "year",
+        "abstract": "abstract",
+        "department": "department",
+        "pdf_url": "pdf_url",
+        "db_id": "db_id"
+    }, {
+        "name": "name2",
+        "author": "author2",
+        "year": "year2",
+        "abstract": "abstract2",
+        "department": "department2",
+        "pdf_url": "pdf_url2",
+        "db_id": "db_id2"
+    }]
+    response = client.post("/search", json={"term": "", "count":10, "fromYear": 1700, "toYear": 2026, "includeUnknown": True, "authorField": "", "departments": []})
+    assert response.status_code == 400
+    # check response matches mock search results
+    assert response.json()["detail"] == "At least one search parameter (term, authorField, departments) must be provided"
+
+
+# TESTS FOR /summarise/{id}
+
 def test_summarise_thesis(client):
     response = client.get("/summarise/1")
     assert response.status_code == 200
     assert response.json()["summary"] == "Fake summary"
+
+
+# TESTS FOR /login 
+
+def test_valid_login_sets_cookie(client, monkeypatch):
+    import main
+
+    # Fake token generator
+    monkeypatch.setattr(main, "generate_token",
+                        lambda username: "LEGIT_TOKEN")
+
+    response = client.get("/login?username=TEST&password=password")
+
+    assert response.status_code == 200
+    assert response.json()["message"] == "Login successful"
+
+    # Check cookie was set
+    assert response.cookies.get("token") == "LEGIT_TOKEN"
+
+def test_invalid_username_does_not_set_cookie(client, monkeypatch):
+    import main
+
+    # Fake token generator
+    monkeypatch.setattr(main, "generate_token",
+                        lambda username: "LEGIT_TOKEN")
+
+    response = client.get("/login?username=WRONG&password=password")
+
+    assert response.status_code == 401
+    assert response.json()["detail"] == "Invalid username or password"
+
+    # Check cookie was not set
+    assert response.cookies.get("token") is None
+
+def test_invalid_password_does_not_set_cookie(client, monkeypatch):
+    import main
+
+    # Fake token generator
+    monkeypatch.setattr(main, "generate_token",
+                        lambda username: "LEGIT_TOKEN")
+
+    response = client.get("/login?username=TEST&password=WRONGPASSWORD")
+
+    assert response.status_code == 401
+    assert response.json()["detail"] == "Invalid username or password"
+
+    # Check cookie was not set
+    assert response.cookies.get("token") is None
+
+
+# TESTS FOR /token
+
+def test_verify_token_valid(client, monkeypatch):
+    import main
+
+    # Mock verify_token to return True for "VALID_TOKEN"
+    monkeypatch.setattr(main, "verify_token",
+                        lambda token: token == "VALID_TOKEN")
+    client.cookies.set("token", "VALID_TOKEN")
+    response = client.get("/token")
+    assert response.status_code == 200
+    assert response.json()["message"] == "Token is valid"
+
+def test_verify_token_invalid(client, monkeypatch):
+    import main
+
+    # Mock verify_token to return False for any token
+    monkeypatch.setattr(main, "verify_token",
+                        lambda token: token == "VALID_TOKEN")
+    client.cookies.set("token", "INVALID_TOKEN")
+    response = client.get("/token")
+    assert response.status_code == 401
+    assert response.json()["detail"] == "Unauthorised"
+
+def test_verify_token_missing(client, monkeypatch):
+    import main
+
+    # Mock verify_token to return False for any token
+    monkeypatch.setattr(main, "verify_token",
+                        lambda token: token == "VALID_TOKEN")
+    response = client.get("/token")
+    assert response.status_code == 401
+    assert response.json()["detail"] == "Unauthorised"
+
+
+# TESTS FOR /update-db
 
 def test_update_db_authenticated(client, monkeypatch):
     import main
@@ -140,6 +329,9 @@ def test_update_db_unauthenticated(client, monkeypatch):
     assert response.status_code == 401
     assert response.json()["detail"] == "Unauthorised"
 
+
+# TESTS FOR /index
+
 def test_rebuild_index_authenticated(client, monkeypatch):
     import main
     # Mock authenticated user trying to rebuild index. Should return success message
@@ -157,6 +349,9 @@ def test_rebuild_index_unauthenticated(client, monkeypatch):
     response = client.post("/index")
     assert response.status_code == 401
     assert response.json()["detail"] == "Unauthorised"
+
+
+# TESTS FOR /upload
 
 def test_upload_csv_valid(client):
 

@@ -76,6 +76,8 @@ class SearchTerm(BaseModel):
 
 @app.post("/search")
 async def search_users(search_term: SearchTerm):
+    if search_term.term == "" and search_term.authorField == "" and len(search_term.departments) == 0:
+        raise HTTPException(status_code=400, detail="At least one search parameter (term, authorField, departments) must be provided")
     try:
         results = search(search_term.term, df, index, ids, model, search_term.count, search_term.fromYear, search_term.toYear, search_term.includeUnknown, authorField=search_term.authorField, deptCheckboxes=search_term.departments)
     except Exception as e:
