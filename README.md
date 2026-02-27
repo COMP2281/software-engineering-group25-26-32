@@ -58,12 +58,8 @@ A Gemini API key can be generated from https://aistudio.google.com/api-keys
 API endpoint tests are in `test_main.py` These purely test the functionality of the API, while mocking external function calls and DB queries.   
 Running tests:
 - Ensure Python modules `pytest` and `httpx` are installed in the virtual environment (they are in `requirements.txt` now)
-- `cd python`  
 
 Windows Powershell:
-- `$env:PYTHONPATH="."`
-- `pytest`  
-
+- `./test`
 Bash:
-- `export PYTHONPATH=.`
-- `pytest`
+- `./test.sh`
