@@ -1,10 +1,7 @@
 import os
-import sys
 import tempfile
 import sqlite3
-import bcrypt
 import pytest
-from unittest.mock import Mock
 
 # INITIALISE MOCK DB
 
@@ -50,13 +47,13 @@ def prepare(test_db_path, monkeypatch):
 # TESTS FOR normalise()
 
 def test_normalise_str(prepare):
-    assert prepare.normalise("  Hello World!  ") == "Hello World!"
+    assert prepare.normalise("  ew, whitespace?  ") == "ew, whitespace?"
     assert prepare.normalise("This   is a   test.") == "This is a test."
     assert prepare.normalise("!!!") == "!"
 
 def test_normalise_non_str(prepare):
     assert prepare.normalise(None) == ""
-    assert prepare.normalise(123) == ""
+    assert prepare.normalise(67) == ""
     assert prepare.normalise(["list", "of", "strings"]) == ""
 
 
