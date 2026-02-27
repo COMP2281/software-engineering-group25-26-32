@@ -189,9 +189,9 @@ def test_search_no_query(client, monkeypatch):
         "pdf_url": "pdf_url2",
         "db_id": "db_id2"
     }]
+    # Test that if no search parameters are provided, it returns 400 Bad Request with appropriate error message
     response = client.post("/search", json={"term": "", "count":10, "fromYear": 1700, "toYear": 2026, "includeUnknown": True, "authorField": "", "departments": []})
     assert response.status_code == 400
-    # check response matches mock search results
     assert response.json()["detail"] == "At least one search parameter (term, authorField, departments) must be provided"
 
 
