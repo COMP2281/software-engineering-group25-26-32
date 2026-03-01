@@ -123,6 +123,9 @@ async def rebuild_index(token: Annotated[str | None, Cookie()] = None):
         raise HTTPException(status_code=401, detail="Unauthorised")
     try:
         build_index(df, index, ids, model, DB_PATH=DB_PATH, INDEX_FILE=INDEX_FILE, ID_FILE=ID_FILE)
+    except NameError:
+        print("CUDA is not available. Cannot rebuild index.")
+        raise HTTPException(status_code=500, detail=f"Failed to build index: CUDA is not available on the server.")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to build index: {str(e)}")
     return {"message": "Index rebuilt successfully"}
