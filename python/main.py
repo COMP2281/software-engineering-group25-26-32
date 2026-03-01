@@ -162,6 +162,11 @@ async def create_admin_endpoint(admin_user: AdminUser, token: Annotated[str | No
         raise HTTPException(status_code=500, detail="Failed to create admin user")
     return {"message": "Admin user created successfully"}
 
+async def upload_file(FILE_PATH, file: UploadFile):
+    contents = await file.read()
+    with open(FILE_PATH, "wb") as f:
+        f.write(contents)
+    await file.close()
 
 @app.post("/upload")
 async def upload(file: Annotated[UploadFile | None, File()] = None,
@@ -256,14 +261,12 @@ async def upload(file: Annotated[UploadFile | None, File()] = None,
         if not indexFile.filename.endswith(".index"):
             raise HTTPException(status_code=400, detail="Index file must have .index extension")
         contents = await indexFile.read()
-        with open(INDEX_FILE, "wb") as f:
-            f.write(contents)
+        upload_file(INDEX_FILE, indexFile)
     if idsFile:
         if not idsFile.filename.endswith(".npy"):
             raise HTTPException(status_code=400, detail="IDs file must have .npy extension")
         contents = await idsFile.read()
-        with open(ID_FILE, "wb") as f:
-            f.write(contents)
+        upload_file(ID_FILE, idsFile)
     df, index, ids, model = initialise(MODEL_NAME, INDEX_FILE, ID_FILE, DB_PATH)
     departments = get_all_departments(df)
     return {"message": "Files uploaded successfully"}

@@ -116,6 +116,9 @@ def client(test_db_path, test_user_db_path, monkeypatch):
     monkeypatch.setattr(main, "summarise_thesis",
                         lambda db_id, DB_PATH=None: "Fake summary")
 
+    monkeypatch.setattr(main, "upload_file",
+                        lambda FILE_PATH, file: None)
+
     
     with TestClient(main.app) as c:
         yield c
