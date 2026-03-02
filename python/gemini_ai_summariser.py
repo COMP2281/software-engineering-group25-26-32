@@ -23,7 +23,7 @@ def load_pages(doc_id, DB_PATH=DB_PATH):
     row = cursor.fetchone()
     conn.close()
     if not row:
-        return []
+        return ""
 
     raw_text = row[0]
     pages = []
@@ -39,11 +39,15 @@ def load_pages(doc_id, DB_PATH=DB_PATH):
             print("JSON parse error")
             continue
     pages = "\n".join(pages)
+    if len(pages) == 0:
+        return ""
     return pages
 
 # Summarise using Gemini - need GEMINI_API_KEY in .env
 def summarise_thesis(DOC_ID=DOC_ID, DB_PATH=DB_PATH):
     pages = load_pages(DOC_ID, DB_PATH)
+    if pages == "":
+        return "Full text not available for this thesis"
     try:
         client = gemini.Client(api_key=os.environ.get("GEMINI_API_KEY"))
         response = client.models.generate_content(

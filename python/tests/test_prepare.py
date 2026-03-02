@@ -36,7 +36,7 @@ def test_db_path():
 
 @pytest.fixture
 def prepare(test_db_path, monkeypatch):
-    monkeypatch.setenv("USERS_DB_PATH", test_db_path)
+    monkeypatch.setenv("DB_PATH", test_db_path)
 
     # Import AFTER env patch
     import prepare
