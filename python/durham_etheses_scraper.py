@@ -1,3 +1,4 @@
+from html.parser import HTMLParser
 import os, sqlite3, time
 import urllib.request
 from dotenv import load_dotenv
@@ -33,63 +34,7 @@ conn.execute(
 conn.commit()
 conn.close()
 
-def get_title(mystr):
-    titleStr = "<h1"
-    idx = mystr.find(titleStr)
-    if idx != -1:
-        idx = mystr.find(">", idx)
-        idx2 = mystr.find("</h1>", idx)
-        title = mystr[idx+1:idx2].lstrip().rstrip()
-        title = title.replace("<br />", " ")
-        title = title.replace("&amp;", "&")
-    else:
-        title = None
-    return title
-
-def get_author(mystr):
-    authorStr = '<span class="person_name">'
-    idx = mystr.find(authorStr)
-    if idx != -1:
-        idx2 = mystr.find("</span>", idx)
-        author = mystr[idx+len(authorStr):idx2]
-    else:
-        author = None
-    return author
-
-def get_pdf_url(mystr):
-    docUrlStr = '<span class="ep_document_citation">'
-    idx = mystr.find(docUrlStr)
-    if idx != -1:
-        idx = mystr.find('href="', idx)
-        idx += len('href="')
-        idx2 = mystr.find('"', idx)
-        pdf_url = mystr[idx:idx2]
-        check = pdf_url.find("pdf")
-        if check == -1:
-            pdf_url = None
-    else:
-        pdf_url = None
-    return pdf_url
-
-
-def get_abstract(mystr):
-    absStr = "<h2>Abstract</h2>"
-    idx = mystr.find(absStr)
-    if idx != -1:
-        idx2 = mystr.find("</p>",idx)
-        idx += len(absStr)
-        abstract = mystr[idx:idx2]
-        abstract = abstract.replace("<br />", "\n")
-        abstract = abstract.replace("&#13;", "")
-        endtag = abstract.find(">")
-        abstract = abstract[endtag+1:]
-    else:
-        abstract = None
-    return abstract
-
-
-
-def get_data(mystr):
+def get_table_data(mystr):
     tblStart = '<table style="margin-bottom: 1em" cellpadding="3" class="ep_block" border="0">'
     idx = mystr.find(tblStart)
     if idx != -1:
@@ -102,15 +47,6 @@ def get_data(mystr):
             award = award[award.find('<td valign="top" class="ep_row">')+len('<td valign="top" class="ep_row">'):]
         else:
             award = None
-        keywordsIdx = table.find('<th valign="top" class="ep_row">Keywords:</th>')
-        if keywordsIdx != -1:
-            keywords = "Not available"
-            keywordsEndIdx = table.find("</td>", keywordsIdx)
-            keywords = table[keywordsIdx:keywordsEndIdx]
-            keywords = keywords[keywords.find('<td valign="top" class="ep_row">')+len('<td valign="top" class="ep_row">'):]
-            keywords = keywords.replace(";", ",")
-        else:
-            keywords = None
         deptIdx = table.find('<th valign="top" class="ep_row">Faculty and Department:</th>')
         if deptIdx != -1:
             deptEndIdx = table.find("</td>", deptIdx)
@@ -129,16 +65,63 @@ def get_data(mystr):
         else:
             faculty = None
             dept = None
-        dateIdx = table.find('<th valign="top" class="ep_row">Thesis Date:</th>')
-        if dateIdx != -1:
-            dateEndIdx = table.find("</td>", dateIdx)
-            date = table[dateIdx:dateEndIdx]
-            date = date[date.find('<td valign="top" class="ep_row">')+len('<td valign="top" class="ep_row">'):]
-        else:
-            date = None
-        return award, keywords, date, faculty, dept
+        return award, faculty, dept
     else:
-        return None, None, None, None, None
+        return None, None, None
+
+def get_metadata(mystr):
+    class MyHTMLParser(HTMLParser):
+        def __init__(self):
+            super().__init__()
+            self.data = {
+                "title": None,
+                "author": None,
+                "abstract": None,
+                "award": None,
+                "keywords":[],
+                "date": None,
+                "faculty": None,
+                "department": None,
+                "pdf_url": None,
+            }
+            self.public = True
+            self.flag = False
+        def handle_starttag(self, tag, attrs):
+            if tag == "meta":
+                # print("Encountered a meta tag :", tag)
+                attributes = dict(attrs)
+                if attributes.get("name") == "eprints.full_text_status":
+                    self.public = (attributes.get("content") == "public")
+                
+                if attributes.get("name") == "eprints.title":
+                    self.data["title"] = attributes.get("content")
+                elif attributes.get("name") == "eprints.abstract":
+                    self.data["abstract"] = attributes.get("content")
+                elif attributes.get("name") == "eprints.date":
+                    self.data["date"] = attributes.get("content")
+                elif attributes.get("name") == "DC.creator":
+                    self.data["author"] = attributes.get("content")
+                elif attributes.get("name") == "DC.subject":
+                    self.data["keywords"].append(attributes.get("content"))
+                elif attributes.get("name") == "eprints.document_url" and self.public:
+                    self.data["pdf_url"] = attributes.get("content")
+
+    parser = MyHTMLParser()
+    parser.feed(mystr)
+    parser.data["keywords"] = ", ".join(parser.data["keywords"])
+    parser.data["award"], parser.data["faculty"], parser.data["department"] = get_table_data(mystr)
+    return parser.data["title"], parser.data["author"], parser.data["abstract"], parser.data["award"], parser.data["keywords"], parser.data["date"], parser.data["faculty"], parser.data["department"], parser.data["pdf_url"]
+
+
+def url_to_str(url):
+    try:
+        fp = urllib.request.urlopen(url)
+        mybytes = fp.read()
+        mystr = mybytes.decode("utf8")
+        fp.close()
+        return mystr
+    except:
+        return None
 
 def write_to_db(title, author, abstract, award, keywords, date, faculty, dept, url, pdf_url, DB_PATH=DB_PATH):
     conn = sqlite3.connect(DB_PATH)
@@ -149,26 +132,16 @@ def write_to_db(title, author, abstract, award, keywords, date, faculty, dept, u
     conn.close()
     return
 
-
-
-def scrape(i, DB_PATH=DB_PATH):
+def scrape(i):
     url = f"https://etheses.dur.ac.uk/{i}/"
-    try:
-        fp = urllib.request.urlopen(f"https://etheses.dur.ac.uk/{i}/")
-        mybytes = fp.read()
-        mystr = mybytes.decode("utf8")
-        fp.close()
-    except:
+    mystr = url_to_str(url)
+    if mystr is None:
         print("doesnt exist")
         return 1
     if '<p>You seem to be attempting to access an item that has been removed from the repository.</p>' in mystr:
         print("doesnt exist")
         return 1
-    title = get_title(mystr)
-    author = get_author(mystr)
-    abstract = get_abstract(mystr)
-    award, keywords, date, faculty, dept = get_data(mystr)
-    pdf_url = get_pdf_url(mystr)
+    title, author, abstract, award, keywords, date, faculty, dept, pdf_url = get_metadata(mystr)
     write_to_db(title, author, abstract, award, keywords, date, faculty, dept, url, pdf_url)
     print("success", i)
     return 0
@@ -188,11 +161,10 @@ def get_last_id(DB_PATH=DB_PATH):
     else:
         return 0
 
-def get_latest_id(DB_PATH=DB_PATH):
-    latest_page = urllib.request.urlopen("https://etheses.dur.ac.uk/cgi/latest")
-    mybytes = latest_page.read()
-    mystr = mybytes.decode("utf8")
-    latest_page.close()
+def get_latest_id():
+    mystr = url_to_str("https://etheses.dur.ac.uk/cgi/latest")
+    if mystr is None:
+        return None
     idx1 = mystr.find('<div class="ep_latest_result">')
     if idx1 != -1:
         mystr = mystr[idx1:]
@@ -206,15 +178,5 @@ def get_latest_id(DB_PATH=DB_PATH):
             return int(latest_id)
     return None
 
-
 if __name__ == "__main__":
-    print(get_last_id())
-    print(get_latest_id())
-    # start = 1
-    # #url format: "https://etheses.dur.ac.uk/NUMBER/"
-    # #check all NUMBERs in the for loop
-    # for j in range(start,16398):
-    #     with open("./python/progress.txt", "w") as f:
-    #         f.write(str(j))
-    #     scrape(j)
-    #     time.sleep(RATE_LIMIT_PAUSE) 
+    pass

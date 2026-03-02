@@ -8,18 +8,18 @@
         <div class = "container">
             <form id="uploadForm">
                 <h1>File Upload</h1>
-                DB or CSV File (.db/.csv): <input type="file" id="fileInput" accept=".db,.csv"/><br>
-                Index File (.index): <input type="file" id="indexFileInput" accept=".index"/><br>
-                IDs File (.npy): <input type="file" id="idsFileInput" accept=".npy"/><br>
+                DB or CSV File (<code>.db</code>/<code>.csv</code>): <input type="file" id="fileInput" accept=".db,.csv"/><br>
+                Index File (<code>.index</code>): <input type="file" id="indexFileInput" accept=".index"/><br>
+                IDs File (<code>.npy</code>): <input type="file" id="idsFileInput" accept=".npy"/><br>
                 <button type="submit" id = "uploadBtn">Upload</button>
             </form>
                 <p id = "message"></p>
                 <p>DB files must be SQLite databases with  the following fields. CSV files must have the following fields.<b> Names must be exact (case-sensitive)</b>. Other fields will be ignored.<br>
-                Required Fields: title, author, abstract, department, date<br>
-                Optional Fields: url (link to thesis webpage), pdf_url (direct download link to PDF of thesis), keywords, award, faculty<br>
+                Required Fields: <code>title, author, abstract, department, date</code><br>
+                Optional Fields: <code>url</code> (link to thesis webpage), <code>pdf_url</code> (direct download link to PDF of thesis), <code>keywords</code>, <code>award</code>, <code>faculty</code><br>
                 The Index File and IDs File must match the uploaded dataset, and must have been generated using index.py.<br>
                 Note: <code>pdf_url</code> must be a direct download link to a PDF. For other links (e.g. to the repository webpage containing information about a thesis) use the <code>url</code> field instead.<br>
-                If you do not have the Index and IDs file for your database, you can generate them using the "Index Update" button in the Admin panel.</p>
+                If you do not have the Index and IDs file for your database, you can generate them using the "Index Update" button in the Admin panel, once you have uploaded your database above.</p>
                 <a href = "/admin">Back to Admin Panel</a>
         </div>
     </body>

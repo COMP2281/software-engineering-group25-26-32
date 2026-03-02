@@ -35,9 +35,20 @@ div.style.display = "none";
 document.getElementById("unknownDeptSpan").style.display = "none";
 departments();
 
+document.getElementById("searchBtn").addEventListener('click', function() {
+    const searchTerm = document.getElementById('searchTerm').value;
+    let authorField = document.getElementById('author').value;
+
+    // Check if searchTerm AND authorField are empty, if so reject search
+    if (!searchTerm && !authorField) {
+        document.getElementById('searchTerm').setCustomValidity('Please enter a search term or author name.');
+    } else {
+        document.getElementById('searchTerm').setCustomValidity('');
+    }
+});
+
 document.getElementById('searchForm').addEventListener('submit', async (event) => {
     event.preventDefault();
-    document.getElementById('searchTerm').setCustomValidity(''); // Clear any previous custom validity messages
     const searchTerm = document.getElementById('searchTerm').value;
     let resultCount = document.getElementById('resultCount').value;
     let fromYear = document.getElementById('fromYear').value;
@@ -49,12 +60,6 @@ document.getElementById('searchForm').addEventListener('submit', async (event) =
     toYear = parseInt(toYear) || 3000; // Default to 3000 if input is invalid
     let authorField = document.getElementById('author').value;
     let depts = Array.from(document.querySelectorAll('.dept-checkbox:checked')).map(cb => cb.value)
-
-    // Check if searchTerm AND authorField are empty, if so reject search
-    if (!searchTerm && !authorField) {
-        document.getElementById('searchTerm').setCustomValidity('Please enter a search term or author name.');
-        return;
-    }
 
     try {
         const response = await fetch('http://localhost:8000/search', {
