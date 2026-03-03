@@ -85,6 +85,7 @@ Bash:
 - Generate citations (different standards)
 - Further search/prying through via user questions
 - Add a comparison feature for summaries
+- Text is formatted from summaries
 
 # TODO List 2 the sequel
 ~~- Deleting users in db~~
