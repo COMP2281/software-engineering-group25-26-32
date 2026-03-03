@@ -73,6 +73,8 @@ document.getElementById('searchForm').addEventListener('submit', async (event) =
         resultsDiv.innerHTML = '';
 
         if (results.length > 0) {
+            // Debug response
+            console.log(results);
             ctr = 0;
             resultsDiv.innerHTML = "<h2>Search Results:</h2>";
             for (const item of results) {

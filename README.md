@@ -31,11 +31,14 @@ Create a file in the `python` folder called `.env` and insert the following line
 TESSDATA_PREFIX = <...>/tessdata  
 DB_PATH = <...>/db.db  
 GEMINI_API_KEY = <your_gemini_api_key>  
+SECRET_KEY = <KEYHERE>
 ```
 Replacing `<...>` with the correct paths to the files on your machine, and `<your_gemini_api_key>` with your Gemini API key  
 Tessdata can be cloned from https://github.com/tesseract-ocr/tessdata and is required to add full thesis texts to the database.  
 A Gemini API key can be generated from https://aistudio.google.com/api-keys
+Default db path is ./db/db.db
 
+Replace '<KEYHERE>' with your secret key
 
 # Running the code:
 
