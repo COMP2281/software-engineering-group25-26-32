@@ -517,7 +517,121 @@ Test Title,John Doe,Test abstract,Computer Science,2023,url
 
     assert response.status_code == 400
 
-#TODO: upload DB file tests
+def test_upload_db_valid(client, monkeypatch):
+    import main
+    # Mock authenticated user trying to upload DB file. Should return success message
+    monkeypatch.setattr(main, "verify_token",
+                        lambda token: True)
+    fd, path = tempfile.mkstemp(suffix=".db")
+    os.close(fd)
+
+    # create mock Thesis table
+    con = sqlite3.connect(path)
+    con.execute("""
+        CREATE TABLE Thesis (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT,
+            award TEXT,
+            author TEXT,
+            keywords TEXT,
+            abstract TEXT,
+            faculty TEXT,
+            department TEXT,
+            date INTEGER,
+            url TEXT,
+            pdf_url TEXT,
+            pdf_text TEXT
+        )
+    """)
+    con.commit()
+    con.close()
+    with open(path, "rb") as f:
+        response = client.post(
+            "/upload",
+            files={"file": ("test.db", f.read())},
+        )
+    assert response.status_code == 200
+    assert response.json()["message"] == "Files uploaded successfully"
+
+def test_upload_db_invalid_fields(client, monkeypatch):
+    import main
+    # Mock authenticated user trying to upload DB file. Should return success message
+    monkeypatch.setattr(main, "verify_token",
+                        lambda token: True)
+    fd, path = tempfile.mkstemp(suffix=".db")
+    os.close(fd)
+
+    # create mock Thesis table
+    con = sqlite3.connect(path)
+    con.execute("""
+        CREATE TABLE Thesis (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            wrong_field TEXT
+        )
+    """)
+    con.commit()
+    con.close()
+    with open(path, "rb") as f:
+        response = client.post(
+            "/upload",
+            files={"file": ("test.db", f.read())},
+        )
+    assert response.status_code == 400
+    assert "Uploaded database does not contain the correct fields" in response.json()["detail"]
+
+def test_upload_db_invalid_table_name(client, monkeypatch):
+    import main
+    # Mock authenticated user trying to upload DB file. Should return success message
+    monkeypatch.setattr(main, "verify_token",
+                        lambda token: True)
+    fd, path = tempfile.mkstemp(suffix=".db")
+    os.close(fd)
+
+    # create mock Thesis table
+    con = sqlite3.connect(path)
+    con.execute("""
+        CREATE TABLE WRONG (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT,
+            award TEXT,
+            author TEXT,
+            keywords TEXT,
+            abstract TEXT,
+            faculty TEXT,
+            department TEXT,
+            date INTEGER,
+            url TEXT,
+            pdf_url TEXT,
+            pdf_text TEXT
+        )
+    """)
+    con.commit()
+    con.close()
+    with open(path, "rb") as f:
+        response = client.post(
+            "/upload",
+            files={"file": ("test.db", f.read())},
+        )
+    assert response.status_code == 400
+    assert "Uploaded database does not contain a 'Thesis' table" in response.json()["detail"]
+
+def test_upload_db_garbage(client, monkeypatch):
+    import main
+    # Mock authenticated user trying to upload DB file. Should return success message
+    monkeypatch.setattr(main, "verify_token",
+                        lambda token: True)
+    fd, path = tempfile.mkstemp(suffix=".db")
+    os.close(fd)
+    with open(path, "wb") as f:
+        f.write(os.urandom(1024))  # Write 1KB of random bytes to the file
+    
+    with open(path, "rb") as f:
+        response = client.post(
+            "/upload",
+            files={"file": ("test.db", f.read())},
+        )
+    assert response.status_code == 400
+    assert "Error reading uploaded database:" in response.json()["detail"]
 
 def test_upload_index_valid(client, monkeypatch):
     import main
