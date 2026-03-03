@@ -4,9 +4,9 @@ load_dotenv()
 DB_PATH = os.environ.get("USERS_DB_PATH", "./db/users.db")
 
 def create_admin(username, password, DB_PATH=DB_PATH):
-    if not username or not password:
+    if not username or not password or username.strip() == "" or password.strip() == "":
         print("Error: Both username and password are required.")
-        return False
+        return 400
     try:
         conn = sqlite3.connect(DB_PATH)
     except:
@@ -14,7 +14,7 @@ def create_admin(username, password, DB_PATH=DB_PATH):
             print(f"Error: Directory for database does not exist at {os.path.dirname(DB_PATH)}. Please create the directory and try again.")
         else:
             print(f"Error: Could not connect to database at {DB_PATH}. Please check the path and try again.")
-        return False
+        return 500
     cur = conn.cursor()
 
     # Create the Admin table if it doesn't exist
@@ -31,20 +31,20 @@ def create_admin(username, password, DB_PATH=DB_PATH):
         print(f"Error: Admin user '{username}' already exists.")
         cur.close()
         conn.close()
-        return False
+        return 400
     # Insert the new admin user
     try:
         password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
         cur.execute("INSERT INTO Admin (username, password) VALUES (?, ?)", (username, password))
         conn.commit()
         print(f"Admin user '{username}' created successfully.")
-        return True
+        return 200
     except sqlite3.IntegrityError:
         print(f"Error: Admin user '{username}' already exists.")
-        return False
+        return 400
     except Exception as e:
         print(f"Error creating admin user: {e}")
-        return False
+        return 500
     finally:
         cur.close()
         conn.close()

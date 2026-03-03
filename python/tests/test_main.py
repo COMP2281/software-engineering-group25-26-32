@@ -141,8 +141,8 @@ def test_search(client, monkeypatch):
     import main
     # Mock search_theses to return fake search results instead of actually performing a search
     fake_results = [
-        ["name", "author", "year", "abstract", "department", "pdf_url", "db_id"],
-        ["name2", "author2", "year2", "abstract2", "department2", "pdf_url2", "db_id2"]
+        ["name", "author", "year", "abstract", "department", "pdf_url", "db_id", "score"],
+        ["name2", "author2", "year2", "abstract2", "department2", "pdf_url2", "db_id2", "score2"]
     ]
     monkeypatch.setattr(main, "search",
                         lambda query, *args, **kwargs: fake_results)
@@ -153,7 +153,8 @@ def test_search(client, monkeypatch):
         "abstract": "abstract",
         "department": "department",
         "pdf_url": "pdf_url",
-        "db_id": "db_id"
+        "db_id": "db_id",
+        "score": "score"
     }, {
         "name": "name2",
         "author": "author2",
@@ -161,7 +162,8 @@ def test_search(client, monkeypatch):
         "abstract": "abstract2",
         "department": "department2",
         "pdf_url": "pdf_url2",
-        "db_id": "db_id2"
+        "db_id": "db_id2",
+        "score": "score2"
     }]
     response = client.post("/search", json={"term": "test query", "count":10, "fromYear": 1700, "toYear": 2026, "includeUnknown": True, "authorField": "", "departments": []})
     assert response.status_code == 200
@@ -172,8 +174,8 @@ def test_search_no_query(client, monkeypatch):
     import main
     # Mock search_theses to return fake search results instead of actually performing a search
     fake_results = [
-        ["name", "author", "year", "abstract", "department", "pdf_url", "db_id"],
-        ["name2", "author2", "year2", "abstract2", "department2", "pdf_url2", "db_id2"]
+        ["name", "author", "year", "abstract", "department", "pdf_url", "db_id", "score"],
+        ["name2", "author2", "year2", "abstract2", "department2", "pdf_url2", "db_id2", "score2"]
     ]
     monkeypatch.setattr(main, "search",
                         lambda query, *args, **kwargs: fake_results)
@@ -184,7 +186,8 @@ def test_search_no_query(client, monkeypatch):
         "abstract": "abstract",
         "department": "department",
         "pdf_url": "pdf_url",
-        "db_id": "db_id"
+        "db_id": "db_id",
+        "score": "score"
     }, {
         "name": "name2",
         "author": "author2",
@@ -192,7 +195,8 @@ def test_search_no_query(client, monkeypatch):
         "abstract": "abstract2",
         "department": "department2",
         "pdf_url": "pdf_url2",
-        "db_id": "db_id2"
+        "db_id": "db_id2",
+        "score": "score2"
     }]
     # Test that if no search parameters are provided, it returns 400 Bad Request with appropriate error message
     response = client.post("/search", json={"term": "", "count":10, "fromYear": 1700, "toYear": 2026, "includeUnknown": True, "authorField": "", "departments": []})
@@ -290,6 +294,97 @@ def test_verify_token_missing(client, monkeypatch):
     assert response.status_code == 401
     assert response.json()["detail"] == "Unauthorised"
 
+
+# TESTS FOR /logout
+
+def test_logout_valid(client, monkeypatch):
+    import main
+
+    # Mock verify_token to return True for "VALID_TOKEN"
+    monkeypatch.setattr(main, "verify_token",
+                        lambda token: token == "VALID_TOKEN")
+    client.cookies.set("token", "VALID_TOKEN")
+    response = client.post("/logout")
+    assert response.status_code == 200
+    assert response.json()["message"] == "Logout successful"
+    # Check cookie was deleted
+    assert response.cookies.get("token") is None
+
+def test_logout_invalid(client, monkeypatch):
+    import main
+
+    # Mock verify_token to return False for any token
+    monkeypatch.setattr(main, "verify_token",
+                        lambda token: token == "VALID_TOKEN")
+    client.cookies.set("token", "INVALID_TOKEN")
+    response = client.post("/logout")
+    assert response.status_code == 401
+    assert response.json()["detail"] == "Unauthorised"
+
+
+# TESTS FOR /create-admin
+
+def test_create_admin_valid(client, monkeypatch):
+    import main
+
+    # Mock create_admin to return 200 for valid admin creation
+    monkeypatch.setattr(main, "create_admin",
+                        lambda username, password, db_path=None: 200)
+    response = client.post("/create-admin", json={"username": "NEW_ADMIN", "password": "password"})
+    assert response.status_code == 200
+    assert response.json()["message"] == "Admin user created successfully"
+
+def test_create_admin_unauthenticated(client, monkeypatch):
+    import main
+
+    # Mock verify_token to return False for any token (unauthenticated user)
+    monkeypatch.setattr(main, "verify_token",
+                        lambda token: False)
+    response = client.post("/create-admin", json={"username": "NEW_ADMIN", "password": "password"})
+    assert response.status_code == 401
+    assert response.json()["detail"] == "Unauthorised"
+
+def test_create_admin_missing(client, monkeypatch):
+    import main
+
+    # Mock create_admin to return 400, signifying missing arguments
+    monkeypatch.setattr(main, "create_admin",
+                        lambda username, password, db_path=None: 400)
+    response = client.post("/create-admin", json={"username": "", "password": ""})
+    assert response.status_code == 400
+    assert response.json()["detail"] == "Bad request. Please ensure both username and password are provided."
+
+
+# TESTS FOR /delete-admin
+def test_delete_admin_valid(client, monkeypatch):
+    import main
+
+    # Mock delete_admin to return 200 for valid admin deletion
+    monkeypatch.setattr(main, "delete_admin",
+                        lambda username, db_path=None: 200)
+    response = client.delete("/delete-admin?username=TEST")
+    assert response.status_code == 200
+    assert response.json()["message"] == "Admin user deleted successfully"
+
+def test_delete_admin_unauthenticated(client, monkeypatch):
+    import main
+
+    # Mock verify_token to return False for any token (unauthenticated user)
+    monkeypatch.setattr(main, "verify_token",
+                        lambda token: False)
+    response = client.delete("/delete-admin?username=TEST")
+    assert response.status_code == 401
+    assert response.json()["detail"] == "Unauthorised"
+
+def test_delete_admin_missing(client, monkeypatch):
+    import main
+
+    # Mock delete_admin to return 400, signifying missing arguments
+    monkeypatch.setattr(main, "delete_admin",
+                        lambda username, db_path=None: 400)
+    response = client.delete("/delete-admin?username=")
+    assert response.status_code == 400
+    assert response.json()["detail"] == "Bad request. Please ensure a username is provided."
 
 # TESTS FOR /update-db
 

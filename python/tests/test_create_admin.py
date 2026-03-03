@@ -46,7 +46,7 @@ def create_admin(test_user_db_path, monkeypatch):
 def test_create_admin_success(create_admin):
     # Test creating a new admin user
     result = create_admin.create_admin("NEW_ADMIN", "newpassword")
-    assert result == True
+    assert result == 200
 
     # Check that the new admin user was added to the mock database
     con = sqlite3.connect(create_admin.DB_PATH)
@@ -61,16 +61,16 @@ def test_create_admin_success(create_admin):
 def test_create_admin_duplicate_username(create_admin):
     # Test creating an admin user with a duplicate username
     result = create_admin.create_admin("TEST", "anotherpassword")
-    assert result == False
+    assert result == 400
 
 def test_create_admin_missing_fields(create_admin):
     # Test creating an admin user with missing username
     result = create_admin.create_admin("", "password")
-    assert result == False
+    assert result == 400
 
     # Test creating an admin user with missing password
     result = create_admin.create_admin("USERNAME", "")
-    assert result == False
+    assert result == 400
 
 
 # TESTS FOR main() (CLI argument handling)
@@ -99,7 +99,7 @@ def test_handle_missing_cli_arguments(create_admin, monkeypatch):
     )
     with pytest.raises(SystemExit):
         result = create_admin.main()
-        assert result == False
+        assert result == 400
 
     # Test missing password argument
     monkeypatch.setattr(
@@ -109,7 +109,7 @@ def test_handle_missing_cli_arguments(create_admin, monkeypatch):
     )
     with pytest.raises(SystemExit):
         result = create_admin.main()
-        assert result == False
+        assert result == 400
 
 def test_handle_invalid_db_path(create_admin, monkeypatch):
     # Test with invalid db path
@@ -119,7 +119,7 @@ def test_handle_invalid_db_path(create_admin, monkeypatch):
         ["create-admin.py", "USERNAME", "PASSWORD", "--db", "Z:/invalid/path/to/db.db"]
     )
     result = create_admin.main()
-    assert result == False
+    assert result == 500
 
 
 # TESTS FOR delete_admin()

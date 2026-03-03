@@ -167,7 +167,9 @@ def create_admin_endpoint(admin_user: AdminUser, token: Annotated[str | None, Co
     if not verify_token(token):
         raise HTTPException(status_code=401, detail="Unauthorised")
     success = create_admin(admin_user.username, admin_user.password)
-    if not success:
+    if success == 400:
+        raise HTTPException(status_code=400, detail="Bad request. Please ensure both username and password are provided.")
+    elif success == 500:
         raise HTTPException(status_code=500, detail="Failed to create admin user")
     return {"message": "Admin user created successfully"}
 
@@ -180,7 +182,7 @@ def delete_admin_endpoint(username: str, token: Annotated[str | None, Cookie()] 
     if status == 404:
         raise HTTPException(status_code=404, detail="Admin user not found")
     elif status == 400:
-        raise HTTPException(status_code=400, detail="Bad request. Please ensure a username is provided and check the database connection.")
+        raise HTTPException(status_code=400, detail="Bad request. Please ensure a username is provided.")
     elif status != 200:
         raise HTTPException(status_code=500, detail="Failed to delete admin user")
     else:
