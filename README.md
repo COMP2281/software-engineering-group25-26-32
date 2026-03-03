@@ -61,5 +61,6 @@ Running tests:
 
 Windows Powershell:
 - `./test`
+
 Bash:
 - `./test.sh`
