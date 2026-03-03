@@ -278,17 +278,21 @@ async def upload(file: Annotated[UploadFile | None, File()] = None,
             except Exception as e:pass
             # if it's a db file, replace the existing db file with the uploaded one
             contents = await file.read()
+            await file.close()
             with open("./db/temp.db", "wb") as f:
                 f.write(contents)
-            await file.close()
             # check if the uploaded db has the correct schema
             try:
-                with sqlite3.connect("./db/temp.db") as con:
-                    try:
-                        cur = con.execute("SELECT * FROM Thesis LIMIT 1")
-                    except Exception as e:
-                        raise HTTPException(status_code=400, detail=f"Uploaded database does not contain a 'Thesis' table with the correct schema: {str(e)}")
+                con = sqlite3.connect("./db/temp.db")
+                try:
+                    cur = con.cursor()
+                    cur.execute("SELECT * FROM Thesis LIMIT 1")
                     temp_fields = [field[0] for field in cur.description]
+                except Exception as e:
+                    raise HTTPException(status_code=400, detail=f"Uploaded database does not contain a 'Thesis' table with the correct schema: {str(e)}")
+                finally:
+                    cur.close()
+                    con.close()
             except Exception as e:
                 raise HTTPException(status_code=400, detail=f"Error reading uploaded database: {str(e)}")
             if set(db_fields).issubset(set(temp_fields)) or set(temp_fields).issubset(set(db_fields)):pass
@@ -297,10 +301,14 @@ async def upload(file: Annotated[UploadFile | None, File()] = None,
 
             for field in db_fields:
                 if field not in temp_fields:
-                    with sqlite3.connect("./db/temp.db") as con:
-                        con.execute(f"ALTER TABLE Thesis ADD COLUMN {field} TEXT")
-                        con.commit()
+                    con = sqlite3.connect("./db/temp.db")
+                    con.execute(f"ALTER TABLE Thesis ADD COLUMN {field} TEXT")
+                    con.commit()
+                    con.close()
             shutil.copyfile("./db/temp.db", DB_PATH)  # Replace the existing DB with the uploaded one
+            try:
+                os.remove("./db/temp.db")
+            except Exception as e:pass
 
         else:
             raise HTTPException(status_code=400, detail="Invalid file type")
