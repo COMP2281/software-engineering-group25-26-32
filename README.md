@@ -69,8 +69,10 @@ Bash:
 - Show similarity score
 - Multithreading/Multiprocessing where necessary (AI Summary, Searching, etc)
 - API Keys with return codes / rate limiter system for each user
-- Deleting users in db
-- Sign out users
 - Curl testing for API endpoints (goes hand in hand)
 - Generate citations (different standards)
 - Add a comparison feature for summaries
+
+# TODO List 2 the sequel
+- Deleting users in db
+- Sign out users
