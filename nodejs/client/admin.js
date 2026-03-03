@@ -50,3 +50,15 @@ document.getElementById("deleteAdminForm").addEventListener('submit', async func
     }
     console.log(response);
 });
+
+document.getElementById("logout").addEventListener('click', async function() {
+    const response = await fetch("http://localhost:8000/logout",{
+        method: 'POST',
+        credentials: 'include'
+    });
+    if (response.ok) {
+        window.location.href = 'login.html';
+    } else {
+        alert("Error during logout");
+    }
+});

@@ -150,6 +150,13 @@ def test(token: Annotated[str | None, Cookie()] = None):
         raise HTTPException(status_code=401, detail="Unauthorised")
     return {"message": "Token is valid"}
 
+@app.post("/logout")
+def logout(token: Annotated[str | None, Cookie()] = None):
+    if not verify_token(token):
+        raise HTTPException(status_code=401, detail="Unauthorised")
+    response = JSONResponse(content={"message": "Logout successful"})
+    response.delete_cookie(key="token")
+    return response
 
 class AdminUser(BaseModel):
     username: str
