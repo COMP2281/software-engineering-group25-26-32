@@ -67,7 +67,9 @@ Bash:
 
 
 # Maintenance
-- 
+- Ensure DB generally up to date (can be put on a schedule to update or hooked to the Durham E-theses)
+    - Anytime the DB is updated, the model needs to be reindexed via the admin page or manually via index.py
+- Ensure the Gemini API Key has sufficient credits / sufficient access permissions
 
 # TODO
 - Show similarity score
