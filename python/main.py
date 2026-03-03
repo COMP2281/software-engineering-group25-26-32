@@ -124,7 +124,7 @@ def update_db(token: Annotated[str | None, Cookie()] = None):
                 print("Successfully added thesis with ID", i, "to the database.")
     upload_pdf_texts_to_db_parallel(DB_PATH=newDB)
     print("Database completed for file " + newDB)
-    return {"message": "Database updated successfully"}
+    return {"message": "Database updated successfully FileName:" + newDB}
 
 # Helper function, just copy the files
 def copyFile(src, dst):
@@ -138,14 +138,17 @@ def rebuild_index(token: Annotated[str | None, Cookie()] = None):
     if not verify_token(token):
         raise HTTPException(status_code=401, detail="Unauthorised")
     try:
-        build_index(DB_PATH=DB_PATH, INDEX_FILE=(INDEX_FILE + "NEW"), ID_FILE=(ID_FILE + "NEW"))
+        newIndex = os.path.splitext(INDEX_FILE)[0] + "NEW" + os.path.splitext(INDEX_FILE)[1]
+        newIDs = os.path.splitext(ID_FILE)[0] + "NEW" + os.path.splitext(ID_FILE)[1]
+        print("Rebuilding index with files " + newIndex + " and " + newIDs)
+        build_index(DB_PATH=DB_PATH, INDEX_FILE=newIndex, ID_FILE=newIDs)
     except NameError:
         print("CUDA is not available. Cannot rebuild index.")
         raise HTTPException(status_code=500, detail=f"Failed to build index: CUDA is not available on the server.")
     except Exception as e:
         print(e)
         raise HTTPException(status_code=500, detail=f"Failed to build index: {str(e)}")
-    return {"message": "Index rebuilt successfully"}
+    return {"message": "Index rebuilt successfully FileNames:" + newIndex + "/" + newIDs} # Can use : and / as seperators to get file names
 
 @app.get("/summarise/{db_id}")
 def summarise(db_id: int):
@@ -296,7 +299,7 @@ async def upload(file: Annotated[UploadFile | None, File()] = None,
                     with sqlite3.connect("./db/temp.db") as con:
                         con.execute(f"ALTER TABLE Thesis ADD COLUMN {field} TEXT")
                         con.commit()
-            shutil.copyfile("./db/temp.db", DB_PATH)
+            shutil.copyfile("./db/temp.db", DB_PATH)  # Replace the existing DB with the uploaded one
 
         else:
             raise HTTPException(status_code=400, detail="Invalid file type")

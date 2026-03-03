@@ -14,8 +14,6 @@ except:
 
 def build_index(DB_PATH="./db/db.db", INDEX_FILE="durham_thesis.index", ID_FILE="durham_thesis_ids.npy"):
     MODEL_NAME = "sentence-transformers/all-mpnet-base-v2"
-    INDEX_FILE = "durham_thesis.index"
-    ID_FILE = "durham_thesis_ids.npy"
     BATCH_SIZE = 256
 
     df = load_theses(DB_PATH)
@@ -36,7 +34,7 @@ def build_index(DB_PATH="./db/db.db", INDEX_FILE="durham_thesis.index", ID_FILE=
         show_progress_bar=True
     )
 
-    print("Indexing..")
+    print(f"Indexing to files {INDEX_FILE} and {ID_FILE}..")
     dim = embeddings.shape[1]
     index = faiss.IndexFlatIP(dim)
     index.add(embeddings)
