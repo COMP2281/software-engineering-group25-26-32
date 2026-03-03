@@ -81,6 +81,7 @@ def similarityAuthor(queryName, targetCanon):
 
 
 def search(query, df:pandas.DataFrame, index, ids, model, TOP_K=TOP_K, fromYear=1700, toYear=datetime.datetime.now().year, includeUnknown=False, authorField=None, deptCheckboxes=None, recurse=False):
+    print(f"Search called with query: '{query}', author filter: '{authorField}', department filters: {deptCheckboxes}, year range: {fromYear}-{toYear}, include unknown years: {includeUnknown}")
     results = []
     if deptCheckboxes is None:
         deptCheckboxes = []
@@ -99,7 +100,7 @@ def search(query, df:pandas.DataFrame, index, ids, model, TOP_K=TOP_K, fromYear=
         if authorField:
             df = df[df["author"].apply(lambda a: similarityAuthor(authorField, str(a.strip().lower())) if str(a).strip().lower() != "0" else False)]
             for i, row in df.iterrows():
-                results.append((row["title"], row["author"], row["year"], row["abstract"], row["department"], row["pdf_url"], row["db_id"], 0.0))
+                results.append((row["title"], row["author"], row["year"], row["abstract"], row["department"], row["pdf_url"], row["db_id"], 0.0)) # Score is 0 for non-semantic search results
                 # Return correct number of results
                 if len(results) >= TOP_K:
                     break

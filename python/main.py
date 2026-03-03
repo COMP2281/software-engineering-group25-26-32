@@ -88,7 +88,8 @@ def search_users(search_term: SearchTerm):
              "abstract": r[3],
              "department": r[4],
              "pdf_url": r[5],
-             "db_id": str(r[6])
+             "db_id": str(r[6]),
+             "score": str(r[7])
              } for r in results]
 
 @app.get("/departments")
