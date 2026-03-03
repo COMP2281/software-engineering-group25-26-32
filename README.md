@@ -77,8 +77,7 @@ Bash:
 # TODO
 - Show similarity score
 - Copy files instead of just replacing them immediately (Admin page)
-    - Button to upload/replace the old files with the new ones (Ask if they wish to download the old ones for redundancy)
-- Multithreading/Multiprocessing where necessary (AI Summary, Searching, etc)
+~~- Button to upload/replace the old files with the new ones~~ = already exists in setup page. **(Ask if they wish to download the old ones for redundancy) = does not currently exist**
 - API Keys with return codes / rate limiter system for each user
 - Curl testing for API endpoints (goes hand in hand)
 - Generate citations (different standards)
@@ -87,7 +86,8 @@ Bash:
 
 # TODO List 2 the sequel
 ~~- Deleting users in db~~
-- Sign out users
+~~- Sign out users~~
+- Admin page frontend?
 
 
 
