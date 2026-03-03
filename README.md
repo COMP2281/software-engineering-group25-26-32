@@ -75,10 +75,10 @@ Bash:
 - Ensure the Gemini API Key has sufficient credits / sufficient access permissions
 
 # TODO
-- S̶h̶o̶w̶ ̶s̶i̶m̶i̶l̶a̶r̶i̶t̶y̶ ̶s̶c̶o̶r̶e̶
-- C̶o̶p̶y̶ ̶f̶i̶l̶e̶s̶ ̶i̶n̶s̶t̶e̶a̶d̶ ̶o̶f̶ ̶j̶u̶s̶t̶ ̶r̶e̶p̶l̶a̶c̶i̶n̶g̶ ̶t̶h̶e̶m̶ ̶i̶m̶m̶e̶d̶i̶a̶t̶e̶l̶y̶ ̶(̶A̶d̶m̶i̶n̶ ̶p̶a̶g̶e̶)̶
+- Show similarity score
+- C̶o̶p̶y̶ ̶f̶i̶l̶e̶s̶ ̶i̶n̶s̶t̶e̶a̶d̶ ̶o̶f̶ ̶j̶u̶s̶t̶ ̶r̶e̶p̶l̶a̶c̶i̶n̶g̶ ̶t̶h̶e̶m̶ 
     - Updates to add "NEW" to the filename (same file extension)
-    - Button to upload/replace the old files with the new ones (Ask if they wish to download the old ones for redundancy)
+    - ~~- Button to upload/replace the old files with the new ones~~ = already exists in setup page. **(Ask if they wish to download the old ones for redundancy) = does not currently exist**
 - Multithreading/Multiprocessing where necessary (AI Summary, Searching, etc)
 - API Keys with return codes / rate limiter system for each user
 - Curl testing for API endpoints (goes hand in hand)
@@ -88,7 +88,8 @@ Bash:
 
 # TODO List 2 the sequel
 ~~- Deleting users in db~~
-- Sign out users
+~~- Sign out users~~
+- Admin page frontend?
 
 
 

@@ -99,7 +99,6 @@ async def get_departments():
     return departments
 
 @app.post("/update-db")
-# TODO: Make this not hang the server / multithreading?
 # Updates the DB with new theses uploaded to Durham-Etheses, including PDF text extraction if full PDF is released.
 def update_db(token: Annotated[str | None, Cookie()] = None):
     # Admins only endpoint
