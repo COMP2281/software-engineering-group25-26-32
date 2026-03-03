@@ -48,7 +48,7 @@ def durham_etheses_scraper(test_db_path, monkeypatch):
     # Import AFTER env patch
     import durham_etheses_scraper
     # Mock the actual web requests to durham e-theses
-    monkeypatch.setattr(durham_etheses_scraper, "url_to_str", lambda url: open("./tests/test_durham_etheses_scraper_example.html").read() if "cgi/latest" not in url else open("./tests/test_durham_etheses_scraper_latest.html").read())
+    monkeypatch.setattr(durham_etheses_scraper, "url_to_str", lambda url: open("./tests/sample/test_durham_etheses_scraper_example.html").read() if "cgi/latest" not in url else open("./tests/sample/test_durham_etheses_scraper_latest.html").read())
 
     yield durham_etheses_scraper
 
@@ -56,7 +56,7 @@ def durham_etheses_scraper(test_db_path, monkeypatch):
 # TESTS FOR get_table_data()
 
 def test_get_table_data(durham_etheses_scraper):
-    mystr = open("./tests/test_durham_etheses_scraper_example.html").read()
+    mystr = open("./tests/sample/test_durham_etheses_scraper_example.html").read()
     award, faculty, department = durham_etheses_scraper.get_table_data(mystr)
     assert award == "AWARD"
     assert faculty == "Science"
@@ -73,7 +73,7 @@ def test_get_table_data_missing(durham_etheses_scraper):
 # TESTS FOR get_metadata()
 
 def test_get_metadata(durham_etheses_scraper):
-    mystr = open("./tests/test_durham_etheses_scraper_example.html").read()
+    mystr = open("./tests/sample/test_durham_etheses_scraper_example.html").read()
     title, author, abstract, award, keywords, date, faculty, dept, pdf_url = durham_etheses_scraper.get_metadata(mystr)
     assert title == "EXAMPLE TITLE"
     assert author == "EXAMPLE AUTHOR"
@@ -126,7 +126,7 @@ def test_write_to_db_all_none(durham_etheses_scraper, test_db_path):
 
 def test_scrape(durham_etheses_scraper, test_db_path, monkeypatch):
     # Mock the actual web requests to durham e-theses
-    monkeypatch.setattr(durham_etheses_scraper, "url_to_str", lambda url: open("./tests/test_durham_etheses_scraper_example.html").read() if "cgi/latest" not in url else open("./tests/test_durham_etheses_scraper_latest.html").read())
+    monkeypatch.setattr(durham_etheses_scraper, "url_to_str", lambda url: open("./tests/sample/test_durham_etheses_scraper_example.html").read() if "cgi/latest" not in url else open("./tests/sample/test_durham_etheses_scraper_latest.html").read())
 
     # Call the scrape function
     result = durham_etheses_scraper.scrape("EXAMPLE_URL")
@@ -174,7 +174,7 @@ def test_scrape_removed(durham_etheses_scraper, monkeypatch):
 
 def test_get_latest_id(durham_etheses_scraper, monkeypatch):
     # Mock the actual web requests to durham e-theses
-    monkeypatch.setattr(durham_etheses_scraper, "url_to_str", lambda url: open("./tests/test_durham_etheses_scraper_latest.html").read())
+    monkeypatch.setattr(durham_etheses_scraper, "url_to_str", lambda url: open("./tests/sample/test_durham_etheses_scraper_latest.html").read())
     latest_id = durham_etheses_scraper.get_latest_id()
     assert latest_id == 1234567
 
