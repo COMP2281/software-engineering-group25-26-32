@@ -388,19 +388,19 @@ def test_delete_admin_missing(client, monkeypatch):
 
 # TESTS FOR /update-db
 
-def test_update_db_authenticated(client, monkeypatch):
+def test_update_db_authenticated(client, test_db_path, monkeypatch):
     import main
     # Mock get_latest_id and get_last_id to simulate DB needing update
     monkeypatch.setattr(main, "get_latest_id",
                         lambda: 1)
     monkeypatch.setattr(main, "get_last_id",
-                        lambda: 2)
+                        lambda DB_PATH: 2)
     monkeypatch.setattr(main, "verify_token",
                         lambda token: True)
     response = client.post("/update-db")
     # Check response is success and message is correct
     assert response.status_code == 200
-    assert response.json()["message"] == "Database updated successfully"
+    assert response.json()["message"] == "Database updated successfully. FileName: " + test_db_path.split(".db")[0] + "NEW.db"
 
 def test_update_db_already_up_to_date(client, monkeypatch):
     import main
@@ -408,7 +408,7 @@ def test_update_db_already_up_to_date(client, monkeypatch):
     monkeypatch.setattr(main, "get_latest_id",
                         lambda: 1)
     monkeypatch.setattr(main, "get_last_id",
-                        lambda: 1)
+                        lambda DB_PATH: 1)
     monkeypatch.setattr(main, "verify_token",
                         lambda token: True)
     response = client.post("/update-db")
@@ -435,11 +435,13 @@ def test_update_db_unauthenticated(client, monkeypatch):
 def test_rebuild_index_authenticated(client, monkeypatch):
     import main
     # Mock authenticated user trying to rebuild index. Should return success message
+    monkeypatch.setattr(main, "INDEX_FILE", "test.index")
+    monkeypatch.setattr(main, "ID_FILE", "test.ids")
     monkeypatch.setattr(main, "verify_token",
                         lambda token: True)
     response = client.post("/index")
     assert response.status_code == 200
-    assert response.json()["message"] == "Index rebuilt successfully"
+    assert response.json()["message"] == "Index rebuilt successfully. FileNames: testNEW.index, testNEW.ids"
 
 def test_rebuild_index_unauthenticated(client, monkeypatch):
     import main

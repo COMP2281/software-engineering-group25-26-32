@@ -123,7 +123,7 @@ def update_db(token: Annotated[str | None, Cookie()] = None):
                 print("Successfully added thesis with ID", i, "to the database.")
     upload_pdf_texts_to_db_parallel(DB_PATH=newDB)
     print("Database completed for file " + newDB)
-    return {"message": "Database updated successfully FileName:" + newDB}
+    return {"message": "Database updated successfully. FileName: " + newDB}
 
 # Helper function, just copy the files
 def copyFile(src, dst):
@@ -147,7 +147,7 @@ def rebuild_index(token: Annotated[str | None, Cookie()] = None):
     except Exception as e:
         print(e)
         raise HTTPException(status_code=500, detail=f"Failed to build index: {str(e)}")
-    return {"message": "Index rebuilt successfully FileNames:" + newIndex + "/" + newIDs} # Can use : and / as seperators to get file names
+    return {"message": "Index rebuilt successfully. FileNames: " + newIndex + ", " + newIDs} # Can use : and / as seperators to get file names
 
 @app.get("/summarise/{db_id}")
 def summarise(db_id: int):
