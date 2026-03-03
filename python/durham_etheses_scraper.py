@@ -57,8 +57,8 @@ def get_table_data(mystr):
             dept = dept.replace("&gt;", ";")
             try:
                 faculty, dept = dept.split(";")
-                faculty = faculty.split(" ", maxsplit=2)[-1]
-                dept = ",".join(dept.split(",")[:-1]).lstrip()
+                faculty = faculty.split(" ", maxsplit=2)[-1].rstrip()
+                dept = ",".join(dept.split(",")[:-1]).lstrip().rstrip()
             except:
                 faculty = dept
                 dept = None
@@ -102,7 +102,7 @@ def get_metadata(mystr):
                 elif attributes.get("name") == "DC.creator":
                     self.data["author"] = attributes.get("content")
                 elif attributes.get("name") == "DC.subject":
-                    self.data["keywords"].append(attributes.get("content"))
+                    self.data["keywords"].append(attributes.get("content").lstrip().rstrip())
                 elif attributes.get("name") == "eprints.document_url" and self.public:
                     self.data["pdf_url"] = attributes.get("content")
 
@@ -124,6 +124,8 @@ def url_to_str(url):
         return None
 
 def write_to_db(title, author, abstract, award, keywords, date, faculty, dept, url, pdf_url, DB_PATH=DB_PATH):
+    if title is None and author is None and abstract is None and award is None and keywords is None and date is None and faculty is None and dept is None and pdf_url is None:
+        return
     conn = sqlite3.connect(DB_PATH)
     cur = conn.cursor()
     data = (title, author, abstract, award, keywords, date, faculty, dept, url, pdf_url)
@@ -149,13 +151,14 @@ def scrape(i):
 def get_last_id(DB_PATH=DB_PATH):
     conn = sqlite3.connect(DB_PATH)
     cur = conn.cursor()
-    cur.execute("SELECT url FROM Thesis WHERE url IS NOT NULL ORDER BY id DESC LIMIT 1")
+    cur.execute("SELECT url FROM Thesis WHERE url LIKE 'https://etheses.dur.ac.uk/%' ORDER BY id DESC LIMIT 1")
     row = cur.fetchone()
     conn.close()
     if row:
         if row[0].find("https://etheses.dur.ac.uk/") == -1:
             return -1
-        url = row[0][:-1]
+        if row[0][-1] == "/":
+            url = row[0][:-1]
         id = url.split("/")[-1]
         return int(id)
     else:
@@ -178,5 +181,3 @@ def get_latest_id():
             return int(latest_id)
     return None
 
-if __name__ == "__main__":
-    pass
