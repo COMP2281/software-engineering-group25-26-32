@@ -4,6 +4,13 @@ document.getElementById("toYear").value = year;
 document.getElementById("fromYear").setAttribute("max", year);
 document.getElementById("toYear").setAttribute("max", year);
 
+// Converts Markdown text to HTML
+function renderMarkdownToHtml(mdText) {
+    const converter = new showdown.Converter();
+    const html = converter.makeHtml(mdText || "");
+    return DOMPurify.sanitize(html);
+}
+
 const citationStyles = ['UKHarvard', 'APA', 'MLA', 'Chicago', 'IEEE', 'Harvard'];
 const citationModes = ['full', 'intext', 'footnote'];
 
@@ -81,8 +88,8 @@ function citationCreate(item, style = "UKHarvard", mode = "full") {
     return citation;
 }
 
-div = document.getElementById("departmentFilters");
-departments = async function fetchDepartments() {
+let div = document.getElementById("departmentFilters");
+let departments = async function fetchDepartments() {
     try {
         const response = await fetch('http://localhost:8000/departments');
         const departments = await response.json();
@@ -152,7 +159,7 @@ document.getElementById('searchForm').addEventListener('submit', async (event) =
         if (results.length > 0) {
             // Debug response
             // console.log(results);
-            ctr = 0;
+            let ctr = 0;
             resultsDiv.innerHTML = "<h2>Search Results:</h2>";
             for (const item of results) {
 
@@ -215,7 +222,7 @@ document.getElementById('searchForm').addEventListener('submit', async (event) =
                 let currentCitation = "UKHarvard";
                 let currentMode = "full";
                 
-                citation = citationCreate(item);
+                let citation = citationCreate(item);
 
                 divBody.innerHTML += `
                     <br>
@@ -232,7 +239,6 @@ document.getElementById('searchForm').addEventListener('submit', async (event) =
                 div.appendChild(divCollapse);
                 resultsDiv.appendChild(div);
 
-                // --- Citation Buttons Listeners ---
                 const citationHeader = document.getElementById(`citation-header-${item.db_id}`);
                 const citationDiv = document.getElementById(`citation-${item.db_id}`);
 
@@ -262,12 +268,11 @@ document.getElementById('searchForm').addEventListener('submit', async (event) =
                         // this.insertAdjacentHTML('afterend', `<div id = "summary-${db_id}"><br><h4>AI Summary:</h4><span>Generating summary...</span></div>`);
                         document.getElementById(`summary-${db_id}`).style.display = "block";
                         const summaryResponse = await fetch(`http://localhost:8000/summarise/${db_id}`);
+                        let summaryDiv = document.getElementById(`summary-${db_id}`);
+                        summaryDiv.innerHTML = `<br><h4>AI Summary:</h4>`;
                         const summaryData = await summaryResponse.json();
-                        console.log(summaryData.summary);
-                        let summary = summaryData.summary
-                        var converter = new showdown.Converter();
-                        summary = converter.makeHtml(summary);
-                        document.getElementById(`summary-${db_id}`).innerHTML = `<br><h4>AI Summary:</h4>${summary}`;
+                        const htmlSummary = renderMarkdownToHtml(summaryData.summary);
+                        document.getElementById(`summary-${db_id}`).innerHTML = `<br><h4>AI Summary:</h4>${htmlSummary}`;
                         this.style.display = "none";
                     });
                 });
@@ -282,10 +287,8 @@ document.getElementById('searchForm').addEventListener('submit', async (event) =
                         const summaryResponse = await fetch(`http://localhost:8000/summarise/${db_id}?query=${encodeURIComponent(query)}`);
                         const summaryData = await summaryResponse.json();
                         console.log(summaryData.summary);
-                        let summary = summaryData.summary
-                        var converter = new showdown.Converter();
-                        summary = converter.makeHtml(summary);
-                        document.getElementById(`summary-query-response-${db_id}`).innerHTML = `<br><h4>AI Response:</h4>${summary}`;
+                        const htmlSummary = renderMarkdownToHtml(summaryData.summary);
+                        document.getElementById(`summary-query-response-${db_id}`).innerHTML = `<br><h4>AI Response:</h4>${htmlSummary}`;
                     });
                 });
                 document.querySelectorAll(`.summary-query`).forEach(input => {
