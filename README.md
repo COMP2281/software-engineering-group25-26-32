@@ -65,14 +65,27 @@ Windows Powershell:
 Bash:
 - `./test.sh`
 
+
+# Maintenance
+- Ensure DB generally up to date (can be put on a schedule to update or hooked to the Durham E-theses)
+    - Anytime the DB is updated, the model needs to be reindexed via the admin page or manually via index.py
+- Ensure the Gemini API Key has sufficient credits / sufficient access permissions
+
 # TODO
 - Show similarity score
+- Copy files instead of just replacing them immediately (Admin page)
+    - Button to upload/replace the old files with the new ones (Ask if they wish to download the old ones for redundancy)
 - Multithreading/Multiprocessing where necessary (AI Summary, Searching, etc)
 - API Keys with return codes / rate limiter system for each user
 - Curl testing for API endpoints (goes hand in hand)
 - Generate citations (different standards)
+- Further search/prying through via user questions
 - Add a comparison feature for summaries
 
 # TODO List 2 the sequel
 - Deleting users in db
 - Sign out users
+
+
+# TODO Unit Testing
+ - 
