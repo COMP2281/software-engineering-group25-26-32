@@ -3,11 +3,16 @@ import numpy as np
 from sentence_transformers import SentenceTransformer
 from prepare import load_theses, build_text
 
-print(torch.__version__)
-print(torch.cuda.is_available())
-print(torch.cuda.get_device_name(0))
+INDEX_FILE = "durham_thesis.index"
+ID_FILE = "durham_thesis_ids.npy"
+try:
+    print(torch.__version__)
+    print(torch.cuda.is_available())
+    print(torch.cuda.get_device_name(0))
+except:
+    pass
 
-def build_index(DB_PATH="./db/db.db"):
+def build_index(DB_PATH="./db/db.db", INDEX_FILE="durham_thesis.index", ID_FILE="durham_thesis_ids.npy"):
     MODEL_NAME = "sentence-transformers/all-mpnet-base-v2"
     INDEX_FILE = "durham_thesis.index"
     ID_FILE = "durham_thesis_ids.npy"

@@ -10,8 +10,8 @@ from pydantic import BaseModel
 from durham_etheses_scraper import scrape, get_last_id, get_latest_id
 from get_pdf_text import upload_pdf_texts_to_db_parallel
 from gemini_ai_summariser import summarise_thesis
-try:
-    from index import build_index
+from index import build_index
+try:pass
 except:
     print("Warning: CUDA is not available on the server. Index cannot be updated with new theses until CUDA is avaibale.")
 from auth import *
@@ -75,7 +75,7 @@ class SearchTerm(BaseModel):
     departments: list
 
 @app.post("/search")
-async def search_users(search_term: SearchTerm):
+def search_users(search_term: SearchTerm):
     if search_term.term == "" and search_term.authorField == "" and len(search_term.departments) == 0:
         raise HTTPException(status_code=400, detail="At least one search parameter (term, authorField, departments) must be provided")
     try:
@@ -100,7 +100,7 @@ async def get_departments():
 @app.post("/update-db")
 # TODO: Make this not hang the server / multithreading?
 # Updates the DB with new theses uploaded to Durham-Etheses, including PDF text extraction if full PDF is released.
-async def update_db(token: Annotated[str | None, Cookie()] = None):
+def update_db(token: Annotated[str | None, Cookie()] = None):
     if not verify_token(token):
         raise HTTPException(status_code=401, detail="Unauthorised")
     last_id = get_last_id()
@@ -118,25 +118,26 @@ async def update_db(token: Annotated[str | None, Cookie()] = None):
     return {"message": "Database updated successfully"}
 
 @app.post("/index")
-async def rebuild_index(token: Annotated[str | None, Cookie()] = None):
+def rebuild_index(token: Annotated[str | None, Cookie()] = None):
     if not verify_token(token):
         raise HTTPException(status_code=401, detail="Unauthorised")
     try:
-        build_index(df, index, ids, model, DB_PATH=DB_PATH, INDEX_FILE=INDEX_FILE, ID_FILE=ID_FILE)
+        build_index(DB_PATH=DB_PATH, INDEX_FILE=INDEX_FILE, ID_FILE=ID_FILE)
     except NameError:
         print("CUDA is not available. Cannot rebuild index.")
         raise HTTPException(status_code=500, detail=f"Failed to build index: CUDA is not available on the server.")
     except Exception as e:
+        print(e)
         raise HTTPException(status_code=500, detail=f"Failed to build index: {str(e)}")
     return {"message": "Index rebuilt successfully"}
 
 @app.get("/summarise/{db_id}")
-async def summarise(db_id: int):
+def summarise(db_id: int):
     summary = summarise_thesis(db_id, DB_PATH=DB_PATH)
     return {"summary": summary}
 
 @app.get("/login")
-async def login(username: str, password: str):
+def login(username: str, password: str):
     if check_creds(username, password):
         token = generate_token(username)
         response = JSONResponse(content={"message": "Login successful"})
@@ -145,7 +146,7 @@ async def login(username: str, password: str):
     raise HTTPException(status_code=401, detail="Invalid username or password")
 
 @app.get("/token")
-async def test(token: Annotated[str | None, Cookie()] = None):
+def test(token: Annotated[str | None, Cookie()] = None):
     print("Received token:", token)
     if not verify_token(token):
         raise HTTPException(status_code=401, detail="Unauthorised")
@@ -157,7 +158,7 @@ class AdminUser(BaseModel):
     password: str
 
 @app.post("/create-admin")
-async def create_admin_endpoint(admin_user: AdminUser, token: Annotated[str | None, Cookie()] = None):
+def create_admin_endpoint(admin_user: AdminUser, token: Annotated[str | None, Cookie()] = None):
     if not verify_token(token):
         raise HTTPException(status_code=401, detail="Unauthorised")
     success = create_admin(admin_user.username, admin_user.password)

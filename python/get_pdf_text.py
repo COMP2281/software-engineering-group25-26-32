@@ -91,21 +91,6 @@ def doc_text_to_db(id, text, DB_PATH=DB_PATH):
     return
 
 
-def get_pdf_text(id, DB_PATH=DB_PATH):
-    """Retrieve the stored PDF text from the database for the given ID
-    \nid = ID from the database
-    \nReturns the stored PDF text as a string"""
-    conn = sqlite3.connect(DB_PATH)
-    cur = conn.cursor()
-    cur.execute("SELECT pdf_text FROM Thesis WHERE id = ?", (id,))
-    row = cur.fetchone()
-    conn.close()
-    if row:
-        return row[0]
-    else:
-        return None
-    
-
 def process_pdf(id, DB_PATH=DB_PATH):
     print(f"Processing ID {id}...")
     time.sleep(RATE_LIMIT_PAUSE) 
