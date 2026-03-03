@@ -684,3 +684,22 @@ def test_upload_ids_invalid(client, monkeypatch):
     )
     assert response.status_code == 400
     assert response.json()["detail"] == "IDs file must have .npy extension"
+
+
+# TESTS FOR lifespan event
+
+def test_lifespan(client, monkeypatch):
+    import main
+    def fake_initialise(*args, **kwargs):
+        return ("initialised_df", "initialised_index", "initialised_ids","initialised_model")
+    monkeypatch.setattr(main, "initialise", fake_initialise)
+    assert main.df == None
+    assert main.index == None
+    assert main.ids == None
+    assert main.model == None
+
+    with TestClient(main.app) as c:
+        assert main.df == "initialised_df"
+        assert main.index == "initialised_index"
+        assert main.ids == "initialised_ids"
+        assert main.model == "initialised_model"
