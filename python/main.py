@@ -1,3 +1,5 @@
+import datetime
+
 from fastapi import FastAPI, Cookie, File, HTTPException, UploadFile, Form
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -99,35 +101,53 @@ async def get_departments():
 @app.post("/update-db")
 # Updates the DB with new theses uploaded to Durham-Etheses, including PDF text extraction if full PDF is released.
 def update_db(token: Annotated[str | None, Cookie()] = None):
+    # Admins only endpoint
     if not verify_token(token):
         raise HTTPException(status_code=401, detail="Unauthorised")
-    last_id = get_last_id()
+    
+    base, ext = os.path.splitext(DB_PATH)
+    newDB = copyFile(DB_PATH, base + "NEW" + ext) # Work on the copy
+    last_id = get_last_id(DB_PATH=newDB)
     if last_id != -1:
         # Durham Etheses only.
         latest_id = get_latest_id()
         print(f"Last ID in DB: {last_id}, Latest ID on site: {latest_id}")
+        # Already up to date, just delete the copy and return
         if last_id == latest_id:
+            os.remove(newDB)
             return {"message": "Database is already up to date"}
+        
         for i in range(last_id + 1, latest_id + 1):
-            result = scrape(i)
+            result = scrape(i, DB_PATH=newDB)
             if result == 0:
                 print("Successfully added thesis with ID", i, "to the database.")
-    upload_pdf_texts_to_db_parallel(DB_PATH=DB_PATH)
-    return {"message": "Database updated successfully"}
+    upload_pdf_texts_to_db_parallel(DB_PATH=newDB)
+    print("Database completed for file " + newDB)
+    return {"message": "Database updated successfully FileName:" + newDB}
 
+# Helper function, just copy the files
+def copyFile(src, dst):
+    shutil.copy2(src, dst)
+    print("File copied from " + src + " to " + dst)
+    return dst
+
+# Rebuild index
 @app.post("/index")
 def rebuild_index(token: Annotated[str | None, Cookie()] = None):
     if not verify_token(token):
         raise HTTPException(status_code=401, detail="Unauthorised")
     try:
-        build_index(DB_PATH=DB_PATH, INDEX_FILE=INDEX_FILE, ID_FILE=ID_FILE)
+        newIndex = os.path.splitext(INDEX_FILE)[0] + "NEW" + os.path.splitext(INDEX_FILE)[1]
+        newIDs = os.path.splitext(ID_FILE)[0] + "NEW" + os.path.splitext(ID_FILE)[1]
+        print("Rebuilding index with files " + newIndex + " and " + newIDs)
+        build_index(DB_PATH=DB_PATH, INDEX_FILE=newIndex, ID_FILE=newIDs)
     except NameError:
         print("CUDA is not available. Cannot rebuild index.")
         raise HTTPException(status_code=500, detail=f"Failed to build index: CUDA is not available on the server.")
     except Exception as e:
         print(e)
         raise HTTPException(status_code=500, detail=f"Failed to build index: {str(e)}")
-    return {"message": "Index rebuilt successfully"}
+    return {"message": "Index rebuilt successfully FileNames:" + newIndex + "/" + newIDs} # Can use : and / as seperators to get file names
 
 @app.get("/summarise/{db_id}")
 def summarise(db_id: int):
@@ -280,7 +300,7 @@ async def upload(file: Annotated[UploadFile | None, File()] = None,
                     with sqlite3.connect("./db/temp.db") as con:
                         con.execute(f"ALTER TABLE Thesis ADD COLUMN {field} TEXT")
                         con.commit()
-            shutil.copyfile("./db/temp.db", DB_PATH)
+            shutil.copyfile("./db/temp.db", DB_PATH)  # Replace the existing DB with the uploaded one
 
         else:
             raise HTTPException(status_code=400, detail="Invalid file type")

@@ -111,9 +111,6 @@ def search(query, df:pandas.DataFrame, index, ids, model, TOP_K=TOP_K, fromYear=
         
                 
     q = model.encode([query], normalize_embeddings=True)
-
-    # TODO: Recursive search with increased K perhaps?
-
     # By default, search for 5x the request just in case there are many results that get filtered out
     scores, idxs = index.search(q, TOP_K*5)
     for i, idx in enumerate(idxs[0]):
@@ -150,6 +147,7 @@ def search(query, df:pandas.DataFrame, index, ids, model, TOP_K=TOP_K, fromYear=
 
 
             # Add it to the list of results
+            # print(f"Adding result: {row['title']} by {row['author']} ({row['year']}) [Score: {scores[0][i]:.2f}]")
             results.append((row["title"], row["author"], row["year"], row["abstract"], row["department"], row["pdf_url"], row["db_id"], float(scores[0][i])))
             
             if len(results) >= TOP_K:

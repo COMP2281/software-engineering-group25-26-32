@@ -1,3 +1,4 @@
+// Rebuild the database
 document.getElementById("dbu").addEventListener('click', async function() {
     const response = await fetch("http://localhost:8000/update-db",{
         method: 'POST',
@@ -5,6 +6,8 @@ document.getElementById("dbu").addEventListener('click', async function() {
     });
     console.log(response);
 });
+
+// Reindex from the database
 document.getElementById("idx").addEventListener('click', async function() {
     const response = await fetch("http://localhost:8000/index",{
         method: 'POST',

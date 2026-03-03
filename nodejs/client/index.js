@@ -74,10 +74,11 @@ document.getElementById('searchForm').addEventListener('submit', async (event) =
 
         if (results.length > 0) {
             // Debug response
-            console.log(results);
+            // console.log(results);
             ctr = 0;
             resultsDiv.innerHTML = "<h2>Search Results:</h2>";
             for (const item of results) {
+
                 ctr++;
                 let div = document.createElement('div');
                 div.classList.add('accordion-item');
@@ -99,7 +100,7 @@ document.getElementById('searchForm').addEventListener('submit', async (event) =
                 button.setAttribute('aria-expanded', 'false');
                 button.setAttribute('aria-controls', 'collapse' + ctr);
 
-                button.innerHTML = "<b>" + item.name + "</b> &nbsp;-&nbsp; " + item.author + " (" + item.year + ")"; 
+                button.innerHTML = "<b>" + item.name + "</b> &nbsp;-&nbsp; " + item.author + " (" + item.year + ")" + (" | " + Math.round(item.score * 100) / 100 + " relevance"); 
 
                 h2.appendChild(button);
                 div.appendChild(h2);

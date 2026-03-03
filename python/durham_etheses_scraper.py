@@ -134,7 +134,7 @@ def write_to_db(title, author, abstract, award, keywords, date, faculty, dept, u
     conn.close()
     return
 
-def scrape(i):
+def scrape(i, DB_PATH=DB_PATH):
     url = f"https://etheses.dur.ac.uk/{i}/"
     mystr = url_to_str(url)
     if mystr is None:
@@ -144,7 +144,7 @@ def scrape(i):
         print("doesnt exist")
         return 1
     title, author, abstract, award, keywords, date, faculty, dept, pdf_url = get_metadata(mystr)
-    write_to_db(title, author, abstract, award, keywords, date, faculty, dept, url, pdf_url)
+    write_to_db(title, author, abstract, award, keywords, date, faculty, dept, url, pdf_url, DB_PATH=DB_PATH)
     print("success", i)
     return 0
 
