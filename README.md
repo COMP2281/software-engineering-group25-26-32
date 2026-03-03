@@ -75,7 +75,7 @@ Bash:
 - Ensure the Gemini API Key has sufficient credits / sufficient access permissions
 
 # TODO
-- Show similarity score
+- S̶h̶o̶w̶ ̶s̶i̶m̶i̶l̶a̶r̶i̶t̶y̶ ̶s̶c̶o̶r̶e̶
 - Copy files instead of just replacing them immediately (Admin page)
     - Button to upload/replace the old files with the new ones (Ask if they wish to download the old ones for redundancy)
 - Multithreading/Multiprocessing where necessary (AI Summary, Searching, etc)

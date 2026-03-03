@@ -1,3 +1,5 @@
+import datetime
+
 from fastapi import FastAPI, Cookie, File, HTTPException, UploadFile, Form
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -100,28 +102,43 @@ async def get_departments():
 # TODO: Make this not hang the server / multithreading?
 # Updates the DB with new theses uploaded to Durham-Etheses, including PDF text extraction if full PDF is released.
 def update_db(token: Annotated[str | None, Cookie()] = None):
+    # Admins only endpoint
     if not verify_token(token):
         raise HTTPException(status_code=401, detail="Unauthorised")
-    last_id = get_last_id()
+    
+    base, ext = os.path.splitext(DB_PATH)
+    newDB = copyFile(DB_PATH, base + "NEW" + ext) # Work on the copy
+    last_id = get_last_id(DB_PATH=newDB)
     if last_id != -1:
         # Durham Etheses only.
         latest_id = get_latest_id()
         print(f"Last ID in DB: {last_id}, Latest ID on site: {latest_id}")
+        # Already up to date, just delete the copy and return
         if last_id == latest_id:
+            os.remove(newDB)
             return {"message": "Database is already up to date"}
+        
         for i in range(last_id + 1, latest_id + 1):
-            result = scrape(i)
+            result = scrape(i, DB_PATH=newDB)
             if result == 0:
                 print("Successfully added thesis with ID", i, "to the database.")
-    upload_pdf_texts_to_db_parallel(DB_PATH=DB_PATH)
+    upload_pdf_texts_to_db_parallel(DB_PATH=newDB)
+    print("Database completed for file " + newDB)
     return {"message": "Database updated successfully"}
 
+# Helper function, just copy the files
+def copyFile(src, dst):
+    shutil.copy2(src, dst)
+    print("File copied from " + src + " to " + dst)
+    return dst
+
+# Rebuild index
 @app.post("/index")
 def rebuild_index(token: Annotated[str | None, Cookie()] = None):
     if not verify_token(token):
         raise HTTPException(status_code=401, detail="Unauthorised")
     try:
-        build_index(DB_PATH=DB_PATH, INDEX_FILE=INDEX_FILE, ID_FILE=ID_FILE)
+        build_index(DB_PATH=DB_PATH, INDEX_FILE=(INDEX_FILE + "NEW"), ID_FILE=(ID_FILE + "NEW"))
     except NameError:
         print("CUDA is not available. Cannot rebuild index.")
         raise HTTPException(status_code=500, detail=f"Failed to build index: CUDA is not available on the server.")
