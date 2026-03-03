@@ -44,14 +44,14 @@ def load_pages(doc_id, DB_PATH=DB_PATH):
     return pages
 
 # Summarise using Gemini - need GEMINI_API_KEY in .env
-def summarise_thesis(DOC_ID=DOC_ID, DB_PATH=DB_PATH):
+def summarise_thesis(DOC_ID=DOC_ID, DB_PATH=DB_PATH, query = None):
     pages = load_pages(DOC_ID, DB_PATH)
     if pages == "":
         return "Full text not available for this thesis"
     try:
         client = gemini.Client(api_key=os.environ.get("GEMINI_API_KEY"))
-        response = client.models.generate_content(
-            model="gemini-2.5-flash", contents=f"""
+        if not query:
+            prompt = f"""
     Summarise the following thesis text including:
 
     - Overall theme
@@ -66,7 +66,16 @@ def summarise_thesis(DOC_ID=DOC_ID, DB_PATH=DB_PATH):
     Produce your summary in a HTML format, using only <h5> and <h6> for headings and subheadings. 
     DO NOT WRAP THE SUMMARY IN ANY <html>, <code> etc TAGS,MARKDOWN CODE BLOCKS OR ANY OTHER CONTAINER
     \n\n{pages}
-    """)
+    """
+        else:
+            prompt = f"""
+            Answer the following question using information provided in the thesis text below: "{query}". Be detailed in your explanation and include page numbers of information used to generate the response.
+            Produce your summary in a HTML format, using only <h5> and <h6> for headings and subheadings. 
+    DO NOT WRAP THE SUMMARY IN ANY <html>, <code> etc TAGS,MARKDOWN CODE BLOCKS OR ANY OTHER CONTAINER
+    \n\n{pages}
+            """
+        response = client.models.generate_content(
+            model="gemini-2.5-flash", contents=prompt)
     except Exception as e:
         print("Error generating summary:", str(e))
         return "Error generating summary"

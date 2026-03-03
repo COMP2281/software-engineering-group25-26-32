@@ -150,8 +150,8 @@ def rebuild_index(token: Annotated[str | None, Cookie()] = None):
     return {"message": "Index rebuilt successfully. FileNames: " + newIndex + ", " + newIDs} # Can use : and / as seperators to get file names
 
 @app.get("/summarise/{db_id}")
-def summarise(db_id: int):
-    summary = summarise_thesis(db_id, DB_PATH=DB_PATH)
+def summarise(db_id: int, query: str | None = None):
+    summary = summarise_thesis(db_id, DB_PATH=DB_PATH, query=query)
     return {"summary": summary}
 
 @app.get("/login")

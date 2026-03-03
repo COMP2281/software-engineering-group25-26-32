@@ -122,6 +122,9 @@ document.getElementById('searchForm').addEventListener('submit', async (event) =
                 if (item.pdf_url) {
                     divBody.innerHTML += `<a href="${item.pdf_url}" target="_blank">View PDF</a>`;
                     divBody.innerHTML += `<br><button id =summary-btn-${item.db_id} class="btn btn-secondary btn-sm mt-2 summary-btn">Summarise Thesis</button>`;
+                    divBody.innerHTML += `<input type = "text" id = "summary-query-${item.db_id}" class = "form-control form-control-sm mt-2 summary-query" placeholder = "Enter Question about thesis"></input>`;
+                    divBody.innerHTML += `<button id =summary-query-btn-${item.db_id} class="btn btn-secondary btn-sm mt-2 summary-query-btn" disabled>Ask Question</button>`;
+                    divBody.innerHTML += `<div id = "summary-${item.db_id}" style = "display: none;"><br><h4>AI Summary:</h4><span>Generating summary...</span></div>`;
                 } else {
                     divBody.innerHTML += "Not available.";
                 }
@@ -136,7 +139,8 @@ document.getElementById('searchForm').addEventListener('submit', async (event) =
                     btn.addEventListener('click', async function() {
                         const db_id = this.id.split('-')[2];
                         this.disabled = true;
-                        this.insertAdjacentHTML('afterend', `<div id = "summary-${db_id}"><br><h4>AI Summary:</h4><span>Generating summary...</span></div>`);
+                        // this.insertAdjacentHTML('afterend', `<div id = "summary-${db_id}"><br><h4>AI Summary:</h4><span>Generating summary...</span></div>`);
+                        document.getElementById(`summary-${db_id}`).style.display = "block";
                         const summaryResponse = await fetch(`http://localhost:8000/summarise/${db_id}`);
                         const summaryData = await summaryResponse.json();
                         console.log(summaryData.summary);
@@ -145,6 +149,29 @@ document.getElementById('searchForm').addEventListener('submit', async (event) =
                         summary = converter.makeHtml(summary);
                         document.getElementById(`summary-${db_id}`).innerHTML = `<br><h4>AI Summary:</h4>${summary}`;
                         this.style.display = "none";
+                    });
+                });
+
+                document.querySelectorAll(`.summary-query-btn`).forEach(btn => {
+                    btn.addEventListener('click', async function() {
+                        const db_id = this.id.split('-')[3];
+                        const query = document.getElementById(`summary-query-${db_id}`).value;
+                        this.disabled = true;
+                        document.getElementById(`summary-query-${db_id}`).disabled = true;
+                        this.insertAdjacentHTML('afterend', `<div id = "summary-query-response-${db_id}"><br><h4>AI Response:</h4><span>Generating response...</span></div>`);
+                        const summaryResponse = await fetch(`http://localhost:8000/summarise/${db_id}?query=${encodeURIComponent(query)}`);
+                        const summaryData = await summaryResponse.json();
+                        console.log(summaryData.summary);
+                        let summary = summaryData.summary
+                        var converter = new showdown.Converter();
+                        summary = converter.makeHtml(summary);
+                        document.getElementById(`summary-query-response-${db_id}`).innerHTML = `<br><h4>AI Response:</h4>${summary}`;
+                    });
+                });
+                document.querySelectorAll(`.summary-query`).forEach(input => {
+                    input.addEventListener('input', function() {
+                        const db_id = this.id.split('-')[2];
+                        document.getElementById(`summary-query-btn-${db_id}`).disabled = this.value.trim() === "";
                     });
                 });
         } else {

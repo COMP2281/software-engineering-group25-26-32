@@ -116,7 +116,7 @@ def client(test_db_path, test_user_db_path, monkeypatch):
                         lambda *args, **kwargs: None, raising=False)
 
     monkeypatch.setattr(main, "summarise_thesis",
-                        lambda db_id, DB_PATH=None: "Fake summary")
+                        lambda db_id, DB_PATH=None, query=None: "Fake summary" if query is None else "Fake summary, query: " + str(query))
 
     monkeypatch.setattr(main, "upload_file",
                         lambda FILE_PATH, file: None)
@@ -211,6 +211,10 @@ def test_summarise_thesis(client):
     assert response.status_code == 200
     assert response.json()["summary"] == "Fake summary"
 
+def test_summarise_thesis_with_query(client):
+    response = client.get("/summarise/1?query=test%20query")
+    assert response.status_code == 200
+    assert response.json()["summary"] == "Fake summary, query: test query"
 
 # TESTS FOR /login 
 

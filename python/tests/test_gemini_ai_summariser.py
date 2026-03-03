@@ -98,6 +98,11 @@ def test_summarise_thesis(gemini_ai_summariser, monkeypatch):
     summary = gemini_ai_summariser.summarise_thesis(DOC_ID=1, DB_PATH=gemini_ai_summariser.DB_PATH)
     assert summary == "Fake summary"
 
+def test_summarise_thesis_with_query(gemini_ai_summariser, monkeypatch):
+    monkeypatch.setattr(gemini_ai_summariser, "load_pages", lambda doc_id, DB_PATH=None: "Fake pages")
+    summary = gemini_ai_summariser.summarise_thesis(DOC_ID=1, DB_PATH=gemini_ai_summariser.DB_PATH)
+    assert summary == "Fake summary"
+
 def test_summarise_thesis_no_pages(gemini_ai_summariser, monkeypatch):
     monkeypatch.setattr(gemini_ai_summariser, "load_pages", lambda doc_id, DB_PATH=None: "")
     summary = gemini_ai_summariser.summarise_thesis(DOC_ID=1, DB_PATH=gemini_ai_summariser.DB_PATH)
@@ -114,7 +119,7 @@ def test_summarise_thesis_strips_garbage(gemini_ai_summariser, monkeypatch):
         def __init__(self, *args, **kwargs):
             self.models = FakeModel() 
     fake_gemini.Client = FakeClient
-    sys.modules["google.genai"] = fake_gemini
+    monkeypatch.setattr(gemini_ai_summariser, "gemini", fake_gemini)
     monkeypatch.setattr(gemini_ai_summariser, "load_pages", lambda doc_id, DB_PATH=None: "Fake Pages")
     summary = gemini_ai_summariser.summarise_thesis(DOC_ID=1)
     assert summary == "Fake summary"
@@ -125,7 +130,7 @@ def test_summarise_thesis_strips_garbage(gemini_ai_summariser, monkeypatch):
             def __init__(self, *args, **kwargs):
                 self.models = FakeModel() 
     fake_gemini.Client = FakeClient
-    sys.modules["google.genai"] = fake_gemini
+    monkeypatch.setattr(gemini_ai_summariser, "gemini", fake_gemini)
     summary = gemini_ai_summariser.summarise_thesis(DOC_ID=1)
     assert summary == "Fake summary"
     class FakeModel:
@@ -135,6 +140,6 @@ def test_summarise_thesis_strips_garbage(gemini_ai_summariser, monkeypatch):
             def __init__(self, *args, **kwargs):
                 self.models = FakeModel() 
     fake_gemini.Client = FakeClient
-    sys.modules["google.genai"] = fake_gemini
+    monkeypatch.setattr(gemini_ai_summariser, "gemini", fake_gemini)
     summary = gemini_ai_summariser.summarise_thesis(DOC_ID=1)
     assert summary == "Fake summary"
