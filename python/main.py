@@ -11,9 +11,7 @@ from durham_etheses_scraper import scrape, get_last_id, get_latest_id
 from get_pdf_text import upload_pdf_texts_to_db_parallel
 from gemini_ai_summariser import summarise_thesis
 from index import build_index
-try:pass
-except:
-    print("Warning: CUDA is not available on the server. Index cannot be updated with new theses until CUDA is avaibale.")
+from create_admin import delete_admin
 from auth import *
 from create_admin import create_admin
 import pandas as pd
@@ -165,6 +163,22 @@ def create_admin_endpoint(admin_user: AdminUser, token: Annotated[str | None, Co
     if not success:
         raise HTTPException(status_code=500, detail="Failed to create admin user")
     return {"message": "Admin user created successfully"}
+
+
+@app.delete("/delete-admin")
+def delete_admin_endpoint(username: str, token: Annotated[str | None, Cookie()] = None):
+    if not verify_token(token):
+        raise HTTPException(status_code=401, detail="Unauthorised")
+    status = delete_admin(username)
+    if status == 404:
+        raise HTTPException(status_code=404, detail="Admin user not found")
+    elif status == 400:
+        raise HTTPException(status_code=400, detail="Bad request. Please ensure a username is provided and check the database connection.")
+    elif status != 200:
+        raise HTTPException(status_code=500, detail="Failed to delete admin user")
+    else:
+        return {"message": "Admin user deleted successfully"}
+
 
 async def upload_file(FILE_PATH, file: UploadFile):
     contents = await file.read()

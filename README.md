@@ -83,8 +83,9 @@ Bash:
 - Add a comparison feature for summaries
 
 # TODO List 2 the sequel
-- Deleting users in db
+~~- Deleting users in db~~
 - Sign out users
+
 
 
 # TODO Unit Testing

@@ -23,5 +23,30 @@ document.getElementById("createAdminForm").addEventListener('submit', async func
         body: JSON.stringify({ "username": username, "password": password }),
         headers: { 'Content-Type': 'application/json' }
     });
+    if (response.ok) {
+        alert("Admin user created successfully");
+        document.getElementById("newAdminUsername").value = "";
+        document.getElementById("newAdminPassword").value = "";
+    } else{
+        const errorData = await response.json();
+        alert("Error creating admin user: " + errorData.detail);
+    }
+    console.log(response);
+});
+
+document.getElementById("deleteAdminForm").addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const username = document.getElementById("deletedAdminUsername").value;
+    const response = await fetch("http://localhost:8000/delete-admin?username=" + encodeURIComponent(username),{
+        method: 'DELETE',
+        credentials: 'include'
+    });
+    if (response.ok) {
+        alert("Admin user deleted successfully");
+        document.getElementById("deletedAdminUsername").value = "";
+    } else {
+        const errorData = await response.json();
+        alert("Error deleting admin user: " + errorData.detail);
+    }
     console.log(response);
 });

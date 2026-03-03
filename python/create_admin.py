@@ -49,6 +49,31 @@ def create_admin(username, password, DB_PATH=DB_PATH):
         cur.close()
         conn.close()
 
+def delete_admin(username, DB_PATH=DB_PATH):
+    if not username or username.strip() == "":
+        print("Error: Username is required.")
+        return 400
+    try:
+        conn = sqlite3.connect(DB_PATH)
+    except:
+        if not os.path.exists(os.path.dirname(DB_PATH)):
+            print(f"Error: Directory for database does not exist at {os.path.dirname(DB_PATH)}. Please create the directory and try again.")
+        else:
+            print(f"Error: Could not connect to database at {DB_PATH}. Please check the path and try again.")
+        return 400
+    cur = conn.cursor()
+    cur.execute("DELETE FROM Admin WHERE username = ?", (username,))
+    if cur.rowcount == 0:
+        print(f"Error: Admin user '{username}' does not exist.")
+        cur.close()
+        conn.close()
+        return 404
+    conn.commit()
+    print(f"Admin user '{username}' deleted successfully.")
+    cur.close()
+    conn.close()
+    return 200
+
 def main():
     load_dotenv()
     DB_PATH = os.environ.get("USERS_DB_PATH", "./db/users.db")

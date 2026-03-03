@@ -120,3 +120,35 @@ def test_handle_invalid_db_path(create_admin, monkeypatch):
     )
     result = create_admin.main()
     assert result == False
+
+
+# TESTS FOR delete_admin()
+
+def test_delete_admin_success(create_admin, test_user_db_path):
+    # First create a new admin user to delete
+    con = sqlite3.connect(test_user_db_path)
+    con.execute("INSERT INTO Admin (username, password) VALUES (?, ?)", ("DELETE_ME", "password"))
+    con.commit()
+    con.close()
+    # Now delete the admin user
+    status = create_admin.delete_admin("DELETE_ME")
+    assert status == 200
+
+    # Check that the admin user was deleted from the mock database
+    con = sqlite3.connect(create_admin.DB_PATH)
+    cur = con.cursor()
+    cur.execute("SELECT username FROM Admin WHERE username = ?", ("DELETE_ME",))
+    row = cur.fetchone()
+    cur.close()
+    con.close()
+    assert row is None
+
+def test_delete_admin_nonexistent_user(create_admin):
+    # Test deleting an admin user that doesn't exist
+    status = create_admin.delete_admin("NONEXISTENT_USER")
+    assert status == 404
+
+def test_delete_admin_missing_username(create_admin):
+    # Test deleting an admin user with missing username
+    status = create_admin.delete_admin("")
+    assert status == 400
