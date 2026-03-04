@@ -270,6 +270,10 @@ document.getElementById('searchForm').addEventListener('submit', async (event) =
                         const summaryResponse = await fetch(`http://localhost:8000/summarise/${db_id}`);
                         let summaryDiv = document.getElementById(`summary-${db_id}`);
                         summaryDiv.innerHTML = `<br><h4>AI Summary:</h4>`;
+                        if (!summaryResponse.ok) {
+                            summaryDiv.innerHTML += `<span>Error generating summary.</span>`;
+                            return;
+                        }
                         const summaryData = await summaryResponse.json();
                         const htmlSummary = renderMarkdownToHtml(summaryData.summary);
                         document.getElementById(`summary-${db_id}`).innerHTML = `<br><h4>AI Summary:</h4>${htmlSummary}`;
@@ -285,6 +289,10 @@ document.getElementById('searchForm').addEventListener('submit', async (event) =
                         document.getElementById(`summary-query-${db_id}`).disabled = true;
                         this.insertAdjacentHTML('afterend', `<div id = "summary-query-response-${db_id}"><br><h4>AI Response:</h4><span>Generating response...</span></div>`);
                         const summaryResponse = await fetch(`http://localhost:8000/summarise/${db_id}?query=${encodeURIComponent(query)}`);
+                        if (!summaryResponse.ok) {
+                            document.getElementById(`summary-query-response-${db_id}`).innerHTML = `<br><h4>AI Response:</h4><span>Error generating response.</span>`;
+                            return;
+                        }
                         const summaryData = await summaryResponse.json();
                         console.log(summaryData.summary);
                         const htmlSummary = renderMarkdownToHtml(summaryData.summary);
