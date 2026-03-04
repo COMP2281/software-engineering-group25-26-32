@@ -2,14 +2,14 @@
 
 ## Required Files
 ### Durham E-Theses Database:
-https://a.piggypiggyyoinkyoink.website/dingus/db/db.db
+https://drive.google.com/file/d/1sjuEiNPtU-YBk_LmJwXtF8F1EqwcZjej/view?usp=drive_link
 Place in `python/db` folder
 
 ### durham_thesis.index:
-https://a.piggypiggyyoinkyoink.website/dingus/db/durham_thesis.index
+https://drive.google.com/file/d/1Pn-vnS8AWQ9hzGylMXmiDrRP4DHnot6Z/view?usp=drive_link
 place in `python` folder (no sub-folders)
 ### durham_thesis_ids.npy:
-https://a.piggypiggyyoinkyoink.website/dingus/db/durham_thesis_ids.npy
+https://drive.google.com/file/d/1XV7-h2fERKrC3PrZMkLmFVqu67z7T2Wd/view?usp=drive_link
 place in `python` folder (no sub-folders)
 
 
@@ -19,7 +19,7 @@ place in `python` folder (no sub-folders)
 
 
 ## Python
-Using python version 3.11.x (**Important. Please use the same version to avoid conflicts with packages**):
+Using python version 3.11 or above:
 - `cd python`
 - `python -m venv .venv`
 - MacOS: `source .venv/bin/activate`, Windows: `./.venv/Scripts/activate`
@@ -36,7 +36,7 @@ SECRET_KEY = <KEYHERE>
 Replacing `<...>` with the correct paths to the files on your machine, and `<your_gemini_api_key>` with your Gemini API key  
 Tessdata can be cloned from https://github.com/tesseract-ocr/tessdata and is required to add full thesis texts to the database.  
 A Gemini API key can be generated from https://aistudio.google.com/api-keys
-Default db path is ./db/db.db
+Default db path is ./db/db.db, to guarantee functionality on the installed system set this to the full path of the db file in your filesystem.
 
 Replace '<KEYHERE>' with your secret key
 
