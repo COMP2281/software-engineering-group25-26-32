@@ -1,18 +1,45 @@
 // Rebuild the database
 document.getElementById("dbu").addEventListener('click', async function() {
+    // Apply a status message to the user
+    var statusMess = document.getElementById("statusMessage");
+    statusMess.innerHTML = "Updating database, please wait...";
+    statusMess.style.color = "red";
+
     const response = await fetch("http://localhost:8000/update-db",{
         method: 'POST',
         credentials: 'include'
     });
+    if (response.ok) {
+        statusMess.innerHTML = "Database updated successfully!<br>";
+        statusMess.innerHTML += response.message;
+        statusMess.style.color = "green";
+    } else {
+        const errorData = await response.json();
+        statusMess.innerHTML = "Error updating database: " + errorData.detail;
+    }
     console.log(response);
 });
 
 // Reindex from the database
 document.getElementById("idx").addEventListener('click', async function() {
+    // Apply a status message to the user
+    var statusMess = document.getElementById("statusMessage");
+    statusMess.innerHTML = "Reindexing based off of the current database, please wait...";
+    statusMess.style.color = "red";
+
     const response = await fetch("http://localhost:8000/index",{
         method: 'POST',
         credentials: 'include'
     });
+
+    if (response.ok) {
+        statusMess.innerHTML = "Reindexing successful!<br>";
+        statusMess.innerHTML += statusMess.message;
+        statusMess.style.color = "green";
+    } else {
+        const errorData = await response.json();
+        statusMess.innerHTML = "Error reindexing: " + errorData.detail;
+    }
     console.log(response);
 });
 

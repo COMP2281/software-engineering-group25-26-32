@@ -98,6 +98,7 @@ def search_users(search_term: SearchTerm):
 async def get_departments():
     return departments
 
+# Used in update DB admin page button
 @app.post("/update-db")
 # Updates the DB with new theses uploaded to Durham-Etheses, including PDF text extraction if full PDF is released.
 def update_db(token: Annotated[str | None, Cookie()] = None):
@@ -210,7 +211,7 @@ def delete_admin_endpoint(username: str, token: Annotated[str | None, Cookie()] 
     else:
         return {"message": "Admin user deleted successfully"}
 
-
+# Helper function
 async def upload_file(FILE_PATH, file: UploadFile):
     contents = await file.read()
     with open(FILE_PATH, "wb") as f:
@@ -233,7 +234,6 @@ async def upload(file: Annotated[UploadFile | None, File()] = None,
         raise HTTPException(status_code=400, detail="No index file provided and no existing index found")
     if not idsFile and not os.path.isfile(ID_FILE):
         raise HTTPException(status_code=400, detail="No IDs file provided and no existing IDs file found")
-
 
     if file:
         db_fields = ["title", "author", "date", "abstract", "department", "keywords", "pdf_url", "url", "pdf_text"]

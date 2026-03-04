@@ -85,6 +85,7 @@ Bash:
 - ~~Further search/prying through via user questions~~
 - ~~Text is formatted from summaries~~
 - Continue conversation for gemini?
+- Return messages somehow gone ?
 
 # TODO List 2 the sequel
 ~~- Deleting users in db~~
