@@ -167,7 +167,9 @@ def login(username: str, password: str):
 def test(token: Annotated[str | None, Cookie()] = None):
     print("Received token:", token)
     if not verify_token(token):
-        raise HTTPException(status_code=401, detail="Unauthorised")
+        response = JSONResponse(status_code=401, content={"detail": "Unauthorised", "message": "Invalid or missing token"})
+        response.delete_cookie(key="token")
+        return response
     return {"message": "Token is valid"}
 
 @app.post("/logout")

@@ -74,3 +74,7 @@ def test_verify_token_modified(auth):
     token = auth.generate_token("TEST")
     tampered_token = token + "garbage"
     assert auth.verify_token(tampered_token) is None
+
+def test_verify_token_nonexistent_user(auth):
+    token = auth.generate_token("NONEXISTENT")
+    assert auth.verify_token(token) is None

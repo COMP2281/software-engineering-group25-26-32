@@ -27,6 +27,15 @@ def generate_token(username, secret_key=SECRET_KEY):
 def verify_token(token, secret_key=SECRET_KEY):
     try:
         payload = jwt.decode(token, secret_key, algorithms=["HS256"])
+        username = payload["sub"]
+        con = sqlite3.connect(DB_PATH)
+        cur = con.cursor()
+        cur.execute("SELECT id FROM Admin WHERE username = ?", (username,))
+        row = cur.fetchone()
+        cur.close()
+        con.close()
+        if row is None:
+            return None
         return payload["sub"]
     except:
         return None
