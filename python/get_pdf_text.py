@@ -44,6 +44,11 @@ def page_ocr_text(page:pymupdf.Page):
     text = tp.extractText()
     return text
 
+def read_pdf_from_url(pdf_url):
+    r = requests.get(pdf_url)
+    data = r.content
+    doc = pymupdf.Document(stream=data, filetype="pdf")
+    return doc
 
 def pdf_to_txt_json(id, DB_PATH=DB_PATH):
     """Convert the contents of PDF files corresponding to the input ID into a JSON file. One line in the JSON file = one page in the pdf.
@@ -57,9 +62,7 @@ def pdf_to_txt_json(id, DB_PATH=DB_PATH):
         id = row[0]
         pdf_url = row[3]
         if pdf_url is not None:
-            r = requests.get(pdf_url)
-            data = r.content
-            doc = pymupdf.Document(stream=data, filetype="pdf")
+            doc = read_pdf_from_url(pdf_url)
             for page in doc: # iterate the document pages
                 text = page.get_text()
                 if is_garbage(text):
