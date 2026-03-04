@@ -1,0 +1,42 @@
+CPU: 11th Gen Intel(R) Core(TM) i7-1165G7 @ 2.80GHz
+Frequency: 2.8000 GHz
+Architecture: X86_64
+Threads: 8
+
+
+1 Concurrent Users:
+Average Response Time: 2.0938149213790895 seconds
+Max Response Time: 2.1055893898010254 seconds
+
+
+
+10 Concurrent Users:
+Average Response Time: 2.250536606311798 seconds
+Max Response Time: 2.523909330368042 seconds
+
+
+
+50 Concurrent Users:
+Average Response Time: 3.026916896343231 seconds
+Max Response Time: 4.200298070907593 seconds
+
+
+
+100 Concurrent Users:
+Average Response Time: 5.505580964803696 seconds
+Max Response Time: 9.01139211654663 seconds
+
+
+
+500 Concurrent Users:
+Average Response Time: 29.55831411385656 seconds
+Max Response Time: 33.662853479385376 seconds
+
+
+
+1000 Concurrent Users:
+Average Response Time: 62.4340763470436 seconds
+Max Response Time: 70.64279198646545 seconds
+
+
+
