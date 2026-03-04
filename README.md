@@ -80,11 +80,11 @@ Bash:
     - Updates to add "NEW" to the filename (same file extension)
     - Button to upload/replace the old files with the new ones (Ask if they wish to download the old ones for redundancy)
 ~~- Multithreading/Multiprocessing where necessary (AI Summary, Searching, etc)~~
-- API Keys with return codes / rate limiter system for each user
 - Curl testing for API endpoints (goes hand in hand)
 - ~~Generate citations (different standards)~~
-- Further search/prying through via user questions
+- ~~Further search/prying through via user questions~~
 - ~~Text is formatted from summaries~~
+- Continue conversation for gemini?
 
 # TODO List 2 the sequel
 ~~- Deleting users in db~~
