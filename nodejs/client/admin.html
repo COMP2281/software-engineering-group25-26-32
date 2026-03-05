@@ -9,18 +9,19 @@
             <h1>Admin Page</h1>
             <p id = "statusMessage"></p>
             <button id = "logout">Logout</button>
-            <br>
+            <br><br>
             <button id = "dbu">Update DB</button>
             <button id = "idx">Build Index</button>
-            <br>
+            <br><br>
             <select id="fileList"></select>
             <button id = "downloadFile">Download File</button>
             <button id = "deleteFile">Delete File</button>
             <p> The DB Update button will automatically update a Durham Etheses database, or will extract text if the <code>pdf_url</code> field is used in the database.<br>
                 The Build Index button will rebuild the index used for searching. This should be run after updating the DB.<br>
-                Note: these operations can take a very long time to run.
+                Note: these operations can take a very long time to run.<br>
+                Once complete, the updated file(s) will be available for download in the dropdown menu above. These can then be loaded into the live system via the <a href = "setup">Setup page</a>.
             </p>
-            <a href = "/setup">Setup Page</a> - upload DB, Index and ID files directly.
+            <a href = "/setup">Setup Page</a> - upload DB, Index and IDs files to the live system.
             <br>
             <h2>Create New Admin User</h2>
             <form id = "createAdminForm">
