@@ -93,9 +93,3 @@ Bash:
 ~~- Sign out users~~
 - Admin page frontend?
 
-
-
-# TODO Unit Testing
- - get_pdf_text.py
- - index.py
- - search.py
