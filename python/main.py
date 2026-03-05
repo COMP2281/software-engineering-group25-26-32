@@ -2,7 +2,7 @@ import datetime
 
 from fastapi import FastAPI, Cookie, File, HTTPException, UploadFile, Form
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import FileResponse, JSONResponse
 from typing import Annotated 
 from contextlib import asynccontextmanager
 from dotenv import load_dotenv
@@ -124,13 +124,62 @@ def update_db(token: Annotated[str | None, Cookie()] = None):
                 print("Successfully added thesis with ID", i, "to the database.")
     upload_pdf_texts_to_db_parallel(DB_PATH=newDB)
     print("Database completed for file " + newDB)
-    return {"message": "Database updated successfully. FileName: " + newDB}
+    return {"message": "Database updated successfully.  FileName: " + newDB}
 
 # Helper function, just copy the files
 def copyFile(src, dst):
     shutil.copy2(src, dst)
     print("File copied from " + src + " to " + dst)
     return dst
+
+# Download a db file, index file, or Ids file
+@app.get("/download/{file_name}")
+def download_file(file_name: str, token: Annotated[str | None, Cookie()] = None):
+    if not verify_token(token):
+        raise HTTPException(status_code=401, detail="Unauthorised")
+    
+    file_path = os.path.join(".", file_name)
+
+    if not os.path.isfile(file_path):
+        raise HTTPException(status_code=404, detail=f"File not found {file_name}")
+    
+    if not file_name.endswith((".db", ".index", ".npy")):
+        raise HTTPException(status_code=400, detail="Invalid file type")
+
+    return FileResponse(file_path, filename=file_name)
+
+# Delete a db file, index file, or Ids file from the server
+@app.delete("/deleteFile/{file_name}")
+def delete_file(file_name: str, token: Annotated[str | None, Cookie()] = None):
+    if not verify_token(token):
+        raise HTTPException(status_code=401, detail="Unauthorised")
+    
+    file_path = os.path.join(".", file_name)
+
+    if not os.path.isfile(file_path):
+        raise HTTPException(status_code=404, detail=f"File not found {file_name}")
+    
+    if not file_name.endswith((".db", ".index", ".npy")):
+        raise HTTPException(status_code=400, detail="Invalid file type")
+
+    try:
+        os.remove(file_path)
+        return {"message": f"File {file_name} deleted successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to delete file {file_name}: {str(e)}")
+
+# List available files to download (db, index, ids)
+@app.get("/downloadableFiles")
+def get_downloadable_files():
+    files = []
+    # Debug: List all files in the current directory and db directory
+    for file in os.listdir("."):
+        if file.endswith(".db") or file.endswith(".index") or file.endswith(".npy"):
+            files.append(file)
+    for file in os.listdir("./db"):
+        if file.endswith(".db") or file.endswith(".index") or file.endswith(".npy"):
+            files.append(os.path.join("db", file))
+    return {"files": files}
 
 # Rebuild index
 @app.post("/index")
@@ -148,7 +197,7 @@ def rebuild_index(token: Annotated[str | None, Cookie()] = None):
     except Exception as e:
         print(e)
         raise HTTPException(status_code=500, detail=f"Failed to build index: {str(e)}")
-    return {"message": "Index rebuilt successfully. FileNames: " + newIndex + ", " + newIDs} # Can use : and / as seperators to get file names
+    return {"message": "Index rebuilt successfully.  FileNames: " + newIndex + "/" + newIDs} # Can use : and / as seperators to get file names
 
 @app.get("/summarise/{db_id}")
 def summarise(db_id: int, query: str | None = None):

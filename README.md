@@ -78,15 +78,15 @@ Bash:
 # TODO
 - ~~Show similarity score~~
 - ~~Copy files instead of just replacing them~~
-    - Updates to add "NEW" to the filename (same file extension)
-    - Button to upload/replace the old files with the new ones (Ask if they wish to download the old ones for redundancy)
+    - ~~Updates to add "NEW" to the filename (same file extension)~~
+    - ~~Button to upload/replace the old files with the new ones (Ask if they wish to download the old ones for redundancy)~~
 ~~- Multithreading/Multiprocessing where necessary (AI Summary, Searching, etc)~~
 - Curl testing for API endpoints (goes hand in hand)
 - ~~Generate citations (different standards)~~
 - ~~Further search/prying through via user questions~~
 - ~~Text is formatted from summaries~~
 - Continue conversation for gemini?
-- Return messages somehow gone ?
+- ~~Return messages somehow gone ?~~
 
 # TODO List 2 the sequel
 ~~- Deleting users in db~~

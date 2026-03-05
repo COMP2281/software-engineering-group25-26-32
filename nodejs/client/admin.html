@@ -8,9 +8,14 @@
         <div class = "container">
             <h1>Admin Page</h1>
             <p id = "statusMessage"></p>
-            <button id = "logout">Logout</button><br>
+            <button id = "logout">Logout</button>
+            <br>
             <button id = "dbu">Update DB</button>
             <button id = "idx">Build Index</button>
+            <br>
+            <select id="fileList"></select>
+            <button id = "downloadFile">Download File</button>
+            <button id = "deleteFile">Delete File</button>
             <p> The DB Update button will automatically update a Durham Etheses database, or will extract text if the <code>pdf_url</code> field is used in the database.<br>
                 The Build Index button will rebuild the index used for searching. This should be run after updating the DB.<br>
                 Note: these operations take a long time to run, and the server will be unavailable while they are running.
