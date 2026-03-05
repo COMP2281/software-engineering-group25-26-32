@@ -9,7 +9,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "nodemon app.js",
-    "dev": "concurrently \"npm start\" \"cross-env PYTHONIOENCODING=utf-8 PYTHONUTF8=1 && cd ../python && source .venv/bin/activate 2>/dev/null || call ./.venv/Scripts/activate && python -m uvicorn main:app --reload\""
+    "frontend": "node app.js",
+    "dev": "concurrently \"npm start\" \"cross-env PYTHONIOENCODING=utf-8 PYTHONUTF8=1 && cd ../python && source .venv/bin/activate 2>/dev/null || call ./.venv/Scripts/activate && python -m uvicorn main:app --reload\"",
+    "prod": "concurrently \"npm run frontend\" \"cross-env PYTHONIOENCODING=utf-8 PYTHONUTF8=1 && cd ../python && source .venv/bin/activate 2>/dev/null || call ./.venv/Scripts/activate && python -m uvicorn main:app\""
   },
   "dependencies": {
     "cookie-parser": "^1.4.7",

@@ -42,15 +42,16 @@ Replace '<KEYHERE>' with your secret key
 
 # Running the code:
 
-## Node.js
-- `cd nodejs`
-- `npm start`
-- go to http://localhost:8080/  
+## Windows
+From the root project directory, in Windows PowerShell, run:
+- `./start`
+Alternatively, in Command Prompt, run:
+- `call ./start`
 
-## Python FastAPI:
-- `cd python`
-- `fastapi dev main.py`
-- wait for `Application Startup Complete` message in console.
+## Mac/Linux
+From root project directory, in a Bash terminal, run:
+- `chmod u+x ./start.sh`
+- `./start.sh`
 
 # Creating an Admin User
 - `cd python`

@@ -2,6 +2,8 @@ This test plan outlines the objectives, methodology and results of the testing p
 
 Unit testing was used to ensure that each component of our API logic worked as it should with respect to the behavioural requirements and our planned system design. As such, test oracles for these tests were primarily devised from our system requirements as outlined in the Requirements Document, or alternatively were drawn up as a result of system design decisions made by the team during development.
 
-System testing invloved testing the full coherent system, ensuring that the system developed matches the behavioural requirements. Test oracles for these tests came directly from the requirements themselves. System testing also included testing the API response time when subjecting the API to heavy loads, ensuring that it meets performance levels that the team agreed were acceptable, given that the hardware we were using to test the system is inferior to the intended production hardware.
+System testing involved testing the full coherent system, ensuring that the system developed matches the behavioural requirements. Test oracles for these tests came directly from the requirements themselves. System testing also included testing the API response time when subjecting the API to heavy loads, ensuring that it meets performance levels that the team agreed were acceptable, given that the hardware we were using to test the system is inferior to the intended production hardware.
 
 User Acceptance testing was performed by giving potential end users access to our system, testing whether our product met their expectations.
+
+The following section of this report lists some sample test cases for each of the above types of testing.

@@ -1,2 +1,3 @@
+#!/bin/sh
 cd nodejs
-npm run dev
+npm run prod
