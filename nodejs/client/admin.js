@@ -7,7 +7,6 @@ async function loadFiles() {
 
     const data = await res.json();
     console.log(data.files);
-    const files = data.files;
     
     const selector = document.getElementById("fileList");
     selector.innerHTML = ""; // Reset options
@@ -15,7 +14,14 @@ async function loadFiles() {
     for (const file of data.files) {
         const option = document.createElement("option");
         option.value = file;
-        option.textContent = file;
+        if (file.includes("/")) {
+            fileName = file.split("/").slice(-1)[0]; // Get just the file name, not the path
+        } else if (file.includes("\\")) {
+            fileName = file.split("\\").slice(-1)[0]; // Handle Windows paths
+        } else {
+            fileName = file; // No path, just the file name
+        }
+        option.textContent = fileName;
         selector.appendChild(option);
     }
 }
