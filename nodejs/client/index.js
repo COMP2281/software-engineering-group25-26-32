@@ -297,6 +297,9 @@ document.getElementById('searchForm').addEventListener('submit', async (event) =
                         console.log(summaryData.summary);
                         const htmlSummary = renderMarkdownToHtml(summaryData.summary);
                         document.getElementById(`summary-query-response-${db_id}`).innerHTML = `<br><h4>AI Response:</h4>${htmlSummary}`;
+                        this.disabled = false;
+                        document.getElementById(`summary-query-${db_id}`).disabled = false;
+
                     });
                 });
                 document.querySelectorAll(`.summary-query`).forEach(input => {
