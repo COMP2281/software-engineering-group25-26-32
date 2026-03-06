@@ -199,7 +199,38 @@ def rebuild_index(token: Annotated[str | None, Cookie()] = None):
     except Exception as e:
         print(e)
         raise HTTPException(status_code=500, detail=f"Failed to build index: {str(e)}")
-    return {"message": "Index rebuilt successfully. FileNames: " + newIndex + ", " + newIDs} # Can use : and / as seperators to get file names
+    return {"message": "Index rebuilt successfully. FileNames: " + newIndex + ", " + newIDs} 
+
+@app.post("/swap")
+def swap_files(token: Annotated[str | None, Cookie()] = None):
+    global df, index, ids, model
+    if not verify_token(token):
+        raise HTTPException(status_code=401, detail="Unauthorised")
+    try:
+        newIndex = os.path.splitext(INDEX_FILE)[0] + "NEW" + os.path.splitext(INDEX_FILE)[1]
+        newIDs = os.path.splitext(ID_FILE)[0] + "NEW" + os.path.splitext(ID_FILE)[1]
+        if os.path.isfile(newIndex) and os.path.isfile(newIDs):
+            os.replace(newIndex, INDEX_FILE)
+            os.replace(newIDs, ID_FILE)
+            os.remove(newIndex) if os.path.isfile(newIndex) else None
+            os.remove(newIDs) if os.path.isfile(newIDs) else None
+            df, index, ids, model = initialise(MODEL_NAME, INDEX_FILE, ID_FILE, DB_PATH)
+            return {"message": "Index files swapped successfully"}
+        else:
+            raise HTTPException(status_code=404, detail=f"New index files not found. Please rebuild the index first.")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to swap index files: {str(e)}")
+
+@app.get("/check-files")
+def check_files(token: Annotated[str | None, Cookie()] = None):
+    if not verify_token(token):
+        raise HTTPException(status_code=401, detail="Unauthorised")
+    newIndex = os.path.splitext(INDEX_FILE)[0] + "NEW" + os.path.splitext(INDEX_FILE)[1]
+    newIDs = os.path.splitext(ID_FILE)[0] + "NEW" + os.path.splitext(ID_FILE)[1]
+    if os.path.isfile(newIndex) and os.path.isfile(newIDs):
+        return {"message": "New index files found"}
+    else:
+        raise HTTPException(status_code=404, detail=f"New index files not found. Please rebuild the index first.")
 
 @app.get("/summarise/{db_id}")
 def summarise(db_id: int, query: str | None = None):

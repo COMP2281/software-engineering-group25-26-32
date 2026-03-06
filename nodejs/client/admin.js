@@ -26,8 +26,23 @@ async function loadFiles() {
     }
 }
 
+async function newIndexFilesExist() {
+    const res = await fetch("http://localhost:8000/check-files", {
+        method: 'GET',
+        credentials: 'include'
+    });
+
+    if (res.ok) {
+        document.getElementById("swap").disabled = false;
+    } else {
+        document.getElementById("swap").disabled = true;
+    }
+
+}
+
 document.addEventListener("DOMContentLoaded", () => {
     loadFiles();
+    newIndexFilesExist();
 });
 
 // Download the selected file
@@ -170,6 +185,7 @@ document.getElementById("idx").addEventListener('click', async function() {
         const responseData = await response.json();
         statusMess.innerHTML = responseData.message;
         statusMess.style.color = "green";
+        newIndexFilesExist(); // Check if new index files exist to enable the swap button
     } else {
         const errorData = await response.json();
         statusMess.innerHTML = "Error reindexing: " + errorData.detail;
@@ -224,5 +240,24 @@ document.getElementById("logout").addEventListener('click', async function() {
         window.location.href = 'login.html';
     } else {
         alert("Error during logout");
+    }
+});
+
+document.getElementById("swap").addEventListener('click', async function() {
+    var statusMess = document.getElementById("statusMessage");
+    statusMess.innerHTML = "Loading new index, please wait...";
+    statusMess.style.color = "red";
+    const response = await fetch("http://localhost:8000/swap",{
+        method: 'POST',
+        credentials: 'include'
+    });
+    if (response.ok) {
+        const responseData = await response.json();
+        statusMess.innerHTML = "New index loaded successfully. Old index files have been deleted.";
+        statusMess.style.color = "green";
+        newIndexFilesExist(); // Check if new index files exist to disable the swap button
+    } else{
+        const errorData = await response.json();
+        statusMess.innerHTML = "Error loading new index: " + errorData.detail;
     }
 });
