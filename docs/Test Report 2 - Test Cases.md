@@ -84,27 +84,28 @@ Below are four examples of unit tests carried out and their results when ran aga
 | Description of test | Test search performance with different numbers of concurrent requests |
 | Related requirement document details | BR1.2 \- accessing the API directly |
 | Pre-requisites for test | API is running at localhost:8000 The Durham E-Theses database and corresponding model index and IDs files are loaded in the system. |
-| Test procedure | Send one request to the /search endpoint Send 10 parallel requests to the /search endpoint Send 50 parallel requests to the /search endpoint Send 100 parallel requests to the /search endpoint Send 500 parallel requests to the /search endpoint Send 1000 parallel requests to the /search endpoint For each, record the average and maximum response time. |
+| Test procedure | Send one request to the /search endpoint Send 10 parallel requests to the /search endpoint Send 50 parallel requests to the /search endpoint Send 100 parallel requests to the /search endpoint For each, record the average and maximum response time. |
 | Test material used | load\_test.py \- test file that sends the requests and records the times Load\_test\_results.txt \- text file where the results are stored |
-| Expected result (test oracle) | For up to 100 concurrent requests, the average response time should not exceed 5 seconds and the maximum response time should not exceed 10 seconds. |
+| Expected result (test oracle) | For up to and including 100 concurrent requests, the average response time should not exceed 5 seconds and the maximum response time should not exceed 10 seconds. |
 | Failure Severity | Low \- Failure of this test does not affect the functionality of the system, it only affects user experience. |
 | Comments | The requests sent during these tests all had the following fields: term: “black holes”, count: 10, fromYear: 1700, toYear:2026. |
 | Created by | JS |
-| Test environment(s) |  |
+| Test environment(s) | Server: Windows 11, Intel Core  i5-13400F, 16GB RAM, Nvidia RTX 4060 |
 
-**ST2 \- Search Functionality**
+**ST2 \- Search Functionality and Display of Results**
 
 | Test Case ID | ST2 |
 | :---- | :---- |
 | Description of test | Test that users can enter a search term and the returned results are displayed back to the user. |
-| Related requirement document details | BR2.1 \- entering a search query BR2.2 \- selecting relevant theses and displaying results to the user |
+| Related requirement document details | BR2.1 \- entering a search query BR2.2 \- selecting relevant theses and displaying results to the user BR3.1 \- viewing the full theses for the returned results |
 | Pre-requisites for test | The frontend server is running locally at localhost:8080 The API server is running locally at localhost:8000 |
-| Test procedure | Navigate to the search page (localhost:8080) Enter a search term and click search button |
+| Test procedure | Navigate to the search page (localhost:8080) Enter a search term and click search button Select “View Full Thesis” for the top result |
 | Test material used | Durham E-Theses database and corresponding model weights |
-| Expected result (test oracle) | Search results are displayed to the user on the web page, ordered by relevance to the query entered). |
+| Expected result (test oracle) | Search results are displayed to the user on the web page, ordered by relevance to the query entered), and the system opens the full thesis PDF when “View Full Thesis” is clicked. |
+| Failure Severity | High \- The search functionality contains the main functionality of the system and is the most important feature to the client. |
 | Comments | The search term entered for this test was “black holes”. |
 | Created by | JS |
-| Test environment(s) | Server: Windows 11 Client: Windows 11, Google Chrome browser |
+| Test environment(s) | Server: Windows 11, Intel Core  i5-13400F, 16GB RAM, Nvidia RTX 4060 Client: Windows 11, Google Chrome browser |
 
 **ST3 \- AI Summarisation**
 
@@ -119,28 +120,30 @@ Below are four examples of unit tests carried out and their results when ran aga
 | Failure Severity | High \- AI summarisation is a key part of the system functionality, enabling the project to leverage the power of AI to reduce the workload of human researchers. |
 | Comments | The search term entered was “black holes”, and the selected thesis to be summarised in this test was “Black Holes with Topological Defects: The C-metric in Three and Four Dimensions \- Scoins, Andrew David (2022)” |
 | Created by | JS |
-| Test environment(s) | Server: Windows 11 Client: Windows 11, Google Chrome browser |
+| Test environment(s) | Server: Windows 11, Intel Core  i5-13400F, 16GB RAM, Nvidia RTX 4060 Client: Windows 11, Google Chrome browser |
 
-**ST4 \-** 
+**ST4 \- Admin Page User Access**
 
 | Test Case ID | ST4 |
 | :---- | :---- |
-| Description of test |  |
-| Related requirement document details |  |
-| Pre-requisites for test |  |
-| Test procedure |  |
-| Test material used |  |
-| Expected result (test oracle) |  |
-| Failure Severity |  |
-| Comments |  |
-| Created by |  |
-| Test environment(s) |  |
+| Description of test | Test that the admin page and admin functions can only be accessed by authenticated users  |
+| Related requirement document details | None |
+| Pre-requisites for test | The frontend server is running locally at localhost:8080 The API server is running locally at localhost:8000 |
+| Test procedure | Attempt to navigate to localhost:8080/admin while unauthenticated. Make an unauthenticated API request to localhost:8000/downloadableFiles Authenticate through the login page Attempt to navigate to localhost:8080/admin again Make an authenticated API request to localhost:8000/downloadableFiles |
+| Test material used | None |
+| Expected result (test oracle) | Attempts to access the admin page while unauthenticated should redirect the user to the login screen Attempts to access the admin endpoints (e.g. downloadableFiles) while unauthenticated should return 401 Unauthorised. While authenticated, all requests should be successful. |
+| Failure Severity | Critical \- Failure of this test opens up the administrative functions, including the management of the dataset, to anyone, creating a severe security risk. |
+| Comments | The function used to check whether a user is authenticated is the same across all restricted API endpoints ,hence only the need to test one. |
+| Created by | JS |
+| Test environment(s) | Server: Windows 11, Intel Core  i5-13400F, 16GB RAM, Nvidia RTX 4060 Client: Windows 11, Google Chrome browser |
 
-- Concurrent search request load test  
-- Test with larger sample db (to simulate functioning on EThOS) (?)  
-- Test requirements for search and AI summaries are met  
-- Test full login flow with frontend integration and cookies ( is this integration testing?)   
-- (?)
+**System Test Results:**
+| | |
+| :---- | :---- |
+| **ST1** | Pass \- Average Response: 2.74s, Max: 9.63s for 100 concurrent requests |
+| **ST2** | Pass |
+| **ST3** | Pass |
+| **ST4** | Pass |
 ### 2.3 \- User Acceptance Test Cases
 
 **UAT1 \-** 
