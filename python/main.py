@@ -170,7 +170,9 @@ def delete_file(file_name: str, token: Annotated[str | None, Cookie()] = None):
 
 # List available files to download (db, index, ids)
 @app.get("/downloadableFiles")
-def get_downloadable_files():
+def get_downloadable_files(token: Annotated[str | None, Cookie()] = None):
+    if not verify_token(token):
+        raise HTTPException(status_code=401, detail="Unauthorised")
     files = []
     # Debug: List all files in the current directory and db directory
     db_folder = os.sep.join(DB_PATH.split(os.sep)[:-1]) if os.sep in DB_PATH else "./db"
