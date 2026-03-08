@@ -77,52 +77,49 @@ Below are four examples of unit tests carried out and their results when ran aga
 
 ### 2.2 \- System Test Cases
 
-**ST1 \-** 
+**ST1 \- API Load Test**
 
 | Test Case ID | ST1 |
 | :---- | :---- |
-| Description of test |  |
-| Related requirement document details |  |
-| Pre-requisites for test |  |
-| Test procedure |  |
-| Equivalence Classes |  |
-| Test material used |  |
-| Expected result (test oracle) |  |
-| Failure Severity |  |
-| Comments |  |
-| Created by |  |
+| Description of test | Test search performance with different numbers of concurrent requests |
+| Related requirement document details | BR1.2 \- accessing the API directly |
+| Pre-requisites for test | API is running at localhost:8000 The Durham E-Theses database and corresponding model index and IDs files are loaded in the system. |
+| Test procedure | Send one request to the /search endpoint Send 10 parallel requests to the /search endpoint Send 50 parallel requests to the /search endpoint Send 100 parallel requests to the /search endpoint Send 500 parallel requests to the /search endpoint Send 1000 parallel requests to the /search endpoint For each, record the average and maximum response time. |
+| Test material used | load\_test.py \- test file that sends the requests and records the times Load\_test\_results.txt \- text file where the results are stored |
+| Expected result (test oracle) | For up to 100 concurrent requests, the average response time should not exceed 5 seconds and the maximum response time should not exceed 10 seconds. |
+| Failure Severity | Low \- Failure of this test does not affect the functionality of the system, it only affects user experience. |
+| Comments | The requests sent during these tests all had the following fields: term: “black holes”, count: 10, fromYear: 1700, toYear:2026. |
+| Created by | JS |
 | Test environment(s) |  |
 
-**ST2 \-** 
+**ST2 \- Search Functionality**
 
 | Test Case ID | ST2 |
 | :---- | :---- |
-| Description of test |  |
-| Related requirement document details |  |
-| Pre-requisites for test |  |
-| Test procedure |  |
-| Equivalence Classes |  |
-| Test material used |  |
-| Expected result (test oracle) |  |
-| Comments |  |
-| Created by |  |
-| Test environment(s) |  |
+| Description of test | Test that users can enter a search term and the returned results are displayed back to the user. |
+| Related requirement document details | BR2.1 \- entering a search query BR2.2 \- selecting relevant theses and displaying results to the user |
+| Pre-requisites for test | The frontend server is running locally at localhost:8080 The API server is running locally at localhost:8000 |
+| Test procedure | Navigate to the search page (localhost:8080) Enter a search term and click search button |
+| Test material used | Durham E-Theses database and corresponding model weights |
+| Expected result (test oracle) | Search results are displayed to the user on the web page, ordered by relevance to the query entered). |
+| Comments | The search term entered for this test was “black holes”. |
+| Created by | JS |
+| Test environment(s) | Server: Windows 11 Client: Windows 11, Google Chrome browser |
 
-**ST3 \-** 
+**ST3 \- AI Summarisation**
 
 | Test Case ID | ST3 |
 | :---- | :---- |
-| Description of test |  |
-| Related requirement document details |  |
-| Pre-requisites for test |  |
-| Test procedure |  |
-| Equivalence Classes |  |
-| Test material used |  |
-| Expected result (test oracle) |  |
-| Failure Severity |  |
-| Comments |  |
-| Created by |  |
-| Test environment(s) |  |
+| Description of test | Test that users can obtain AI-generated summaries of the theses returned in search results |
+| Related requirement document details | BR5.1 AI Summarisation |
+| Pre-requisites for test | The frontend server is running locally at localhost:8080 The API server is running locally at localhost:8000 |
+| Test procedure | Navigate to the search page (localhost:8080) Enter a search term and click search button For one of the search results, click the button to generate an AI summary of the returned thesis |
+| Test material used | Durham E-Theses database and corresponding  model weights |
+| Expected result (test oracle) | The system should display an AI generated summary of the selected thesis |
+| Failure Severity | High \- AI summarisation is a key part of the system functionality, enabling the project to leverage the power of AI to reduce the workload of human researchers. |
+| Comments | The search term entered was “black holes”, and the selected thesis to be summarised in this test was “Black Holes with Topological Defects: The C-metric in Three and Four Dimensions \- Scoins, Andrew David (2022)” |
+| Created by | JS |
+| Test environment(s) | Server: Windows 11 Client: Windows 11, Google Chrome browser |
 
 **ST4 \-** 
 
@@ -132,7 +129,6 @@ Below are four examples of unit tests carried out and their results when ran aga
 | Related requirement document details |  |
 | Pre-requisites for test |  |
 | Test procedure |  |
-| Equivalence Classes |  |
 | Test material used |  |
 | Expected result (test oracle) |  |
 | Failure Severity |  |
@@ -145,7 +141,6 @@ Below are four examples of unit tests carried out and their results when ran aga
 - Test requirements for search and AI summaries are met  
 - Test full login flow with frontend integration and cookies ( is this integration testing?)   
 - (?)
-
 ### 2.3 \- User Acceptance Test Cases
 
 **UAT1 \-** 
@@ -212,6 +207,7 @@ Below are four examples of unit tests carried out and their results when ran aga
 | Created by |  |
 | Test environment(s) |  |
 
-- Test search results/AI summaries meet client expectationsTest user-friendliness of UI (?)  
+- Test search results/AI summaries meet client expectations
+- Test user-friendliness of UI (?)  
 - (?)  
 - (?)
