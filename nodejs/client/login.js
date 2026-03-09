@@ -1,4 +1,4 @@
-const API_URL = "https://api.piggypiggyyoinkyoink.website"; // Change this if your backend is hosted elsewhere
+const API_URL = window.APP_CONFIG.API_URL || "http://localhost:8000"; 
 
 document.getElementById('loginForm').addEventListener('submit', async (e) => {
     e.preventDefault();

@@ -1,4 +1,5 @@
-const API_URL = "https://api.piggypiggyyoinkyoink.website"; // Change this if your backend is hosted elsewhere
+const API_URL = window.APP_CONFIG.API_URL || "http://localhost:8000"; 
+
 // On load, add the file names to the dropdown menu
 async function loadFiles() {
     const res = await fetch(`${API_URL}/downloadableFiles`, {
