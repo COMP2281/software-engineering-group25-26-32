@@ -1,8 +1,10 @@
+const API_URL = window.APP_CONFIG.API_URL || "http://localhost:8000"; 
+
 document.getElementById('loginForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const username = document.getElementById('username').value;
     const password = document.getElementById('password').value;
-    const response = await fetch('http://localhost:8000/login?username=' + encodeURIComponent(username) + '&password=' + encodeURIComponent(password), {
+    const response = await fetch(`${API_URL}/login?username=` + encodeURIComponent(username) + '&password=' + encodeURIComponent(password), {
         method: 'GET',
         credentials: 'include'
     });
@@ -17,7 +19,7 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
 });
 
 window.onload = async function() {
-    const res = await fetch('http://localhost:8000/token', {
+    const res = await fetch(`${API_URL}/token`, {
         method: 'GET',
         credentials: 'include'
     });

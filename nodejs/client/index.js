@@ -1,3 +1,5 @@
+const API_URL = window.APP_CONFIG.API_URL || "http://localhost:8000"; 
+
 const d = new Date()
 const year = d.getFullYear()
 document.getElementById("toYear").value = year;
@@ -91,7 +93,7 @@ function citationCreate(item, style = "UKHarvard", mode = "full") {
 let div = document.getElementById("departmentFilters");
 let departments = async function fetchDepartments() {
     try {
-        const response = await fetch('http://localhost:8000/departments');
+        const response = await fetch(`${API_URL}/departments`);
         const departments = await response.json();
         // console.log(departments);
         for (const dept of departments) {
@@ -146,7 +148,7 @@ document.getElementById('searchForm').addEventListener('submit', async (event) =
     let depts = Array.from(document.querySelectorAll('.dept-checkbox:checked')).map(cb => cb.value)
 
     try {
-        const response = await fetch('http://localhost:8000/search', {
+        const response = await fetch(`${API_URL}/search`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ term: searchTerm, count: resultCount, fromYear: fromYear, toYear: toYear, includeUnknown: includeUnknown, authorField: authorField, departments: depts })
@@ -267,7 +269,7 @@ document.getElementById('searchForm').addEventListener('submit', async (event) =
                         this.disabled = true;
                         // this.insertAdjacentHTML('afterend', `<div id = "summary-${db_id}"><br><h4>AI Summary:</h4><span>Generating summary...</span></div>`);
                         document.getElementById(`summary-${db_id}`).style.display = "block";
-                        const summaryResponse = await fetch(`http://localhost:8000/summarise/${db_id}`);
+                        const summaryResponse = await fetch(`${API_URL}/summarise/${db_id}`);
                         let summaryDiv = document.getElementById(`summary-${db_id}`);
                         summaryDiv.innerHTML = `<br><h4>AI Summary:</h4>`;
                         if (!summaryResponse.ok) {
@@ -288,7 +290,7 @@ document.getElementById('searchForm').addEventListener('submit', async (event) =
                         this.disabled = true;
                         document.getElementById(`summary-query-${db_id}`).disabled = true;
                         this.insertAdjacentHTML('afterend', `<div id = "summary-query-response-${db_id}"><br><h4>AI Response:</h4><span>Generating response...</span></div>`);
-                        const summaryResponse = await fetch(`http://localhost:8000/summarise/${db_id}?query=${encodeURIComponent(query)}`);
+                        const summaryResponse = await fetch(`${API_URL}/summarise/${db_id}?query=${encodeURIComponent(query)}`);
                         if (!summaryResponse.ok) {
                             document.getElementById(`summary-query-response-${db_id}`).innerHTML = `<br><h4>AI Response:</h4><span>Error generating response.</span>`;
                             return;

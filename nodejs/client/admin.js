@@ -1,6 +1,8 @@
+const API_URL = window.APP_CONFIG.API_URL || "http://localhost:8000"; 
+
 // On load, add the file names to the dropdown menu
 async function loadFiles() {
-    const res = await fetch("http://localhost:8000/downloadableFiles", {
+    const res = await fetch(`${API_URL}/downloadableFiles`, {
         method: 'GET',
         credentials: 'include'
     });
@@ -27,7 +29,7 @@ async function loadFiles() {
 }
 
 async function newIndexFilesExist() {
-    const res = await fetch("http://localhost:8000/check-files", {
+    const res = await fetch(`${API_URL}/check-files`, {
         method: 'GET',
         credentials: 'include'
     });
@@ -64,7 +66,7 @@ document.getElementById("downloadFile").addEventListener('click', async function
     try {
 
         const response = await fetch(
-            `http://localhost:8000/download/${encodeURIComponent(fileName)}`,
+            `${API_URL}/download/${encodeURIComponent(fileName)}`,
             { credentials: "include" }
         );
 
@@ -123,7 +125,7 @@ document.getElementById("deleteFile").addEventListener('click', async function()
 
     try {
         const response = await fetch(
-            `http://localhost:8000/deleteFile/${encodeURIComponent(fileName)}`,
+            `${API_URL}/deleteFile/${encodeURIComponent(fileName)}`,
             { method: "DELETE", credentials: "include" }
         );
 
@@ -152,7 +154,7 @@ document.getElementById("dbu").addEventListener('click', async function() {
     statusMess.innerHTML = "Updating database, please wait...";
     statusMess.style.color = "red";
 
-    const response = await fetch("http://localhost:8000/update-db",{
+    const response = await fetch(`${API_URL}/update-db`,{
         method: 'POST',
         credentials: 'include'
     });
@@ -176,7 +178,7 @@ document.getElementById("idx").addEventListener('click', async function() {
     statusMess.innerHTML = "Reindexing based off of the current database, please wait...";
     statusMess.style.color = "red";
 
-    const response = await fetch("http://localhost:8000/index",{
+    const response = await fetch(`${API_URL}/index`,{
         method: 'POST',
         credentials: 'include'
     });
@@ -197,7 +199,7 @@ document.getElementById("createAdminForm").addEventListener('submit', async func
     e.preventDefault();
     const username = document.getElementById("newAdminUsername").value;
     const password = document.getElementById("newAdminPassword").value;
-    const response = await fetch("http://localhost:8000/create-admin",{
+    const response = await fetch(`${API_URL}/create-admin`,{
         method: 'POST',
         credentials: 'include',
         body: JSON.stringify({ "username": username, "password": password }),
@@ -217,7 +219,7 @@ document.getElementById("createAdminForm").addEventListener('submit', async func
 document.getElementById("deleteAdminForm").addEventListener('submit', async function(e) {
     e.preventDefault();
     const username = document.getElementById("deletedAdminUsername").value;
-    const response = await fetch("http://localhost:8000/delete-admin?username=" + encodeURIComponent(username),{
+    const response = await fetch(`${API_URL}/delete-admin?username=` + encodeURIComponent(username),{
         method: 'DELETE',
         credentials: 'include'
     });
@@ -232,7 +234,7 @@ document.getElementById("deleteAdminForm").addEventListener('submit', async func
 });
 
 document.getElementById("logout").addEventListener('click', async function() {
-    const response = await fetch("http://localhost:8000/logout",{
+    const response = await fetch(`${API_URL}/logout`,{
         method: 'POST',
         credentials: 'include'
     });
@@ -247,7 +249,7 @@ document.getElementById("swap").addEventListener('click', async function() {
     var statusMess = document.getElementById("statusMessage");
     statusMess.innerHTML = "Loading new index, please wait...";
     statusMess.style.color = "red";
-    const response = await fetch("http://localhost:8000/swap",{
+    const response = await fetch(`${API_URL}/swap`,{
         method: 'POST',
         credentials: 'include'
     });

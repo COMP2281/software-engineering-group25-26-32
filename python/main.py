@@ -1,6 +1,4 @@
-import datetime
-
-from fastapi import FastAPI, Cookie, File, HTTPException, UploadFile, Form
+from fastapi import FastAPI, Cookie, File, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 from typing import Annotated 
@@ -27,6 +25,12 @@ INDEX_FILE = "durham_thesis.index"
 ID_FILE = "durham_thesis_ids.npy"
 TOP_K = 10
 DB_PATH = os.environ.get("DB_PATH", "./db/db.db")
+FRONTEND_DOMAIN = os.environ.get("FRONTEND_DOMAIN", "http://localhost:8080")
+API_DOMAIN = os.environ.get("API_DOMAIN", "http://localhost:8000")
+if "http" not in FRONTEND_DOMAIN:
+    FRONTEND_DOMAIN = "https://" + FRONTEND_DOMAIN
+if "http" not in API_DOMAIN:
+    API_DOMAIN = "https://" + API_DOMAIN
 df, index, ids, model = None, None, None, None
 departments = None
 
@@ -54,6 +58,8 @@ origins = [
     "http://localhost:*",
     "http://localhost:8080",
 ]
+origins.append(FRONTEND_DOMAIN)
+origins.append(API_DOMAIN)
 
 app.add_middleware(
     CORSMiddleware,
@@ -250,6 +256,7 @@ def login(username: str, password: str):
     if check_creds(username, password):
         token = generate_token(username)
         response = JSONResponse(content={"message": "Login successful"})
+        response.set_cookie(key="token", value=token, httponly=True, samesite="none", secure=True, domain="piggypiggyyoinkyoink.website")
         response.set_cookie(key="token", value=token, httponly=True)
         return response
     raise HTTPException(status_code=401, detail="Invalid username or password")
