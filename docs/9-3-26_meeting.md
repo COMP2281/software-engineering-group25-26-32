@@ -2,6 +2,7 @@
 
 - developed web-based AI search tool where theses are returned based on semantic similarity to user's search term in order of relevance 'score' 
     - via abstract and title
+    - embeddings could be (in future) based on thesis content, but that would require much larger vector space and building/training own unique model.
 - implemented filters where users can modify number of results, what theses are returned based on year of publication (and whether to include ones without a publication year), search for theses written by certain author(s), and search for theses based on subject discipline.
     - Implemented via metadata and a slight permutation/similarity search over names
 - displayed thesis metadata and enabled user to view and download thesis directly from search page
@@ -38,3 +39,7 @@
 - enabled users to ask an unlimited number of questions - system currently only uses Gemini API Free tier, meaning the requests are limited to 20 per API key. Using free tier means some larger theses (400+ pages) cannot be summarised.  
     - Scaling by paying for a further API key or changing the model entirely to a more localised version (takes vast time and resources to be of a similar quality)
 - security and login systems are not up to CIS standards (or any standard I suppose..)
+
+# Questions
+
+- The search tool returns theses based on the relevance 'score' (similarity) in relation to the user's search term. It returns the theses based on the semantic meaning of the theses' topics gathered from each thesis title and abstract. 
