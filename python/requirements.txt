@@ -1,5 +1,5 @@
 --extra-index-url https://download.pytorch.org/whl/cu126
-[standard]==0.122.0
+fastapi[standard]==0.122.0
 pydantic==2.12.4
 pandas
 numpy

@@ -1,3 +1,5 @@
+const API_URL = "https://api.piggypiggyyoinkyoink.website"; // Change this if your backend is hosted elsewhere
+
 document.getElementById("uploadForm").addEventListener('submit', async function(e) {
     document.getElementById("message").textContent = ""; // Clear previous messages
     e.preventDefault();
@@ -47,7 +49,7 @@ document.getElementById("uploadForm").addEventListener('submit', async function(
         }
     }
     document.getElementById("uploadBtn").disabled = true;
-    const response = await fetch("http://localhost:8000/upload", {
+    const response = await fetch(`${API_URL}/upload`, {
         method: 'POST',
         credentials: 'include',
         body: formData
