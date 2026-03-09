@@ -13,13 +13,25 @@
 - implemented a scalable tool (potentially) capable of handling entire EThOS dataset
     - Semantic search "learns" or returns better results based off of the amount and varying topics the data has, so theoretically, the EThOS dataset would improve the search's results compared to the smaller Durham dataset.
 
-# What we haven't achieved
+# What we haven't achieved, why, and how it could be in future
 
 - implemented feature offering analysis of epistemic diversity of set of returned theses.
+- - Why: would require group analysis of theses
+- - How in future: (dependent on how much the theses' backgrounds impacts thesis' epistemology) when using AI API model with greater storage capacity
+
 - implemented feature offering analysis/summary of how certain theses link/connect.
+- - Why: would require group analysis of theses
+- - How in future: when using AI API model with greater storage capacity
+
+- implemented the tool which currently works with the EThOS dataset (actually only works with Durham E-Theses dataset).
+- - Why: we have most of the metadata, but not the actual thesis content
+- - How in future: current system should work with currently avaialble EThOS info, but because theses content isn't available, the summary and thesis Q&A wouldn't work. 
+
      - Either further use of an accessable AI tool like Gemini (via comparing theses) or by changing the semantic search to use more of a LLM + RAG approach which would likely scale better given time and resources
 - implemented the tool which currently works with the EThOS dataset (actually only works with Durham E-Theses dataset, but we have a working prototype).
     - Simple switch over
+
+
 - implemented filter/analysis based on background - potential feature for future development.
 - supplying user with further background information about thesis (not just author and year of publication)
     - A further DB lookup or implementation with Orcid to lookup author(s)' information and display it
