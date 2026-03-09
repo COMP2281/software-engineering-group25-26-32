@@ -6,9 +6,10 @@ from prepare import load_theses, build_text
 INDEX_FILE = "durham_thesis.index"
 ID_FILE = "durham_thesis_ids.npy"
 try:
-    print(torch.__version__)
-    print(torch.cuda.is_available())
-    print(torch.cuda.get_device_name(0))
+    print("PyTorch Version:", torch.__version__)
+    if not torch.cuda.is_available():
+        print("WARNING: CUDA not available, using CPU. Building model index will be very slow, all other features unaffected.")
+    print("CUDA Device Name:", torch.cuda.get_device_name(0))
 except:
     pass
 
