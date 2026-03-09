@@ -141,7 +141,13 @@ def download_file(file_name: str, token: Annotated[str | None, Cookie()] = None)
     file_path = os.path.join(".", file_name)
 
     if not os.path.isfile(file_path):
-        raise HTTPException(status_code=404, detail=f"File not found {file_name}")
+        if os.sep in DB_PATH:
+            file_path = os.path.join(os.sep.join(DB_PATH.split(os.sep)[:-1]), file_name)  # Check in the DB directory
+        else:
+            file_path = os.path.join(os.sep.join(DB_PATH.split("/")[:-1]), file_name)  # Check in the DB directory
+
+        if not os.path.isfile(file_path):
+            raise HTTPException(status_code=404, detail=f"File not found {file_name}")
     
     if not file_name.endswith((".db", ".index", ".npy")):
         raise HTTPException(status_code=400, detail="Invalid file type")
@@ -182,7 +188,7 @@ def get_downloadable_files(token: Annotated[str | None, Cookie()] = None):
             files.append(file)
     for file in os.listdir(db_folder):
         if file.endswith(".db") or file.endswith(".index") or file.endswith(".npy"):
-            files.append(os.path.join(db_folder, file))
+            files.append(file)
     return {"files": files}
 
 # Rebuild index
