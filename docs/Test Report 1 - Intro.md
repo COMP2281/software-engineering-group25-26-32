@@ -1,8 +1,8 @@
 This test report outlines the objectives, methodology and results of the testing process used throughout the development process, including Unit Testing, System Testing and User Acceptance Testing.
 
-### 1.1 Unit Testing
+### 1.1 \- Unit Testing
 
-Unit testing was used to ensure that each component of our API logic worked as it should with respect to the behavioural requirements and our planned system design. As such, test oracles for these tests were primarily devised from our system requirements as outlined in the Requirements Document, or alternatively were drawn up as a result of system design decisions made by the team during development. These tests are automated (using PyTest) and ensured that unit functionality would not be impacted by any modifications or additions made to the system. Unit tests covered the majority of authentication and helper functions used in the system, as well as the behaviour of each API endpoint. Complex features such as the search function itself, the embeddings model, AI summaries and OCR could not be tested via quick automated testing, thus the testing of these features fell under System Testing and UAT.
+Unit testing was used to ensure that each component of our API logic worked as it should with respect to the behavioural requirements and our planned system design. As such, test oracles for these tests were either devised from our system requirements as outlined in the Requirements Document, or alternatively were drawn up as a result of system design decisions made by the team during development. These tests are automated (using PyTest) and ensure that unit functionality would not be impacted by any modifications or additions made to the system. Unit tests covered the majority of authentication and helper functions used in the system, as well as the behaviour of each API endpoint. Complex features such as the search function itself, the embeddings model, AI summaries and OCR could not be tested via quick automated testing, thus the testing of these features fell under System Testing and UAT.
 
 The below table is a broad overview of the key components of the system covered by unit testing (not detailing the many additional helper functions also being unit tested): 
 
@@ -20,6 +20,9 @@ The below table is a broad overview of the key components of the system covered 
 | API | /login and /logout \- managing auth cookie | Successful login should save the JWT to a cookie. Successful logout should remove this cookie. |
 
 ### 1.2 System testing
+
+System testing involved testing the full coherent system, ensuring that the system developed matches the behavioural requirements. Test oracles for these tests came directly from the requirements themselves. System testing also included performance testing of the API and whether menus appeared/redirected as expected. 
+User Acceptance testing was performed by giving potential end users access to our system, testing whether our product met their expectations.
 
 System testing involved testing the full coherent system, ensuring that the system developed matches the behavioural requirements. Test oracles for these tests came directly from the requirements themselves. System testing also included performance testing of the API and whether menus appeared/redirected as expected. 
 User Acceptance testing was performed by giving potential end users access to our system, testing whether our product met their expectations.
