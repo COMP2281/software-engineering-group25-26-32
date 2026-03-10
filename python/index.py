@@ -9,7 +9,8 @@ try:
     print("PyTorch Version:", torch.__version__)
     if not torch.cuda.is_available():
         print("WARNING: CUDA not available, using CPU. Building model index will be very slow, all other features unaffected.")
-    print("CUDA Device Name:", torch.cuda.get_device_name(0))
+    else:
+        print("CUDA Device Name:", torch.cuda.get_device_name(0))
 except:
     pass
 

@@ -144,73 +144,74 @@ Below are four examples of unit tests carried out and their results when ran aga
 | **ST2** | Pass |
 | **ST3** | Pass |
 | **ST4** | Pass |
+
 ### 2.3 \- User Acceptance Test Cases
 
-**UAT1 \-** 
+**AT1 \- UI Simplicity**
 
-| Test Case ID | UAT1 |
+| Test Case ID | AT1 |
 | :---- | :---- |
-| Description of test |  |
-| Related requirement document details |  |
-| Pre-requisites for test |  |
-| Test procedure |  |
-| Equivalence Classes |  |
-| Test material used |  |
-| Expected result (test oracle) |  |
-| Failure Severity |  |
-| Comments |  |
-| Created by |  |
-| Test environment(s) |  |
+| Description of test | Test that the user interface of the search tool is simple and easy to navigate |
+| Related requirement document details | None |
+| Pre-requisites for test | The frontend and API servers are running and accessible to the client |
+| Test procedure | Demonstrate to the client how the search tool works and how to access the different functions Allow the client to spend some time playing around with the system and obtain their feedback on the simplicity of the UI |
+| Test material used | Cloudflare tunnel to allow the system to be accessed by the client via the Internet. |
+| Expected result (test oracle) | The client is able to navigate the system to perform search and summarisation operations |
+| Failure Severity | Medium \- Failure of this test would mainly be due to a cosmetic issue, but would affect system usability. |
+| Comments | None |
+| Created by | JS |
+| Test environment(s) | Server: Windows 11, Intel Core  i5-13400F, 16GB RAM, Nvidia RTX 4060 |
 
-**UAT2 \-** 
+**AT2 \- Accessing the Full Theses**
 
-| Test Case ID | UAT1 |
+| Test Case ID | AT2 |
 | :---- | :---- |
-| Description of test |  |
-| Related requirement document details |  |
-| Pre-requisites for test |  |
-| Test procedure |  |
-| Equivalence Classes |  |
-| Test material used |  |
-| Expected result (test oracle) |  |
-| Failure Severity |  |
-| Comments |  |
-| Created by |  |
-| Test environment(s) |  |
+| Description of test | Test that the full thesis PDFs can be accessed easily and quickly |
+| Related requirement document details | BR3.1 Accessing full theses BR3.2 Downloading full theses |
+| Pre-requisites for test | The frontend and API servers are running and accessible to the client |
+| Test procedure | Demonstrate to the client how the search tool works and how to access the full thesis PDFs for download Allow the client to spend some time using the system Gather their feedback |
+| Test material used | Cloudflare tunnel to allow the system to be accessed by the client via the Internet. |
+| Expected result (test oracle) | Full thesis PDFs should be easily accessible for further reading and research. |
+| Failure Severity | High \- being able to read the full thesis text is crucial for using the system to propagate future research |
+| Comments | None |
+| Created by | JS |
+| Test environment(s) | Server: Windows 11, Intel Core  i5-13400F, 16GB RAM, Nvidia RTX 4060 |
 
-**UAT3 \-** 
+**AT3 \- Quality of Search Results**
 
-| Test Case ID | UAT1 |
+| Test Case ID | AT3 |
 | :---- | :---- |
-| Description of test |  |
-| Related requirement document details |  |
-| Pre-requisites for test |  |
-| Test procedure |  |
-| Equivalence Classes |  |
-| Test material used |  |
-| Expected result (test oracle) |  |
-| Failure Severity |  |
-| Comments |  |
-| Created by |  |
-| Test environment(s) |  |
+| Description of test | Test that the search results are relevant to the entered query |
+| Related requirement document details | BR2.2 \- selecting relevant theses |
+| Pre-requisites for test | The frontend and API servers are running and accessible to the client |
+| Test procedure | Demonstrate to the client how to make searches Allow the client to experiment with a range of queries in research areas they are familiar Gather their feedback regarding the quality of search results relating to the entered queries |
+| Test material used | Cloudflare tunnel to allow the system to be accessed by the client via the Internet. |
+| Expected result (test oracle) | Search results should be listed by relevance and the quality of the results should exceed those of the pre-existing system of searching by hand. |
+| Failure Severity | High \- returning relevant results is critical to the success of the system in reducing the time spent by researchers obtaining data from the thesis dataset |
+| Comments | None |
+| Created by | JS |
+| Test environment(s) | Search results should be listed by relevance and the quality of the results should exceed those of the pre-existing system of searching by hand. |
 
-**UAT4 \-** 
+**AT4 \- Quality of AI Summaries**
 
-| Test Case ID | UAT1 |
+| Test Case ID | AT4 |
 | :---- | :---- |
-| Description of test |  |
-| Related requirement document details |  |
-| Pre-requisites for test |  |
-| Test procedure |  |
-| Equivalence Classes |  |
-| Test material used |  |
-| Expected result (test oracle) |  |
-| Failure Severity |  |
-| Comments |  |
-| Created by |  |
-| Test environment(s) |  |
+| Description of test | Test that the AI generated summaries accurately discuss the key ideas, methods and conclusions of the selected thesis |
+| Related requirement document details | BR5.1 \- Generating AI Summaries BR5.2 \- Citations (page numbers) in summaries |
+| Pre-requisites for test | The frontend and API servers are running and accessible to the client |
+| Test procedure | Demonstrate how to generate AI summaries of a thesis to the client Allow the client to experiment with generating summaries of various theses in areas of research they are familiar with Gather their feedback into meaningful results |
+| Test material used | Cloudflare tunnel to allow the system to be accessed by the client via the Internet. |
+| Expected result (test oracle) | AI Summaries should be generated quickly, be well-structured and ideally free of hallucinations. |
+| Failure Severity | High \- Using AI to reduce the workload of human researchers is one of the key aims of the project. |
+| Comments | None |
+| Created by | JS |
+| Test environment(s) | Search results should be listed by relevance and the quality of the results should exceed those of the pre-existing system of searching by hand. |
 
-- Test search results/AI summaries meet client expectations
-- Test user-friendliness of UI (?)  
-- (?)  
-- (?)
+**Acceptance Test Results:**
+
+| Test | Status | Relevant Client Feedback |
+| :---- | :---- | :---- |
+| AT1 | Pass | *“The front end and design of the tool is actually very good. I like the simplicity of it and the way each thesis has a drop-down arrow which can be expanded or collapsed while still maintaining the full search list. The functions for each individual thesis are very well set out and easy to navigate. I like the way the individual thesis page indicates the date and whether it has an abstract.”* |
+| AT2 | Pass | *“Also great that you can link to the pdf of the thesis. The link is very quick as well\! Almost immediate retrieval of the whole thesis.”* |
+| AT3 | Pass | *“This is a fantastic tool that offers huge potential in exploring and summarising doctoral theses. I am really excited about it and I think it has definite potential to inform our further research work in this area.”* |
+| AT4 | Pass | *“I like all the different functions: the summary using Al is excellent and of particular note in this is the structure of the summary…I really like the way it summarises the main arguments and then also provides details of methodology. That is excellent.”* |
