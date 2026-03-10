@@ -88,9 +88,9 @@ Below are four examples of unit tests carried out and their results when ran aga
 | Test material used | load\_test.py \- test file that sends the requests and records the times Load\_test\_results.txt \- text file where the results are stored |
 | Expected result (test oracle) | For up to and including 100 concurrent requests, the average response time should not exceed 5 seconds and the maximum response time should not exceed 10 seconds. |
 | Failure Severity | Low \- Failure of this test does not affect the functionality of the system, it only affects user experience. |
-| Comments | The requests sent during these tests all had the following fields: term: “black holes”, count: 10, fromYear: 1700, toYear:2026. |
-| Created by | JS |
-| Test environment(s) | Server: Windows 11, Intel Core  i5-13400F, 16GB RAM, Nvidia RTX 4060 |
+| Comments | The requests sent during these tests all had the following fields: count: 10, fromYear: 1700, toYear:2026, with the search term selected randomly from: "black holes", "computer vision", "history of France", "harry potter", "climate change", "world war 2", "renewable energy". |
+| Created by | MT |
+| Test environment(s) | Minimum Hardware Server: Windows 11, Intel Core  i7-1165G7, 16GB DDR4 RAM, no GPU Recommended Hardware Server: Windows 10, AMD Ryzen 7 7800X3D, 32GB DDR5 RAM, RTX 5070Ti |
 
 **ST2 \- Search Functionality and Display of Results**
 
@@ -138,9 +138,9 @@ Below are four examples of unit tests carried out and their results when ran aga
 | Test environment(s) | Server: Windows 11, Intel Core  i5-13400F, 16GB RAM, Nvidia RTX 4060 Client: Windows 11, Google Chrome browser |
 
 **System Test Results:**
-| | |
+
+| ST1 | Pass Min. hardware: Average Response: 4.65s, Max: 8.07s for 100 concurrent requests Recommended hardware: Average: 1.83s, Max: 4.27s for 100 concurrent requests |
 | :---- | :---- |
-| **ST1** | Pass \- Average Response: 2.74s, Max: 9.63s for 100 concurrent requests |
 | **ST2** | Pass |
 | **ST3** | Pass |
 | **ST4** | Pass |

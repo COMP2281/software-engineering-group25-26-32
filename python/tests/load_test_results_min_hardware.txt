@@ -5,38 +5,72 @@ Threads: 8
 
 
 1 Concurrent Users:
-Average Response Time: 2.0938149213790895 seconds
-Max Response Time: 2.1055893898010254 seconds
+Average Response Time: 0.06161356002558023 seconds
+Max Response Time: 0.0757188000716269 seconds
 
+95th Percentile: 0.07676523007685318 seconds
+99th Percentile: 0.07778840608196333 seconds
+Requests per Second: 3.81554481190381
+Total Duration: 2.62 seconds
 
 
 10 Concurrent Users:
-Average Response Time: 2.250536606311798 seconds
-Max Response Time: 2.523909330368042 seconds
+Average Response Time: 0.3392492519924417 seconds
+Max Response Time: 2.268686299910769 seconds
 
+95th Percentile: 2.1608388150809335 seconds
+99th Percentile: 2.268164784910623 seconds
+Requests per Second: 16.798541093694013
+Total Duration: 5.95 seconds
 
 
 50 Concurrent Users:
-Average Response Time: 3.026916896343231 seconds
-Max Response Time: 4.200298070907593 seconds
+Average Response Time: 1.9895444435961545 seconds
+Max Response Time: 4.776977200061083 seconds
 
+95th Percentile: 4.137442860053852 seconds
+99th Percentile: 4.628504766041878 seconds
+Requests per Second: 21.88865756456215
+Total Duration: 22.84 seconds
 
 
 100 Concurrent Users:
-Average Response Time: 5.505580964803696 seconds
-Max Response Time: 9.01139211654663 seconds
+Average Response Time: 4.6539703279016535 seconds
+Max Response Time: 8.07685640011914 seconds
 
+95th Percentile: 7.2521407750900835 seconds
+99th Percentile: 7.670603770136368 seconds
+Requests per Second: 19.76374689704
+Total Duration: 50.60 seconds
 
 
 500 Concurrent Users:
-Average Response Time: 29.55831411385656 seconds
-Max Response Time: 33.662853479385376 seconds
+Average Response Time: 26.812516418498763 seconds
+Max Response Time: 34.3714878000319 seconds
 
+95th Percentile: 30.069807915051932 seconds
+99th Percentile: 32.04509002987063 seconds
+Requests per Second: 17.612227258922488
+Total Duration: 283.33 seconds
 
 
 1000 Concurrent Users:
-Average Response Time: 62.4340763470436 seconds
-Max Response Time: 70.64279198646545 seconds
+Average Response Time: 52.413006009981046 seconds
+Max Response Time: 63.03381929988973 seconds
 
+95th Percentile: 56.15783919999376 seconds
+99th Percentile: 58.30837569991127 seconds
+Requests per Second: 17.87286638831093
+Total Duration: 515.81 seconds
+
+
+2000 Concurrent Users:
+Average Response Time: 59.72460399270454 seconds
+Max Response Time: 104.28426559991203 seconds
+
+95th Percentile: 99.11587975507136 seconds
+99th Percentile: 102.21253335002343 seconds
+Requests per Second: 2.6213180086884034
+Total Duration: 820.96 seconds
 
 
