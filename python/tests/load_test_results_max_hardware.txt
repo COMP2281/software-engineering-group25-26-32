@@ -1,0 +1,76 @@
+CPU: AMD Ryzen 7 7800X3D 8-Core Processor
+Frequency: 4.2000 GHz
+Architecture: X86_64
+Threads: 16
+
+
+1 Concurrent Users:
+Average Response Time: 0.023150339999847346 seconds
+Max Response Time: 0.029109600000083447 seconds
+
+95th Percentile: 0.031178520000139542 seconds
+99th Percentile: 0.03320146400019439 seconds
+Requests per Second: 3.189309536493242
+Total Duration: 3.14 seconds
+
+
+10 Concurrent Users:
+Average Response Time: 0.20029435699992973 seconds
+Max Response Time: 2.1159121000000596 seconds
+
+95th Percentile: 2.050869825000427 seconds
+99th Percentile: 2.115861099000049 seconds
+Requests per Second: 20.022424314337925
+Total Duration: 4.99 seconds
+
+
+50 Concurrent Users:
+Average Response Time: 0.7816311819999755 seconds
+Max Response Time: 2.7933821999995416 seconds
+
+95th Percentile: 2.6901450700012903 seconds
+99th Percentile: 2.747507903998867 seconds
+Requests per Second: 44.757977458248604
+Total Duration: 11.17 seconds
+
+
+100 Concurrent Users:
+Average Response Time: 1.835436224999985 seconds
+Max Response Time: 4.270674499999586 seconds
+
+95th Percentile: 3.7251301299998887 seconds
+99th Percentile: 4.063006687000998 seconds
+Requests per Second: 45.41902529936037
+Total Duration: 22.02 seconds
+
+
+500 Concurrent Users:
+Average Response Time: 9.89364248024005 seconds
+Max Response Time: 12.693760699999984 seconds
+
+95th Percentile: 10.707254135001222 seconds
+99th Percentile: 12.312368774999868 seconds
+Requests per Second: 47.05616132431672
+Total Duration: 106.26 seconds
+
+
+1000 Concurrent Users:
+Average Response Time: 19.501985441689968 seconds
+Max Response Time: 24.06053729999985 seconds
+
+95th Percentile: 21.96991649499987 seconds
+99th Percentile: 23.23408449299979 seconds
+Requests per Second: 48.27163674939935
+Total Duration: 207.16 seconds
+
+
+2000 Concurrent Users:
+Average Response Time: 38.61628132534512 seconds
+Max Response Time: 43.4295175999996 seconds
+
+95th Percentile: 41.042734464999285 seconds
+99th Percentile: 42.48766021399946 seconds
+Requests per Second: 48.921341451058
+Total Duration: 408.82 seconds
+
+

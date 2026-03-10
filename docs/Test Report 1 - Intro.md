@@ -21,7 +21,7 @@ The below table is a broad overview of the key components of the system covered 
 
 ### 1.2 System testing
 
-System testing involved testing the full coherent system, ensuring that the system developed matches the behavioural requirements. Test oracles for these tests came directly from the requirements themselves. System testing also included performance testing of the API.   
-User Acceptance testing was performed by giving potential end users access to our system, testing whether our product met their expectations.
+System testing involved testing the full coherent system, ensuring that the system developed matches the behavioural requirements. Test oracles for these tests came directly from the requirements themselves. System testing also included performance testing of the API. 
+User Acceptance testing was performed by giving potential end users access to our system, testing whether our product met their expectations and whether menus appeared/redirected as expected.
 
 The following section of this report lists some sample test cases for each of the above types of testing.
