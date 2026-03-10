@@ -9,7 +9,7 @@ BR5.2: Perhaps needs a more detailed description? See the comment on the doc
 
 ## 2.1 
 Could potentially be more analytical rather than solely descriptive, so I've emailed Craig to clarify whether we should mention how it helped shape the product or just to keep it as is.
-
+- we need to explain how and why the sources helped/influenced our design choices/technical development
 ## 2.2 
 See https://chatgpt.com/g/g-p-69146506deb4819183c18872bc85a606-se/c/69b00938-cc7c-8385-a4c8-eafb24cdb014 for feedback and possible improvements. 
 
