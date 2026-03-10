@@ -1,0 +1,25 @@
+name: py311
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - faiss-cpu
+  - pandas
+  - numpy
+  - pytorch
+  - requests=2.32.5
+  - rapidfuzz
+  - pip
+  - pip:
+      - fastapi[standard]==0.122.0
+      - pydantic==2.12.4
+      - sentence-transformers
+      - python-dotenv
+      - pymupdf
+      - google-genai
+      - bcrypt
+      - pyjwt[crypto]
+      - pytest
+      - httpx
+      - pytest-cov
+      - py-cpuinfo
