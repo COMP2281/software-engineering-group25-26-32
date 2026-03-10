@@ -84,13 +84,16 @@ Below are four examples of unit tests carried out and their results when ran aga
 | Description of test | Test search performance with different numbers of concurrent requests |
 | Related requirement document details | BR1.2 \- accessing the API directly |
 | Pre-requisites for test | API is running at localhost:8000 The Durham E-Theses database and corresponding model index and IDs files are loaded in the system. |
-| Test procedure | Send one request to the /search endpoint Send 10 parallel requests to the /search endpoint Send 50 parallel requests to the /search endpoint Send 100 parallel requests to the /search endpoint For each, record the average and maximum response time. |
-| Test material used | load\_test.py \- test file that sends the requests and records the times Load\_test\_results.txt \- text file where the results are stored |
+| Test procedure | Send one request to the /search endpoint Send 10 parallel requests to the /search endpoint Send 100 parallel requests to the /search endpoint Send 500 parallel requests to the  search endpoint Send 1000 parallel requests to the /search endpoint Send 5000 parallel requests to the /search endpoint Send 10000 parallel requests to the /search endpoint Send 20000 parallel requests to the /search endpoint For each, record the average and maximum response time.
+
+| Field | Description |
+| :--- | :--- |
+| Test material used | load_test.py - test file that sends the requests and records the times.<br>Load_test_results.txt - text file where the results are stored. |
 | Expected result (test oracle) | For up to and including 100 concurrent requests, the average response time should not exceed 5 seconds and the maximum response time should not exceed 10 seconds. |
-| Failure Severity | Low \- Failure of this test does not affect the functionality of the system, it only affects user experience. |
-| Comments | The requests sent during these tests all had the following fields: term: “black holes”, count: 10, fromYear: 1700, toYear:2026. |
+| Failure Severity | Low - Failure of this test does not affect the functionality of the system, it only affects user experience. |
+| Comments | The requests sent during these tests all had the following fields:<br>term: "black holes"<br>count: 10<br>fromYear: 1700<br>toYear: 2026 |
 | Created by | JS |
-| Test environment(s) | Server: Windows 11, Intel Core  i5-13400F, 16GB RAM, Nvidia RTX 4060 |
+| Test environment(s) | Server: Windows 11, Intel Core i5-13400F, 16GB RAM, Nvidia RTX 4060 |
 
 **ST2 \- Search Functionality and Display of Results**
 
@@ -103,9 +106,11 @@ Below are four examples of unit tests carried out and their results when ran aga
 | Test material used | Durham E-Theses database and corresponding model weights |
 | Expected result (test oracle) | Search results are displayed to the user on the web page, ordered by relevance to the query entered), and the system opens the full thesis PDF when “View Full Thesis” is clicked. |
 | Failure Severity | High \- The search functionality contains the main functionality of the system and is the most important feature to the client. |
-| Comments | The search term entered for this test was “black holes”. |
-| Created by | JS |
-| Test environment(s) | Server: Windows 11, Intel Core  i5-13400F, 16GB RAM, Nvidia RTX 4060 Client: Windows 11, Google Chrome browser |
+| Comments | The requests sent during these tests all had the following fields: count: 10, fromYear: 1700, toYear:2026, with the search term selected randomly from: "black holes", "computer vision", "history of France", "harry potter", "climate change", "world war 2", "renewable energy". |
+| Created by | MT |
+| Test environment(s) | Minimum Hardware Server: Windows 11, Intel Core  i7-1165G7, 16GB DDR4 RAM, no GPU
+Recommended Hardware Server: Windows 10, AMD Ryzen 7 7800X3D, 16GB DDR5 RAM, RTX 5070Ti
+ |
 
 **ST3 \- AI Summarisation**
 

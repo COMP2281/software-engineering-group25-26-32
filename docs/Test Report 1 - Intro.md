@@ -21,7 +21,18 @@ The below table is a broad overview of the key components of the system covered 
 
 ### 1.2 System testing
 
-System testing involved testing the full coherent system, ensuring that the system developed matches the behavioural requirements. Test oracles for these tests came directly from the requirements themselves. System testing also included performance testing of the API. 
-User Acceptance testing was performed by giving potential end users access to our system, testing whether our product met their expectations and whether menus appeared/redirected as expected.
+System testing involved testing the full coherent system, ensuring that the system developed matches the behavioural requirements. Test oracles for these tests came directly from the requirements themselves. System testing also included performance testing of the API and whether menus appeared/redirected as expected. 
+User Acceptance testing was performed by giving potential end users access to our system, testing whether our product met their expectations.
 
-The following section of this report lists some sample test cases for each of the above types of testing.
+“Minimum” and “Recommended” specifications were found from testing different machines/configurations and comparing performance.
+
+The following section of this report lists some sample test cases for each of the above types of testing:
+| Test | Test Oracle (brief) |
+| :--- | :--- |
+| API performance testing for searching | For up to and including 100 concurrent requests, the average search response time should not exceed 5 seconds and the maximum response time should not exceed 10 seconds. |
+| Search Functionality | When a user enters a search query, relevant results should be displayed, with the ability to view the full thesis for each result. |
+| AI Summarisation functionality | When the user clicks the “Generate Summary” button, the system should generate an AI summary of the respective thesis. |
+| Admin page authentication | Only users with a valid authentication token can access the admin page or any of the restricted API endpoints. |
+
+### 1.3 User Acceptance Testing
+User Acceptance testing involved giving the client access to the system and gathering their feedback on the system’s usability and the quality of the search results and AI generated summaries produced by the system.
