@@ -414,13 +414,11 @@ async def upload(file: Annotated[UploadFile | None, File()] = None,
     if indexFile:
         if not indexFile.filename.endswith(".index"):
             raise HTTPException(status_code=400, detail="Index file must have .index extension")
-        contents = await indexFile.read()
-        upload_file(INDEX_FILE, indexFile)
+        await upload_file(INDEX_FILE, indexFile)
     if idsFile:
         if not idsFile.filename.endswith(".npy"):
             raise HTTPException(status_code=400, detail="IDs file must have .npy extension")
-        contents = await idsFile.read()
-        upload_file(ID_FILE, idsFile)
+        await upload_file(ID_FILE, idsFile)
     df, index, ids, model = initialise(MODEL_NAME, INDEX_FILE, ID_FILE, DB_PATH)
     departments = get_all_departments(df)
     return {"message": "Files uploaded successfully"}

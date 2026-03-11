@@ -108,7 +108,10 @@ def get_metadata(mystr):
 
     parser = MyHTMLParser()
     parser.feed(mystr)
-    parser.data["keywords"] = ", ".join(parser.data["keywords"])
+    if parser.data["keywords"] == []:
+        parser.data["keywords"] = None
+    else:
+        parser.data["keywords"] = ", ".join(parser.data["keywords"]) 
     parser.data["award"], parser.data["faculty"], parser.data["department"] = get_table_data(mystr)
     return parser.data["title"], parser.data["author"], parser.data["abstract"], parser.data["award"], parser.data["keywords"], parser.data["date"], parser.data["faculty"], parser.data["department"], parser.data["pdf_url"]
 
