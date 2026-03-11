@@ -179,6 +179,7 @@ document.getElementById("dbu").addEventListener('click', async function() {
         statusMess.innerHTML = responseData.message;
         statusMess.style.color = "green";
         loadFiles(); // Refresh the file list to include new db
+        newDBFileExists(); // enable the swap DB button
     } else {
         const errorData = await response.json();
         statusMess.innerHTML = "Error updating database: " + errorData.detail;

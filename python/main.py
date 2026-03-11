@@ -287,7 +287,7 @@ def swap_db_files(token: Annotated[str | None, Cookie()] = None):
         if os.path.isfile(newDB):
             os.replace(newDB, DB_PATH)
             os.remove(newDB) if os.path.isfile(newDB) else None
-            return {"message": "Database files swapped successfully. Please rebuild the index to use the new database in the search tool."}
+            return {"message": "New database file loaded successfully. Please rebuild the index to use the new database in the search tool."}
         else:
             raise HTTPException(status_code=404, detail=f"New database file not found. Please rebuild the database first.")
     except Exception as e:
