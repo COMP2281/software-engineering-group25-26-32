@@ -42,9 +42,23 @@ async function newIndexFilesExist() {
 
 }
 
+async function newDBFileExists() {
+    const res = await fetch(`${API_URL}/check-db`, {
+        method: 'GET',
+        credentials: 'include'
+    });
+    if (res.ok) {
+        document.getElementById("swap-db").disabled = false;
+    } else {
+        document.getElementById("swap-db").disabled = true;
+    }
+}
+
+
 document.addEventListener("DOMContentLoaded", () => {
     loadFiles();
     newIndexFilesExist();
+    newDBFileExists();
 });
 
 // Download the selected file
@@ -164,6 +178,7 @@ document.getElementById("dbu").addEventListener('click', async function() {
         console.log(responseData);
         statusMess.innerHTML = responseData.message;
         statusMess.style.color = "green";
+        loadFiles(); // Refresh the file list to include new db
     } else {
         const errorData = await response.json();
         statusMess.innerHTML = "Error updating database: " + errorData.detail;
@@ -255,11 +270,32 @@ document.getElementById("swap").addEventListener('click', async function() {
     });
     if (response.ok) {
         const responseData = await response.json();
-        statusMess.innerHTML = "New index loaded successfully. Old index files have been deleted.";
+        statusMess.innerHTML = responseData.message;
         statusMess.style.color = "green";
         newIndexFilesExist(); // Check if new index files exist to disable the swap button
     } else{
         const errorData = await response.json();
         statusMess.innerHTML = "Error loading new index: " + errorData.detail;
+    }
+});
+
+document.getElementById("swap-db").addEventListener('click', async function() {
+    var statusMess = document.getElementById("statusMessage");
+    statusMess.innerHTML = "Loading updated database, please wait...";
+    statusMess.style.color = "red";
+    const response = await fetch(`${API_URL}/swap-db`,{
+        method: 'POST',
+        credentials: 'include'
+    });
+    if (response.ok) {
+        const responseData = await response.json();
+        statusMess.innerHTML = responseData.message;
+        statusMess.style.color = "green";
+        loadFiles(); // Refresh the file list
+        newDBFileExists();
+    }
+    else{
+        const errorData = await response.json();
+        statusMess.innerHTML = "Error loading updated database: " + errorData.detail;
     }
 });

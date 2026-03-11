@@ -104,6 +104,38 @@ def search_users(search_term: SearchTerm):
 async def get_departments():
     return departments
 
+@app.get("/summarise/{db_id}")
+def summarise(db_id: int, query: str | None = None):
+    summary = summarise_thesis(db_id, DB_PATH=DB_PATH, query=query)
+    return {"summary": summary}
+
+@app.get("/login")
+def login(username: str, password: str):
+    if check_creds(username, password):
+        token = generate_token(username)
+        response = JSONResponse(content={"message": "Login successful"})
+        response.set_cookie(key="token", value=token, httponly=True, samesite="none", secure=True, domain="piggypiggyyoinkyoink.website")
+        response.set_cookie(key="token", value=token, httponly=True)
+        return response
+    raise HTTPException(status_code=401, detail="Invalid username or password")
+
+@app.get("/token")
+def test(token: Annotated[str | None, Cookie()] = None):
+    print("Received token:", token)
+    if not verify_token(token):
+        response = JSONResponse(status_code=401, content={"detail": "Unauthorised", "message": "Invalid or missing token"})
+        response.delete_cookie(key="token")
+        return response
+    return {"message": "Token is valid"}
+
+@app.post("/logout")
+def logout(token: Annotated[str | None, Cookie()] = None):
+    if not verify_token(token):
+        raise HTTPException(status_code=401, detail="Unauthorised")
+    response = JSONResponse(content={"message": "Logout successful"})
+    response.delete_cookie(key="token")
+    return response
+
 # Used in update DB admin page button
 @app.post("/update-db")
 # Updates the DB with new theses uploaded to Durham-Etheses, including PDF text extraction if full PDF is released.
@@ -229,7 +261,7 @@ def swap_files(token: Annotated[str | None, Cookie()] = None):
             os.remove(newIndex) if os.path.isfile(newIndex) else None
             os.remove(newIDs) if os.path.isfile(newIDs) else None
             df, index, ids, model = initialise(MODEL_NAME, INDEX_FILE, ID_FILE, DB_PATH)
-            return {"message": "Index files swapped successfully"}
+            return {"message": "New index loaded successfully. Old index files have been deleted."}
         else:
             raise HTTPException(status_code=404, detail=f"New index files not found. Please rebuild the index first.")
     except Exception as e:
@@ -246,67 +278,31 @@ def check_files(token: Annotated[str | None, Cookie()] = None):
     else:
         raise HTTPException(status_code=404, detail=f"New index files not found. Please rebuild the index first.")
 
-@app.get("/summarise/{db_id}")
-def summarise(db_id: int, query: str | None = None):
-    summary = summarise_thesis(db_id, DB_PATH=DB_PATH, query=query)
-    return {"summary": summary}
-
-@app.get("/login")
-def login(username: str, password: str):
-    if check_creds(username, password):
-        token = generate_token(username)
-        response = JSONResponse(content={"message": "Login successful"})
-        response.set_cookie(key="token", value=token, httponly=True, samesite="none", secure=True, domain="piggypiggyyoinkyoink.website")
-        response.set_cookie(key="token", value=token, httponly=True)
-        return response
-    raise HTTPException(status_code=401, detail="Invalid username or password")
-
-@app.get("/token")
-def test(token: Annotated[str | None, Cookie()] = None):
-    print("Received token:", token)
-    if not verify_token(token):
-        response = JSONResponse(status_code=401, content={"detail": "Unauthorised", "message": "Invalid or missing token"})
-        response.delete_cookie(key="token")
-        return response
-    return {"message": "Token is valid"}
-
-@app.post("/logout")
-def logout(token: Annotated[str | None, Cookie()] = None):
+@app.post("/swap-db")
+def swap_db_files(token: Annotated[str | None, Cookie()] = None):
     if not verify_token(token):
         raise HTTPException(status_code=401, detail="Unauthorised")
-    response = JSONResponse(content={"message": "Logout successful"})
-    response.delete_cookie(key="token")
-    return response
+    try:
+        newDB = os.path.splitext(DB_PATH)[0] + "NEW" + os.path.splitext(DB_PATH)[1]
+        if os.path.isfile(newDB):
+            os.replace(newDB, DB_PATH)
+            os.remove(newDB) if os.path.isfile(newDB) else None
+            return {"message": "Database files swapped successfully. Please rebuild the index to use the new database in the search tool."}
+        else:
+            raise HTTPException(status_code=404, detail=f"New database file not found. Please rebuild the database first.")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to swap database files: {str(e)}")
 
-class AdminUser(BaseModel):
-    username: str
-    password: str
-
-@app.post("/create-admin")
-def create_admin_endpoint(admin_user: AdminUser, token: Annotated[str | None, Cookie()] = None):
+@app.get("/check-db")
+def check_db_files(token: Annotated[str | None, Cookie()] = None):
     if not verify_token(token):
         raise HTTPException(status_code=401, detail="Unauthorised")
-    success = create_admin(admin_user.username, admin_user.password)
-    if success == 400:
-        raise HTTPException(status_code=400, detail="Bad request. Please ensure both username and password are provided.")
-    elif success == 500:
-        raise HTTPException(status_code=500, detail="Failed to create admin user")
-    return {"message": "Admin user created successfully"}
-
-
-@app.delete("/delete-admin")
-def delete_admin_endpoint(username: str, token: Annotated[str | None, Cookie()] = None):
-    if not verify_token(token):
-        raise HTTPException(status_code=401, detail="Unauthorised")
-    status = delete_admin(username)
-    if status == 404:
-        raise HTTPException(status_code=404, detail="Admin user not found")
-    elif status == 400:
-        raise HTTPException(status_code=400, detail="Bad request. Please ensure a username is provided.")
-    elif status != 200:
-        raise HTTPException(status_code=500, detail="Failed to delete admin user")
+    newDB = os.path.splitext(DB_PATH)[0] + "NEW" + os.path.splitext(DB_PATH)[1]
+    if os.path.isfile(newDB):
+        return {"message": "New database file found"}
     else:
-        return {"message": "Admin user deleted successfully"}
+        raise HTTPException(status_code=404, detail=f"New database file not found.")
+
 
 # Helper function
 async def upload_file(FILE_PATH, file: UploadFile):
@@ -422,3 +418,33 @@ async def upload(file: Annotated[UploadFile | None, File()] = None,
     df, index, ids, model = initialise(MODEL_NAME, INDEX_FILE, ID_FILE, DB_PATH)
     departments = get_all_departments(df)
     return {"message": "Files uploaded successfully"}
+
+
+class AdminUser(BaseModel):
+    username: str
+    password: str
+
+@app.post("/create-admin")
+def create_admin_endpoint(admin_user: AdminUser, token: Annotated[str | None, Cookie()] = None):
+    if not verify_token(token):
+        raise HTTPException(status_code=401, detail="Unauthorised")
+    success = create_admin(admin_user.username, admin_user.password)
+    if success == 400:
+        raise HTTPException(status_code=400, detail="Bad request. Please ensure both username and password are provided.")
+    elif success == 500:
+        raise HTTPException(status_code=500, detail="Failed to create admin user")
+    return {"message": "Admin user created successfully"}
+
+@app.delete("/delete-admin")
+def delete_admin_endpoint(username: str, token: Annotated[str | None, Cookie()] = None):
+    if not verify_token(token):
+        raise HTTPException(status_code=401, detail="Unauthorised")
+    status = delete_admin(username)
+    if status == 404:
+        raise HTTPException(status_code=404, detail="Admin user not found")
+    elif status == 400:
+        raise HTTPException(status_code=400, detail="Bad request. Please ensure a username is provided.")
+    elif status != 200:
+        raise HTTPException(status_code=500, detail="Failed to delete admin user")
+    else:
+        return {"message": "Admin user deleted successfully"}
