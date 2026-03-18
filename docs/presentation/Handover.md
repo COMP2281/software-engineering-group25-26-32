@@ -19,12 +19,26 @@ The backend consists of multiple python files which when combined, builds the da
 
 ### Data 
 
-Secondly, the data that the client will receive is of three parts: an SQLite database, and two files which enable the model to map the theses' embeddings back to the database. 
+Secondly, the data that the client will receive is of three parts: an SQLite database, and two files which collectively enable the model to map the theses' embeddings back to the database. 
 
 The SQLite database contains all the available information about each thesis on the Durham E-Theses website including each thesis' id, title, abstract, author, year of publication, keywords, award, faculty, department, metadata url, thesis PDF url, and the thesis PDF text. It is important to note that the information in the database has been web-scraped and we have not gained access and downloaded the same database system the website uses. Unfortunately, some of the metadata for certain theses is missing which can negatively impact the product's search performance. 
 
 The file referenced in the second row of the 'data' column seen on the slide contains the precomputed thesis embeddings in vector form. The file referenced in the third row of the 'data' column seen on the slide enables the thesis embeddings in the previous file to be correctly mapped to the corresponding thesis in the SQLite database. 
 
+### Setup materials 
 
+The required materials to effectively setup the system locally requires a set of prerequisites, some environment configurations, and the deployment guide and admin setup found in the technical report. 
 
+The first two prerequisites are obvious, that being Python and Node.js which are the main platforms needed for core system functionality. Git is required to clone the project's GitHub repository and `tessdata` folder.
 
+The requirements.txt file contains all the Windows packages needed to run the system effectively. It includes key modules such as FastAPI, FAISS (used to build the thesis embeddings file), sentence transformers (used to access the model), and Google GenAI (used for AI summaries and per-thesis Q&A) to list a few. 
+
+The environment configurations inside a `.env` file includes the path to the downloaded `tessdata` folder containing the OCR-processing files, the path to the database location, the generated Gemini API key, and a randomly generated secret key used to hash authentication tokens. 
+
+The deployment guide outlined in section 3.2 of the technical report contains explicit instructions for installing prerequisites, cloning the project repository, setting up the Python virtual environment with the required Python modules, downloading the pre-built database and model weights, and finally starting the server. 
+
+To then setup the admin account for the first time, via terminal and inside the `python` directory, a python file is ran with the user's username and password passed in as the two command-line arguments. The admin page can then be accessed using these credentials. 
+
+### Run Instructions 
+
+We wanted to make the system launch as simple as possible for the client. We condensed the server-start procedure into a single command-line execution via the root project directory - the frontend can now be accessed at port 8080. An admin can easily be created using the command line seen on the slide, and the credentials used there are the ones to sign in on the admin page. From there, the admin has full access to the tool. 
