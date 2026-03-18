@@ -1,0 +1,4 @@
+curl --header "Content-Type: application/json" \
+  --request POST \
+  --data '{"term":"Black Holes","count":10,"fromYear":1700,"toYear":2026,"includeUnknown":false,"authorField":"","departments":[]}' \
+  http://localhost:8000/search
