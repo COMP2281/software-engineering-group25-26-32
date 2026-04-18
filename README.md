@@ -1,4 +1,4 @@
-# IMPORTANT: as of April 2026 the Durham E-Theses website has been redesigned, meaning the web scraper used to build the dataset is no longer fully functional. The prebuilt database linked below works perfedctly, however new thesis records added to the database from updating it through the Admin page will have some fields missing.
+# IMPORTANT: as of April 2026 the Durham E-Theses website has been redesigned, meaning the web scraper used to build and update the database is no longer fully functional. The prebuilt database linked below works perfectly, however new thesis records added to the database from updating it through the Admin page will have some fields missing.
 
 # First-time Setup:
 
