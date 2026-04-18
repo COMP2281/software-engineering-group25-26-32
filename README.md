@@ -38,7 +38,7 @@ Tessdata can be cloned from https://github.com/tesseract-ocr/tessdata and is req
 A Gemini API key can be generated from https://aistudio.google.com/api-keys
 Default db path is ./db/db.db, to guarantee functionality on the installed system set this to the full path of the db file in your filesystem.
 
-Replace '<KEYHERE>' with your secret key
+Replace `<KEYHERE>` with your secret key - recommended: randomly generated 32 character string. This should NOT be made public.
 
 # Running the code:
 
