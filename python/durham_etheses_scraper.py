@@ -35,33 +35,48 @@ conn.commit()
 conn.close()
 
 def get_table_data(mystr):
-    tblStart = '<table style="margin-bottom: 1em" cellpadding="3" class="ep_block" border="0">'
+    tblStart = '<table class="mdc-data-table__table">'
     idx = mystr.find(tblStart)
     if idx != -1:
         idx2 = mystr.find("</table>", idx)
         table = mystr[idx:idx2]
-        awardIdx = table.find('<th valign="top" class="ep_row">Award:</th>')
+        awardIdx = table.find('Item Type')
+        # awardIdx = table.find("<td>", awardIdx)
         if awardIdx != -1:
             awardEndIdx = table.find("</td>", awardIdx)
             award = table[awardIdx:awardEndIdx]
-            award = award[award.find('<td valign="top" class="ep_row">')+len('<td valign="top" class="ep_row">'):]
+            award = award[award.find('<td class="mdc-data-table__cell">')+len('<td class="mdc-data-table__cell">'):]
+            award = award.replace("\n", "").lstrip().rstrip()
+            award = " ".join(award.split())
         else:
             award = None
-        deptIdx = table.find('<th valign="top" class="ep_row">Faculty and Department:</th>')
+        deptIdx = table.find('Divisions')
         if deptIdx != -1:
+            deptStartIdx = table.find('<td class="mdc-data-table__cell">', deptIdx)
+            if deptStartIdx == -1:
+                return award, None, None
             deptEndIdx = table.find("</td>", deptIdx)
-            dept = table[deptIdx:deptEndIdx]
-            dept = dept[dept.find('<a'):]
-            dept = dept[dept.find('">')+2:]
-            dept = dept[:dept.find("</a>")]
-            dept = dept.replace("&gt;", ";")
-            try:
-                faculty, dept = dept.split(";")
-                faculty = faculty.split(" ", maxsplit=2)[-1].rstrip()
-                dept = ",".join(dept.split(",")[:-1]).lstrip().rstrip()
-            except:
-                faculty = dept
-                dept = None
+            tableRow = table[deptIdx:deptEndIdx]
+            faculty = tableRow[tableRow.find('<a'):]
+            faculty = faculty[faculty.find('">')+2:faculty.find('</a>')]
+            # faculty = faculty[faculty.find('</a>')]
+            deptIdx = tableRow.find("&gt;")
+            if deptIdx == -1:
+                return award, faculty, None
+            dept = tableRow[deptIdx+len("&gt;"):]
+            dept = dept[dept.find('">')+2:dept.find('</a>')]
+            if dept.find(",") != -1:
+                dept = dept.split(",")[0]
+            faculty = faculty.split(" ", maxsplit=2)[-1]
+            faculty.lstrip().rstrip()
+            dept.lstrip().rstrip()
+            # try:
+            #     faculty, dept = dept.split(";")
+            #     faculty = faculty.split(" ", maxsplit=2)[-1].rstrip()
+            #     dept = ",".join(dept.split(",")[:-1]).lstrip().rstrip()
+            # except:
+            #     faculty = dept
+            #     dept = None
         else:
             faculty = None
             dept = None
@@ -78,7 +93,7 @@ def get_metadata(mystr):
                 "author": None,
                 "abstract": None,
                 "award": None,
-                "keywords":[],
+                "keywords":None,
                 "date": None,
                 "faculty": None,
                 "department": None,
@@ -101,17 +116,18 @@ def get_metadata(mystr):
                     self.data["date"] = attributes.get("content")
                 elif attributes.get("name") == "DC.creator":
                     self.data["author"] = attributes.get("content")
-                elif attributes.get("name") == "DC.subject":
-                    self.data["keywords"].append(attributes.get("content").lstrip().rstrip())
+                elif attributes.get("name") == "eprints.keywords":
+                    self.data["keywords"] = attributes.get("content")
                 elif attributes.get("name") == "eprints.document_url" and self.public:
                     self.data["pdf_url"] = attributes.get("content")
 
     parser = MyHTMLParser()
     parser.feed(mystr)
-    if parser.data["keywords"] == []:
-        parser.data["keywords"] = None
-    else:
-        parser.data["keywords"] = ", ".join(parser.data["keywords"]) 
+    date = parser.data["date"]
+    if "-" in date:
+        # year only for consistency
+        date = date.split("-")[0]
+        parser.data["date"] = date
     parser.data["award"], parser.data["faculty"], parser.data["department"] = get_table_data(mystr)
     return parser.data["title"], parser.data["author"], parser.data["abstract"], parser.data["award"], parser.data["keywords"], parser.data["date"], parser.data["faculty"], parser.data["department"], parser.data["pdf_url"]
 
