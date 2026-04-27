@@ -72,5 +72,6 @@ Bash:
 
 # Maintenance
 - Ensure DB generally up to date (can be put on a schedule to update or hooked to the Durham E-theses)
-    - Anytime the DB is updated, the model needs to be reindexed via the admin page or manually via index.py
+    - Anytime the DB is updated, the model needs to be reindexed via the admin page.
+    - Note: On the Admin Page, the `Update DB` and `Rebuild Index` buttons save the updated DB/index files into copies so that the search still works while these lengthy tasks are performed. To load the copies into the live system, use the `Load Updated DB` / `Load New Index` buttons.
 - Ensure the Gemini API Key has sufficient credits / sufficient access permissions
